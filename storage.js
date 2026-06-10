@@ -1,29 +1,53 @@
 const fs = require("fs");
 const path = require("path");
 
-// On Vercel the filesystem is ephemeral, so responses live in Upstash Redis
-// (created via Vercel Storage tab, which injects these env vars). Locally,
-// without Redis env vars, we fall back to a plain JSON file.
+// On Vercel the filesystem is ephemeral, so responses live in Redis.
+// Two Redis flavours are supported, picked by which env vars exist:
+//   - Upstash REST (UPSTASH_REDIS_REST_URL/TOKEN or KV_REST_API_URL/TOKEN)
+//   - Standard Redis via TCP (REDIS_URL - what Vercel's "Redis" marketplace
+//     store injects)
+// Locally, without any Redis env vars, we fall back to a plain JSON file.
 
-const REDIS_URL =
+const UPSTASH_URL =
   process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-const REDIS_TOKEN =
+const UPSTASH_TOKEN =
   process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+const REDIS_TCP_URL = process.env.REDIS_URL;
 
-const useRedis = Boolean(REDIS_URL && REDIS_TOKEN);
+const useUpstash = Boolean(UPSTASH_URL && UPSTASH_TOKEN);
+const useNodeRedis = !useUpstash && Boolean(REDIS_TCP_URL);
 
-const ready = useRedis || !process.env.VERCEL;
+const ready = useUpstash || useNodeRedis || !process.env.VERCEL;
 const reason = ready
   ? null
-  : "Storage is not configured. In the Vercel dashboard: Storage -> Create Database -> Upstash for Redis -> connect it to this project, then redeploy.";
-
-let redis = null;
-if (useRedis) {
-  const { Redis } = require("@upstash/redis");
-  redis = new Redis({ url: REDIS_URL, token: REDIS_TOKEN });
-}
+  : "Storage is not configured. In the Vercel dashboard: Storage -> Create Database -> Redis (or Upstash for Redis) -> connect it to this project, then redeploy.";
 
 const KEY = "responses";
+
+let upstash = null;
+if (useUpstash) {
+  const { Redis } = require("@upstash/redis");
+  upstash = new Redis({ url: UPSTASH_URL, token: UPSTASH_TOKEN });
+}
+
+// node-redis client is created lazily and reused across warm serverless
+// invocations; a failed connect resets so the next request can retry.
+let nodeRedisPromise = null;
+function getNodeRedis() {
+  if (!nodeRedisPromise) {
+    const { createClient } = require("redis");
+    const client = createClient({ url: REDIS_TCP_URL });
+    client.on("error", (e) => console.error("Redis error:", e.message));
+    nodeRedisPromise = client
+      .connect()
+      .then(() => client)
+      .catch((e) => {
+        nodeRedisPromise = null;
+        throw e;
+      });
+  }
+  return nodeRedisPromise;
+}
 
 const DATA_DIR = path.join(__dirname, "data");
 const DATA_FILE = path.join(DATA_DIR, "responses.json");
@@ -41,8 +65,7 @@ function saveFile(responses) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(responses, null, 2));
 }
 
-// Upstash SDK serializes objects on write and parses JSON on read,
-// but be tolerant of raw strings just in case.
+// Upstash SDK auto-parses JSON on read; node-redis returns raw strings.
 function parseItem(item) {
   if (typeof item !== "string") return item;
   try {
@@ -53,8 +76,13 @@ function parseItem(item) {
 }
 
 async function loadResponses() {
-  if (useRedis) {
-    const items = await redis.lrange(KEY, 0, -1);
+  if (useUpstash) {
+    const items = await upstash.lrange(KEY, 0, -1);
+    return items.map(parseItem);
+  }
+  if (useNodeRedis) {
+    const client = await getNodeRedis();
+    const items = await client.lRange(KEY, 0, -1);
     return items.map(parseItem);
   }
   return loadFile();
@@ -62,8 +90,13 @@ async function loadResponses() {
 
 // Returns the index of the appended record so it can be updated later.
 async function appendResponse(record) {
-  if (useRedis) {
-    const length = await redis.rpush(KEY, record);
+  if (useUpstash) {
+    const length = await upstash.rpush(KEY, record);
+    return length - 1;
+  }
+  if (useNodeRedis) {
+    const client = await getNodeRedis();
+    const length = await client.rPush(KEY, JSON.stringify(record));
     return length - 1;
   }
   const all = loadFile();
@@ -73,8 +106,13 @@ async function appendResponse(record) {
 }
 
 async function updateResponse(index, record) {
-  if (useRedis) {
-    await redis.lset(KEY, index, record);
+  if (useUpstash) {
+    await upstash.lset(KEY, index, record);
+    return;
+  }
+  if (useNodeRedis) {
+    const client = await getNodeRedis();
+    await client.lSet(KEY, index, JSON.stringify(record));
     return;
   }
   const all = loadFile();
