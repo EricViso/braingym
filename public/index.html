@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Seni Scape Impact Survey</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(160deg, #fdf6f0 0%, #f3e8ff 100%);
+    display: flex; flex-direction: column;
+  }
+  header {
+    background: #7c5cbf; color: #fff;
+    padding: 14px 16px calc(14px + env(safe-area-inset-top)) 16px;
+    padding-top: max(14px, env(safe-area-inset-top));
+    text-align: center; flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  }
+  header h1 { font-size: 1.05rem; font-weight: 700; }
+  header p { font-size: .78rem; opacity: .9; margin-top: 2px; }
+  #chat {
+    flex: 1; overflow-y: auto; padding: 16px 12px;
+    display: flex; flex-direction: column; gap: 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .msg {
+    max-width: 85%; padding: 10px 14px; border-radius: 16px;
+    font-size: .95rem; line-height: 1.45; white-space: pre-wrap;
+    word-wrap: break-word; animation: pop .18s ease-out;
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .msg.ai { background: #fff; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .msg.user { background: #7c5cbf; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+  .msg.typing { color: #999; font-style: italic; }
+  .msg.error { background: #fdecec; color: #b3261e; align-self: center; font-size: .85rem; }
+  form {
+    display: flex; gap: 8px; padding: 10px 12px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    background: #fff; border-top: 1px solid #eee; flex-shrink: 0;
+  }
+  #input {
+    flex: 1; border: 1px solid #ddd; border-radius: 22px;
+    padding: 11px 16px; font-size: 16px; outline: none; resize: none;
+    font-family: inherit; max-height: 110px;
+  }
+  #input:focus { border-color: #7c5cbf; }
+  #send {
+    background: #7c5cbf; color: #fff; border: none; border-radius: 50%;
+    width: 44px; height: 44px; font-size: 1.2rem; cursor: pointer;
+    flex-shrink: 0; align-self: flex-end;
+  }
+  #send:disabled { opacity: .5; }
+  .done-banner {
+    background: #e6f6ec; color: #1a7f4b; text-align: center;
+    padding: 12px; border-radius: 12px; font-weight: 600; align-self: center;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Seni Scape Impact Survey</h1>
+  <p>Your voice matters &#129293; Suara anda bermakna &#129293;</p>
+</header>
+
+<div id="chat"></div>
+
+<form id="form">
+  <textarea id="input" rows="1" placeholder="Type your answer... / Taip jawapan anda..." autocomplete="off"></textarea>
+  <button id="send" type="submit" aria-label="Send">&#10148;</button>
+</form>
+
+<script>
+const chat = document.getElementById("chat");
+const form = document.getElementById("form");
+const input = document.getElementById("input");
+const send = document.getElementById("send");
+
+let messages = [];
+let busy = false;
+
+function addBubble(text, cls) {
+  const div = document.createElement("div");
+  div.className = "msg " + cls;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+async function callAI() {
+  busy = true;
+  send.disabled = true;
+  const typing = addBubble("typing... / menaip...", "ai typing");
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages }),
+    });
+    const data = await res.json();
+    typing.remove();
+    if (!res.ok) throw new Error(data.error || "Server error");
+    messages.push({ role: "assistant", content: data.reply });
+    addBubble(data.reply, "ai");
+    if (data.done) {
+      form.style.display = "none";
+      addBubble("✅ Survey complete. Thank you! / Tinjauan selesai. Terima kasih!", "done-banner");
+    }
+  } catch (e) {
+    typing.remove();
+    addBubble("⚠️ " + e.message + " - please try again / sila cuba lagi", "error");
+  } finally {
+    busy = false;
+    send.disabled = false;
+  }
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (!text || busy) return;
+  input.value = "";
+  input.style.height = "auto";
+  messages.push({ role: "user", content: text });
+  addBubble(text, "user");
+  await callAI();
+});
+
+input.addEventListener("input", () => {
+  input.style.height = "auto";
+  input.style.height = Math.min(input.scrollHeight, 110) + "px";
+});
+
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    form.requestSubmit();
+  }
+});
+
+// kick off: ask the AI for its greeting + first question
+callAI();
+</script>
+</body>
+</html>
