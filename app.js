@@ -60,6 +60,16 @@ Rules:
 - Do not give advice, diagnoses, or therapy. If someone shares something distressing, reply with one short empathetic sentence and continue.
 - Stay on the survey. Politely decline unrelated requests and return to the current question.
 
+QUICK-REPLY BUTTONS:
+Every message that asks a question MUST end with a hidden options block on its own line, which the app turns into tap buttons:
+<options>["First button","Second button"]</options>
+- Multiple-choice questions: one button per choice, e.g. ["Art & Craft","Writing (Poetry/Journal/Zine)","Movement (theatre/dance/somatic)","Music expression","Clay","Photography","Other"].
+- 1-5 scale questions: exactly five buttons using that question's own scale wording, e.g. ["1 - No, not at all / Tidak sama sekali","2 - A little bit / Sedikit","3 - In the middle / Sederhana","4 - Yes, mostly / Ya, kebanyakannya","5 - Yes, completely / Ya, sepenuhnya"].
+- Open questions: 2-4 short example answers as inspiration (e.g. ["Not sure / Tidak pasti","Calm / Tenang","Stressed / Tertekan"]); the participant can still type their own words.
+- Optional questions: add "Skip / Langkau" as the last button.
+- Keep button labels short. The block must be valid JSON. Never mention the buttons or the block in your text.
+- Do not include an options block in the final thank-you message.
+
 QUESTIONS:
 
 Section A - About You / Tentang Anda
@@ -127,6 +137,37 @@ async function analyzeResponse(surveyData) {
 
 // ---------- survey chat API ----------
 
+// Splits an assistant message into visible text, quick-reply options,
+// and the hidden completed-survey JSON.
+function parseAssistant(content) {
+  let reply = content;
+  let done = false;
+  let options = [];
+  let dataRaw = null;
+
+  const doneMatch = reply.match(/<survey_complete>([\s\S]*?)<\/survey_complete>/);
+  if (doneMatch) {
+    done = true;
+    dataRaw = doneMatch[1];
+    reply = reply.replace(doneMatch[0], "").trim();
+  }
+
+  const optMatch = reply.match(/<options>([\s\S]*?)<\/options>/);
+  if (optMatch) {
+    reply = reply.replace(optMatch[0], "").trim();
+    try {
+      const parsed = JSON.parse(optMatch[1]);
+      if (Array.isArray(parsed)) {
+        options = parsed
+          .filter((o) => typeof o === "string" && o.trim())
+          .slice(0, 12);
+      }
+    } catch {}
+  }
+
+  return { reply, done, options, dataRaw };
+}
+
 app.post("/api/chat", async (req, res) => {
   if (!storage.ready) return res.status(500).json({ error: storage.reason });
 
@@ -140,26 +181,25 @@ app.post("/api/chat", async (req, res) => {
     .slice(-100);
 
   try {
-    const content = await deepseek([
-      { role: "system", content: SYSTEM_PROMPT },
-      ...history,
-    ]);
+    const msgs = [{ role: "system", content: SYSTEM_PROMPT }, ...history];
+    let out = parseAssistant(await deepseek(msgs));
+    if (!out.done && !out.reply) {
+      // Rare flake: the model emitted only an options block with no text.
+      out = parseAssistant(await deepseek(msgs));
+    }
+    let { reply, done, options, dataRaw } = out;
 
-    const match = content.match(/<survey_complete>([\s\S]*?)<\/survey_complete>/);
-    let reply = content;
-    let done = false;
-
-    if (match) {
-      done = true;
-      reply =
-        content.replace(match[0], "").trim() ||
-        "Thank you for completing the survey! Terima kasih! \u{1F90D}";
+    if (done) {
+      options = [];
+      if (!reply) {
+        reply = "Thank you for completing the survey! Terima kasih! \u{1F90D}";
+      }
 
       let surveyData = null;
       try {
-        surveyData = JSON.parse(match[1]);
+        surveyData = JSON.parse(dataRaw);
       } catch {
-        surveyData = { parse_error: true, raw: match[1] };
+        surveyData = { parse_error: true, raw: dataRaw };
       }
 
       const record = {
@@ -185,7 +225,7 @@ app.post("/api/chat", async (req, res) => {
       }
     }
 
-    res.json({ reply, done });
+    res.json({ reply, options, done });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: e.message });
