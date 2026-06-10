@@ -68,6 +68,7 @@ Every message that asks a question MUST end with a hidden options block on its o
 - Open questions: 2-4 short example answers as inspiration (e.g. ["Not sure / Tidak pasti","Calm / Tenang","Stressed / Tertekan"]); the participant can still type their own words.
 - Optional questions: add "Skip / Langkau" as the last button.
 - Keep button labels short. The block must be valid JSON. Never mention the buttons or the block in your text.
+- ALWAYS append the block to a question, even if earlier assistant messages in this conversation appear to have none (the app hides them after sending).
 - Do not include an options block in the final thank-you message.
 
 QUESTIONS:
@@ -182,12 +183,24 @@ app.post("/api/chat", async (req, res) => {
 
   try {
     const msgs = [{ role: "system", content: SYSTEM_PROMPT }, ...history];
-    let out = parseAssistant(await deepseek(msgs));
+    let content = await deepseek(msgs);
+    let out = parseAssistant(content);
     if (!out.done && !out.reply) {
       // Rare flake: the model emitted only an options block with no text.
-      out = parseAssistant(await deepseek(msgs));
+      content = await deepseek(msgs);
+      out = parseAssistant(content);
     }
     let { reply, done, options, dataRaw } = out;
+
+    // Safety net: if the model wrote a 1-5 scale guide as plain text and
+    // forgot the options block, build the buttons from those lines.
+    if (!done && !options.length) {
+      const byDigit = new Map();
+      for (const m of reply.matchAll(/^[\s*_]*([1-5])\s*[=\-]\s*(.+?)[\s*_]*$/gm)) {
+        if (!byDigit.has(m[1])) byDigit.set(m[1], `${m[1]} - ${m[2].trim()}`);
+      }
+      if (byDigit.size >= 3) options = [...byDigit.values()];
+    }
 
     if (done) {
       options = [];
@@ -225,7 +238,9 @@ app.post("/api/chat", async (req, res) => {
       }
     }
 
-    res.json({ reply, options, done });
+    // raw keeps the hidden blocks so the model sees its own prior format
+    // in the conversation history and stays consistent with it.
+    res.json({ reply, options, done, raw: content });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: e.message });

@@ -142,7 +142,7 @@ async function callAI() {
     const data = await res.json();
     typing.remove();
     if (!res.ok) throw new Error(data.error || "Server error");
-    messages.push({ role: "assistant", content: data.reply });
+    messages.push({ role: "assistant", content: data.raw || data.reply });
     addBubble(data.reply, "ai");
     if (data.done) {
       form.style.display = "none";
