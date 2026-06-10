@@ -37,4 +37,21 @@ and a password-protected admin dashboard shows the analytics.
   all individual responses with their AI analysis.
 - `POST /api/admin/insights` — on-demand DeepSeek report across the whole dataset.
 
-Data is stored in `data/responses.json` (git-ignored).
+Locally, data is stored in `data/responses.json` (git-ignored).
+
+## Deploying to Vercel
+
+The app also runs as a Vercel serverless function (`api/index.js` +
+`vercel.json` rewrite). Because Vercel's filesystem is ephemeral, responses
+are stored in Upstash Redis instead of the JSON file. One-time setup:
+
+1. Import the repo in Vercel (Framework Preset: **Other**).
+2. Project -> Settings -> Environment Variables: add `DEEPSEEK_API_KEY` and
+   `ADMIN_PASSWORD`.
+3. Vercel dashboard -> **Storage** -> Create Database -> **Upstash for Redis**
+   (free plan) -> connect it to this project. This injects the
+   `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` env vars.
+4. Redeploy.
+
+The storage backend is picked automatically: Redis when the Upstash env vars
+exist, the local JSON file otherwise.
