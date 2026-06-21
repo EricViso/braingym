@@ -3,112 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Seni Scape Survey</title>
+<title>myWIPhealing — Admin Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/brand.css">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #f5f3fa; color: #2b2540; padding-bottom: 40px;
-  }
-  header {
-    background: #4a3580; color: #fff; padding: 16px;
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  header h1 { font-size: 1.1rem; }
-  header button { background: rgba(255,255,255,.18); color: #fff; border: none; border-radius: 8px; padding: 7px 12px; cursor: pointer; }
-  main { max-width: 860px; margin: 0 auto; padding: 16px; }
-
-  /* login */
-  #login {
-    max-width: 340px; margin: 18vh auto; background: #fff; border-radius: 14px;
-    padding: 28px 24px; box-shadow: 0 4px 20px rgba(0,0,0,.08); text-align: center;
-  }
-  #login h2 { margin-bottom: 16px; font-size: 1.05rem; }
-  #login input {
-    width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ddd;
-    border-radius: 10px; margin-bottom: 12px; outline: none;
-  }
-  #login button { width: 100%; padding: 12px; background: #4a3580; color: #fff; border: none; border-radius: 10px; font-size: 1rem; cursor: pointer; }
-  #loginError { color: #b3261e; font-size: .85rem; margin-top: 10px; min-height: 1em; }
-
-  /* dashboard */
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 16px 0; }
-  .card { background: #fff; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-  .card .num { font-size: 1.9rem; font-weight: 800; color: #4a3580; }
-  .card .lbl { font-size: .78rem; color: #777; margin-top: 4px; }
-  .card.warn .num { color: #c2410c; }
-
-  section { background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-  section h2 { font-size: .95rem; margin-bottom: 14px; color: #4a3580; }
-  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; font-size: .82rem; }
-  .bar-row .name { flex: 0 0 46%; text-align: right; color: #555; }
-  .bar-row .track { flex: 1; background: #eee9f7; border-radius: 6px; height: 18px; overflow: hidden; }
-  .bar-row .fill { height: 100%; background: linear-gradient(90deg, #7c5cbf, #9d7fe0); border-radius: 6px; }
-  .bar-row .val { flex: 0 0 44px; font-weight: 700; color: #4a3580; }
-
-  #insightsBtn { background: #4a3580; color: #fff; border: none; border-radius: 8px; padding: 10px 16px; cursor: pointer; font-size: .9rem; }
-  #insightsOut { margin-top: 14px; font-size: .9rem; line-height: 1.55; white-space: pre-wrap; }
-
-  details.resp { border: 1px solid #eee; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; }
-  details.resp summary { cursor: pointer; font-size: .9rem; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .tag { font-size: .72rem; padding: 2px 8px; border-radius: 99px; background: #eee9f7; color: #4a3580; }
-  .tag.flag { background: #fde8e8; color: #b3261e; font-weight: 700; }
-  .tag.pos { background: #e6f6ec; color: #1a7f4b; }
-  .tag.neg { background: #fde8e8; color: #b3261e; }
-  .resp .summary-txt { font-size: .85rem; color: #555; margin: 10px 0; }
+  #login { max-width: 360px; margin: 16vh auto; text-align: center; }
+  #login input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid var(--line); border-radius: 12px; margin: 8px 0 12px; }
+  #loginError { color: var(--warn); font-size: .85rem; min-height: 1em; }
+  .navcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .navcard { display: block; text-decoration: none; color: var(--ink); border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); position: relative; overflow: hidden; transition: transform .12s; }
+  .navcard:hover { transform: translateY(-2px); }
+  .navcard::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--accent); }
+  .navcard.c-comm { --accent: #E8794A; }
+  .navcard.c-corp { --accent: #4F55E2; }
+  .navcard.c-indiv { --accent: #174509; }
+  .navcard h4 { font-family: var(--font-display); font-size: 16px; }
+  .navcard p { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .navcard .go { font-size: 12px; font-weight: 700; color: var(--accent); margin-top: 10px; display: inline-block; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: .82rem; }
+  .bar-row .name { flex: 0 0 46%; text-align: right; color: var(--muted-strong); }
+  .bar-row .track { flex: 1; background: rgba(44,44,42,.05); border-radius: 6px; height: 18px; overflow: hidden; }
+  .bar-row .fill { height: 100%; background: var(--accent); border-radius: 6px; }
+  .bar-row .val { flex: 0 0 64px; font-weight: 700; font-family: var(--font-mono); font-size: 12px; color: var(--ink); }
+  #insightsOut { margin-top: 14px; font-size: .9rem; line-height: 1.6; white-space: pre-wrap; }
+  details.resp { border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-bottom: 10px; background: var(--card); }
+  details.resp summary { cursor: pointer; font-size: .9rem; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; list-style: none; }
+  details.resp summary::-webkit-details-marker { display: none; }
+  .resp .summary-txt { font-size: .85rem; color: var(--muted-strong); margin: 10px 0; }
   .resp table { width: 100%; border-collapse: collapse; font-size: .8rem; margin-top: 8px; }
-  .resp td { border-top: 1px solid #f0eef6; padding: 6px 8px; vertical-align: top; }
-  .resp td:first-child { color: #777; width: 38%; }
-  .muted { color: #999; font-size: .88rem; }
+  .resp td { border-top: 1px solid var(--line-soft); padding: 6px 8px; vertical-align: top; }
+  .resp td:first-child { color: var(--muted); width: 38%; }
+  .quote-tools { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 12px; }
+  .quote-tools .qrow { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; font-size: 12.5px; }
+  .quote-tools .qrow .qtext { flex: 1; color: var(--ink); }
+  .author-in { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 12.5px; }
 </style>
 </head>
 <body>
 
-<div id="login">
-  <h2>🔐 Admin Login</h2>
+<div id="login" class="card" style="display:none">
+  <h3>🔐 myWIPhealing Admin</h3>
   <input type="password" id="pw" placeholder="Password" autofocus>
-  <button onclick="login()">Enter</button>
+  <button class="btn btn-primary" style="width:100%" onclick="login()">Enter</button>
   <div id="loginError"></div>
 </div>
 
-<div id="dash" style="display:none">
-  <header>
-    <h1>📊 Seni Scape - Admin Analytics</h1>
-    <button onclick="logout()">Logout</button>
-  </header>
-  <main>
-    <div class="cards" id="cards"></div>
+<div id="dash" class="wrap stack" style="display:none">
+  <div class="appbar">
+    <div>
+      <div class="brand-mark"><h1>myWIPhealing <span class="accent">Admin Hub</span></h1></div>
+      <div class="subtitle">Seni · powered by Gym Brain</div>
+    </div>
+    <div class="bar-actions">
+      <button class="btn btn-ghost-dark btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn btn-on-dark btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </div>
 
-    <section>
-      <h2>Average Scores (1-5 scales)</h2>
-      <div id="averages"></div>
-    </section>
+  <!-- Dashboard nav -->
+  <div class="navcards">
+    <a class="navcard c-comm" href="/community.html">
+      <h4>Community Health</h4><p>Public social-proof aggregate. Shareable.</p><span class="go">Open →</span>
+    </a>
+    <a class="navcard c-corp" href="/corporate.html">
+      <h4>Corporate Impact</h4><p>Per-client before/after + ROI one-pager.</p><span class="go">Open →</span>
+    </a>
+    <a class="navcard c-indiv" href="/participant.html">
+      <h4>Participant Journeys</h4><p>Internal pre→post journeys &amp; flags.</p><span class="go">Open →</span>
+    </a>
+  </div>
 
-    <section>
-      <h2>Distributions</h2>
-      <div id="distributions"></div>
-    </section>
+  <!-- KPIs -->
+  <div class="grid grid-4" id="cards"></div>
 
-    <section>
-      <h2>🤖 AI Insights (whole dataset)</h2>
-      <button id="insightsBtn" onclick="genInsights()">Generate AI insights</button>
-      <div id="insightsOut"></div>
-    </section>
+  <!-- Concern triage -->
+  <div class="card" id="triageCard" style="display:none">
+    <h3 style="color:var(--warn)"><span class="dot" style="background:var(--warn)"></span> Needs follow-up</h3>
+    <div id="triage"></div>
+  </div>
 
-    <section>
-      <h2>Individual Responses</h2>
-      <div id="responses"></div>
-    </section>
-  </main>
+  <div class="grid grid-2">
+    <div class="card"><h3><span class="dot"></span> Average scores (1–5)</h3><div id="averages"></div></div>
+    <div class="card"><h3><span class="dot"></span> Distributions</h3><div id="distributions"></div></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot"></span> 🤖 AI insights (whole dataset)</h3>
+    <button class="btn btn-banana btn-sm" id="insightsBtn" onclick="genInsights()">Generate AI insights</button>
+    <div id="insightsOut"></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot"></span> Individual responses</h3>
+    <div id="responses"></div>
+  </div>
+
+  <div class="foot">
+    <span class="brand">myWIPhealing · Admin Hub</span>
+    <span>Restricted access · self-reported data · not clinical records</span>
+    <span>Powered by Gym Brain</span>
+  </div>
 </div>
 
 <script>
 let token = sessionStorage.getItem("adminToken") || "";
+let allResponses = [];
 
 const FIELD_LABELS = {
   name: "Name", age_group: "Age group", gender: "Gender", location: "Location",
-  email: "Email", phone: "Phone", creative_expression: "Creative expression",
-  community_role: "Community role",
+  email: "Email", phone: "Phone", creative_expression: "Creative expression", community_role: "Community role",
   pre_happy_safe: "Pre: happy & safe (1-5)", pre_self_critical: "Pre: hard on myself (1-5)",
   pre_self_worth: "Pre: I am important (1-5)", pre_mind_heavy: "Pre: mind heavy (1-5)",
   pre_mood: "Mood brought in", pre_heavy_feeling: "Heavy feeling to release",
@@ -119,12 +122,13 @@ const FIELD_LABELS = {
   post_strength_lesson: "Lesson on strength/self-love", post_self_view_change: "Change in self-view",
   booth_experience: "Booth experience (A-E)", suggestions: "Suggestions",
 };
+const QUOTE_FIELDS = ["post_strength_lesson", "post_self_view_change", "personal_experience", "emotions_while_creating", "suggestions", "pre_mood"];
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 
 async function api(path, opts = {}) {
-  const res = await fetch(path, {
-    ...opts,
-    headers: { "Content-Type": "application/json", Authorization: "Bearer " + token, ...(opts.headers || {}) },
-  });
+  const res = await fetch(path, { ...opts, headers: { "Content-Type": "application/json", Authorization: "Bearer " + token, ...(opts.headers || {}) } });
   if (res.status === 401) { logout(); throw new Error("Session expired"); }
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Server error");
@@ -132,111 +136,138 @@ async function api(path, opts = {}) {
 }
 
 async function login() {
-  const pw = document.getElementById("pw").value;
-  document.getElementById("loginError").textContent = "";
+  $("loginError").textContent = "";
   try {
-    const res = await fetch("/api/admin/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: pw }),
-    });
+    const res = await fetch("/api/admin/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: $("pw").value }) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Login failed");
-    token = data.token;
-    sessionStorage.setItem("adminToken", token);
+    token = data.token; sessionStorage.setItem("adminToken", token);
     showDash();
-  } catch (e) {
-    document.getElementById("loginError").textContent = e.message;
-  }
+  } catch (e) { $("loginError").textContent = e.message; }
 }
 
 function logout() {
-  token = "";
-  sessionStorage.removeItem("adminToken");
-  document.getElementById("dash").style.display = "none";
-  document.getElementById("login").style.display = "block";
-}
-
-function esc(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  token = ""; sessionStorage.removeItem("adminToken");
+  $("dash").style.display = "none"; $("login").style.display = "block";
 }
 
 async function showDash() {
-  document.getElementById("login").style.display = "none";
-  document.getElementById("dash").style.display = "block";
-  const { stats, responses } = await api("/api/admin/data");
+  $("login").style.display = "none"; $("dash").style.display = "block";
+  const { stats, responses, participants } = await api("/api/admin/data");
+  allResponses = responses;
 
-  document.getElementById("cards").innerHTML = `
-    <div class="card"><div class="num">${stats.total}</div><div class="lbl">Total responses</div></div>
-    <div class="card ${stats.flagged ? "warn" : ""}"><div class="num">${stats.flagged}</div><div class="lbl">Flagged for follow-up</div></div>`;
+  const returning = (participants || []).filter((p) => !p.anonymous && p.count > 1).length;
+  $("cards").innerHTML = [
+    `<div class="kpi"><div class="kpi-label">Responses</div><div class="kpi-value">${stats.total}</div></div>`,
+    `<div class="kpi"><div class="kpi-label">Participants</div><div class="kpi-value">${(participants || []).length}</div></div>`,
+    `<div class="kpi"><div class="kpi-label">Returning</div><div class="kpi-value">${returning}</div></div>`,
+    `<div class="kpi pending" style="${stats.flagged ? "border-color:var(--warn)" : ""}"><div class="kpi-label">Follow-up flags</div><div class="kpi-value" style="${stats.flagged ? "color:var(--warn)" : ""}">${stats.flagged}</div></div>`,
+  ].join("");
 
-  document.getElementById("averages").innerHTML =
-    Object.values(stats.averages).map((a) => bar(a.label, a.average, 5, a.average === null ? "—" : a.average + " (n=" + a.count + ")")).join("") ||
-    '<div class="muted">No data yet.</div>';
+  // Triage
+  const flagged = responses.filter((r) => r.analysis && r.analysis.concern_flag);
+  $("triageCard").style.display = flagged.length ? "block" : "none";
+  $("triage").innerHTML = flagged.map((r) => `<div class="summary-txt">⚠ <strong>${esc((r.data && r.data.name) || "Anonymous")}</strong> · ${esc(new Date(r.submittedAt).toLocaleString())} — ${esc((r.analysis && r.analysis.concern_note) || "flagged")}</div>`).join("");
 
-  document.getElementById("distributions").innerHTML =
-    Object.values(stats.distributions).map((d) => {
-      const entries = Object.entries(d.counts).sort((a, b) => b[1] - a[1]);
-      if (!entries.length) return "";
-      const max = entries[0][1];
-      return `<h2 style="margin-top:14px">${esc(d.label)}</h2>` +
-        entries.map(([k, v]) => bar(k, v, max, v)).join("");
-    }).join("") || '<div class="muted">No data yet.</div>';
+  $("averages").innerHTML = Object.values(stats.averages).map((a) => bar(a.label, a.average, 5, a.average === null ? "—" : a.average + " (n=" + a.count + ")")).join("") || '<div class="muted">No data yet.</div>';
 
-  document.getElementById("responses").innerHTML = responses.length
+  $("distributions").innerHTML = Object.values(stats.distributions).map((d) => {
+    const entries = Object.entries(d.counts).sort((a, b) => b[1] - a[1]);
+    if (!entries.length) return "";
+    const max = entries[0][1];
+    return `<div class="muted" style="font-weight:700;margin:12px 0 6px">${esc(d.label)}</div>` + entries.map(([k, v]) => bar(k, v, max, v)).join("");
+  }).join("") || '<div class="muted">No data yet.</div>';
+
+  $("responses").innerHTML = responses.length
     ? responses.slice().reverse().map(renderResponse).join("")
-    : '<div class="muted">No responses yet. Share the survey link to start collecting! 🌱</div>';
+    : '<div class="muted">No responses yet. Share the survey to start collecting 🌱</div>';
 }
 
 function bar(label, value, max, display) {
   const pct = value === null ? 0 : Math.round((value / max) * 100);
-  return `<div class="bar-row">
-    <div class="name">${esc(label)}</div>
-    <div class="track"><div class="fill" style="width:${pct}%"></div></div>
-    <div class="val">${esc(display)}</div>
-  </div>`;
+  return `<div class="bar-row"><div class="name">${esc(label)}</div><div class="track"><div class="fill" style="width:${pct}%"></div></div><div class="val">${esc(display)}</div></div>`;
 }
 
 function renderResponse(r) {
-  const d = r.data || {};
-  const a = r.analysis || {};
+  const d = r.data || {}, a = r.analysis || {};
   const who = d.name ? esc(d.name) : "Anonymous";
-  const when = new Date(r.submittedAt).toLocaleString();
   const tags = [
     a.sentiment ? `<span class="tag ${a.sentiment === "positive" ? "pos" : a.sentiment === "negative" ? "neg" : ""}">${esc(a.sentiment)}</span>` : "",
     a.wellbeing_shift ? `<span class="tag">${esc(a.wellbeing_shift)}</span>` : "",
     a.concern_flag ? `<span class="tag flag">⚠ follow-up</span>` : "",
-    ...(Array.isArray(a.themes) ? a.themes.map((t) => `<span class="tag">${esc(t)}</span>`) : []),
+    r.approvedQuote ? `<span class="tag pos">★ public quote</span>` : "",
   ].join(" ");
-  const rows = Object.entries(FIELD_LABELS)
-    .filter(([k]) => d[k] !== null && d[k] !== undefined && d[k] !== "")
-    .map(([k, lbl]) => `<tr><td>${esc(lbl)}</td><td>${esc(d[k])}</td></tr>`)
-    .join("");
+  const rows = Object.entries(FIELD_LABELS).filter(([k]) => d[k] !== null && d[k] !== undefined && d[k] !== "")
+    .map(([k, lbl]) => `<tr><td>${esc(lbl)}</td><td>${esc(d[k])}</td></tr>`).join("");
+
+  // Quote approval tools
+  const candidates = QUOTE_FIELDS.filter((f) => d[f]);
+  const author = (r.approvedQuote && r.approvedQuote.author) || (d.community_role ? d.community_role : "Participant");
+  const qtools = candidates.length ? `<div class="quote-tools">
+    <div class="muted" style="font-weight:700;margin-bottom:8px">Public testimonial (consent)</div>
+    <div style="margin-bottom:8px"><input class="author-in" id="auth-${esc(r.id)}" value="${esc(author)}" placeholder="Attribution"></div>
+    ${candidates.map((f) => {
+      const on = r.approvedQuote && r.approvedQuote.field === f;
+      return `<div class="qrow">
+        <div class="qtext">${on ? "★ " : ""}${esc(d[f])}</div>
+        <button class="btn ${on ? "btn-outline" : "btn-banana"} btn-sm" onclick="approve('${esc(r.id)}','${f}',${on ? "false" : "true"})">${on ? "Remove" : "Approve"}</button>
+      </div>`;
+    }).join("")}
+  </div>` : "";
+
   return `<details class="resp">
-    <summary><strong>${who}</strong> <span class="muted">${esc(when)}</span> ${tags}</summary>
+    <summary><strong>${who}</strong> <span class="muted">${esc(new Date(r.submittedAt).toLocaleString())}</span> ${tags}</summary>
     ${a.summary ? `<div class="summary-txt">🤖 ${esc(a.summary)}</div>` : ""}
-    ${a.concern_note ? `<div class="summary-txt" style="color:#b3261e">⚠ ${esc(a.concern_note)}</div>` : ""}
+    ${a.concern_note ? `<div class="summary-txt" style="color:var(--warn)">⚠ ${esc(a.concern_note)}</div>` : ""}
     <table>${rows}</table>
+    ${qtools}
   </details>`;
 }
 
-async function genInsights() {
-  const btn = document.getElementById("insightsBtn");
-  const out = document.getElementById("insightsOut");
-  btn.disabled = true;
-  out.textContent = "Analysing all responses with DeepSeek...";
+async function approve(id, field, approved) {
+  const authEl = $("auth-" + id);
+  const author = authEl ? authEl.value : "Participant";
   try {
-    const { insights } = await api("/api/admin/insights", { method: "POST", body: "{}" });
-    out.textContent = insights;
-  } catch (e) {
-    out.textContent = "⚠️ " + e.message;
-  } finally {
-    btn.disabled = false;
-  }
+    await api("/api/admin/responses/" + encodeURIComponent(id) + "/approve-quote", {
+      method: "POST",
+      body: JSON.stringify(approved ? { field, author, approved: true } : { approved: false }),
+    });
+    showDash();
+  } catch (e) { alert(e.message); }
 }
 
-document.getElementById("pw").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
-if (token) showDash().catch(logout);
+async function genInsights() {
+  const btn = $("insightsBtn"), out = $("insightsOut");
+  btn.disabled = true; out.textContent = "Analysing all responses with DeepSeek…";
+  try { const { insights } = await api("/api/admin/insights", { method: "POST", body: "{}" }); out.textContent = insights; }
+  catch (e) { out.textContent = "⚠️ " + e.message; }
+  finally { btn.disabled = false; }
+}
+
+function exportCSV() {
+  if (!allResponses.length) return alert("No responses to export.");
+  const cols = ["id", "submittedAt", "sentiment", "wellbeing_shift", "concern_flag", ...Object.keys(FIELD_LABELS)];
+  const escCSV = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const lines = [cols.join(",")];
+  for (const r of allResponses) {
+    const d = r.data || {}, a = r.analysis || {};
+    const row = cols.map((c) => {
+      if (c === "id") return escCSV(r.id);
+      if (c === "submittedAt") return escCSV(r.submittedAt);
+      if (["sentiment", "wellbeing_shift", "concern_flag"].includes(c)) return escCSV(a[c]);
+      return escCSV(d[c]);
+    });
+    lines.push(row.join(","));
+  }
+  const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "mywiphealing-responses.csv"; a.click();
+  URL.revokeObjectURL(url);
+}
+
+$("pw").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
+if (token) showDash().catch(logout); else $("login").style.display = "block";
 </script>
 </body>
 </html>

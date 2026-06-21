@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const crypto = require("crypto");
 const storage = require("./storage");
+const stats = require("./stats");
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
@@ -16,6 +17,17 @@ const ADMIN_TOKEN = crypto
   .createHash("sha256")
   .update("seni-admin:" + ADMIN_PASSWORD)
   .digest("hex");
+
+// Org-level totals shown on the public Community dashboard. These are NOT
+// survey-derived — they are figures the org confirms as real, set via env.
+// Left null they render as an "add in config" placeholder (never invented).
+const SITE_STATS = {
+  peopleReached: process.env.STAT_PEOPLE_REACHED || null,
+  hoursDelivered: process.env.STAT_HOURS_DELIVERED || null,
+  communities: process.env.STAT_COMMUNITIES || null,
+  organisations: process.env.STAT_ORGANISATIONS || null,
+  sinceYear: process.env.STAT_SINCE_YEAR || null,
+};
 
 // ---------- DeepSeek ----------
 
@@ -265,66 +277,67 @@ function requireAdmin(req, res, next) {
   res.status(401).json({ error: "Unauthorized" });
 }
 
-const SCALE_FIELDS = {
-  pre_happy_safe: "Pre: happy & safe to be myself",
-  pre_self_critical: "Pre: hard on myself",
-  pre_self_worth: "Pre: I know I am important",
-  pre_mind_heavy: "Pre: mind heavy / stressed",
-  mental_health_understanding: "Understanding of mental health link",
-  post_understand_feelings: "Post: understood my feelings better",
-  post_self_worth: "Post: I am valuable and strong",
-  post_mind_lighter: "Post: mind lighter putting thoughts on paper",
-  post_mind_peaceful: "Post: mind lighter / peaceful",
-};
-
-const CATEGORY_FIELDS = {
-  age_group: "Age group",
-  gender: "Gender",
-  creative_expression: "Creative expression",
-  community_role: "Community role",
-  booth_experience: "Booth experience (A best - E worst)",
-};
-
-function computeStats(responses) {
-  const datas = responses.map((r) => r.data).filter(Boolean);
-
-  const averages = {};
-  for (const [field, label] of Object.entries(SCALE_FIELDS)) {
-    const nums = datas
-      .map((d) => Number(d[field]))
-      .filter((n) => Number.isFinite(n) && n >= 1 && n <= 5);
-    averages[field] = {
-      label,
-      average: nums.length
-        ? Math.round((nums.reduce((a, b) => a + b, 0) / nums.length) * 100) / 100
-        : null,
-      count: nums.length,
-    };
-  }
-
-  const distributions = {};
-  for (const [field, label] of Object.entries(CATEGORY_FIELDS)) {
-    const counts = {};
-    for (const d of datas) {
-      const v = d[field];
-      if (v === null || v === undefined || v === "") continue;
-      const key = String(v);
-      counts[key] = (counts[key] || 0) + 1;
-    }
-    distributions[field] = { label, counts };
-  }
-
-  const flagged = responses.filter(
-    (r) => r.analysis && r.analysis.concern_flag
-  ).length;
-
-  return { total: responses.length, flagged, averages, distributions };
-}
-
+// Admin hub: full stats + every response (with AI analysis) + participant
+// groupings + a hint of which open-text fields can be approved as quotes.
 app.get("/api/admin/data", requireAdmin, async (req, res) => {
   try {
     const responses = await storage.loadResponses();
-    res.json({ stats: computeStats(responses), responses });
+    res.json({
+      stats: stats.computeStats(responses),
+      responses,
+      participants: stats.groupByParticipant(responses),
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Corporate Impact view: team-level aggregates, filterable. Never per-person.
+app.get("/api/admin/corporate", requireAdmin, async (req, res) => {
+  try {
+    const responses = await storage.loadResponses();
+    const { program, company, from, to } = req.query;
+    res.json({ stats: stats.corporateStats(responses, { program, company, from, to }) });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Consent gate: mark/unmark one response's open-text answer as a public quote.
+// Body: { field, author?, text?, approved } — approved:false clears it.
+const QUOTE_FIELDS = new Set([
+  "post_strength_lesson",
+  "post_self_view_change",
+  "personal_experience",
+  "emotions_while_creating",
+  "suggestions",
+  "pre_mood",
+]);
+
+app.post("/api/admin/responses/:id/approve-quote", requireAdmin, async (req, res) => {
+  try {
+    const responses = await storage.loadResponses();
+    const index = responses.findIndex((r) => r.id === req.params.id);
+    if (index < 0) return res.status(404).json({ error: "Response not found" });
+
+    const record = responses[index];
+    const { field, author, text, approved } = req.body || {};
+
+    if (approved === false) {
+      delete record.approvedQuote;
+    } else {
+      if (!QUOTE_FIELDS.has(field)) {
+        return res.status(400).json({ error: "Invalid quote field" });
+      }
+      record.approvedQuote = {
+        field,
+        author: (author || "Participant").slice(0, 80),
+        text: text ? String(text).slice(0, 600) : undefined,
+      };
+    }
+
+    await storage.updateResponse(index, record);
+    res.json({ ok: true, approvedQuote: record.approvedQuote || null });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -339,6 +352,19 @@ app.post("/api/admin/insights", requireAdmin, async (req, res) => {
       { role: "user", content: JSON.stringify(responses.map((r) => r.data)) },
     ]);
     res.json({ insights });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ---------- public API (Community dashboard: anonymised, aggregate only) ----------
+
+// No auth. communityStats() returns only aggregates + admin-approved quotes;
+// it never includes names, email, phone, or raw transcripts.
+app.get("/api/public/community", async (req, res) => {
+  try {
+    const responses = await storage.loadResponses();
+    res.json({ stats: stats.communityStats(responses), site: SITE_STATS });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

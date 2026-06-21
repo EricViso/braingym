@@ -1,57 +1,95 @@
-# Seni Scape Impact Survey 🤍
+# myWIPhealing — Impact Platform 🤍
 
-Mobile-friendly conversational survey app. A DeepSeek-powered AI assistant ("Seni")
-asks the compiled bilingual (EN/BM) survey questions in a chat, stores each completed
-response, auto-analyzes it (sentiment, themes, wellbeing shift, follow-up flags),
-and a password-protected admin dashboard shows the analytics.
+A creative-wellness impact platform for **myWIPhealing**, **powered by Gym Brain**
+(the AI dashboard & integration layer in this repo). Seni Scape, Harmoni Circle and
+SHIPS are myWIPhealing programs that feed it.
+
+Two halves:
+
+1. **The survey** — "Seni", a DeepSeek-powered conversational AI that asks the compiled
+   bilingual (EN/BM) impact survey in a chat (replacing Google Forms), stores each completed
+   response, and auto-analyses it (sentiment, themes, wellbeing shift, follow-up flags).
+2. **The dashboards** — four branded surfaces that turn those responses into proof:
+   Community Health (public), Corporate Impact (per-client), Participant Journeys (internal),
+   and the Admin Hub.
 
 ## Setup
 
-1. Install dependencies:
-   ```
-   npm install
-   ```
-2. Open `.env` and set your values:
-   - `DEEPSEEK_API_KEY` — your DeepSeek API key (https://platform.deepseek.com)
-   - `ADMIN_PASSWORD` — password for the admin dashboard
-3. Start:
-   ```
-   npm start
-   ```
+1. Install dependencies: `npm install`
+2. Set values in `.env`:
+   - `DEEPSEEK_API_KEY` — DeepSeek API key (https://platform.deepseek.com)
+   - `ADMIN_PASSWORD` — password for the admin-gated dashboards
+   - *(optional, Community totals)* `STAT_PEOPLE_REACHED`, `STAT_HOURS_DELIVERED`,
+     `STAT_COMMUNITIES`, `STAT_ORGANISATIONS`, `STAT_SINCE_YEAR` — org-confirmed totals.
+     Left unset, the Community dashboard shows an honest "set in config" placeholder
+     instead of inventing numbers.
+3. Start: `npm start`
 
 ## URLs
 
-- Survey (share this with participants): `http://localhost:3000/`
-- Admin dashboard: `http://localhost:3000/admin.html`
+| Page | Path | Access |
+|------|------|--------|
+| Survey (share with participants) | `/` | Public |
+| Community Health dashboard | `/community.html` | Public (anonymised, shareable social proof) |
+| Corporate Impact dashboard | `/corporate.html` | Admin password |
+| Participant Journeys | `/participant.html` | Admin password (internal) |
+| Admin Hub | `/admin.html` | Admin password |
+
+## Brand & design
+
+All pages share `public/brand.css`, which encodes the **myWIPhealing Color System v1.0**
+(stonewashed `#F5EFE6` surfaces, near-black `#2C2C2A` text, banana-green `#C9EE21`/`#D5FC4C`
+pill CTAs paired with near-black, coral `#E8794A`, myrtle `#174509` dark sections). Each
+dashboard carries its assigned section accent: Community = rose, Corporate = blue,
+Individual = mint (set via `body class="theme-*"`).
 
 ## How it works
 
-- `POST /api/chat` — relays the conversation to DeepSeek with a system prompt that
-  contains the full compiled survey (demographics, pre-session check-in, reflection
-  & impact, post-session SERATS scale, program feedback). When every question is
-  answered the model emits a hidden `<survey_complete>{...json...}</survey_complete>`
-  block; the server extracts it, runs a second DeepSeek call to analyze the response,
-  and saves both to `data/responses.json`.
-- `POST /api/admin/login` — exchanges the admin password for a session token.
-- `GET /api/admin/data` — stats (scale averages, category distributions, flags) +
-  all individual responses with their AI analysis.
-- `POST /api/admin/insights` — on-demand DeepSeek report across the whole dataset.
+- `POST /api/chat` — relays the conversation to DeepSeek with the compiled survey system
+  prompt. On completion the model emits a hidden `<survey_complete>{json}</survey_complete>`
+  block; the server extracts it, runs a second DeepSeek call to analyse the response, and
+  saves both.
+- `GET /api/public/community` — **no auth**. Anonymised, field-whitelisted aggregate that
+  powers the Community dashboard. Returns only aggregates + admin-approved testimonials —
+  never names, email, phone, or raw transcripts.
+- `POST /api/admin/login` — exchanges the password for a stateless bearer token.
+- `GET /api/admin/data` — stats + all responses (with AI analysis) + participant groupings.
+- `GET /api/admin/corporate?program=&company=&from=&to=` — team-level before/after aggregates,
+  filterable.
+- `POST /api/admin/responses/:id/approve-quote` — consent gate: mark/unmark one open-text
+  answer as a public testimonial (`{ field, author, approved }`).
+- `POST /api/admin/insights` — on-demand DeepSeek report across the dataset.
 
-Locally, data is stored in `data/responses.json` (git-ignored).
+Aggregation lives in `stats.js` (`communityStats`, `corporateStats`, `groupByParticipant`,
+`computeStats`) — pure functions over the stored responses.
 
-## Deploying to Vercel
+## Phased data model
 
-The app also runs as a Vercel serverless function (`api/index.js` +
-`vercel.json` rewrite). Because Vercel's filesystem is ephemeral, responses
-are stored in Upstash Redis instead of the JSON file. One-time setup:
+The survey today is a **single-session** instrument, so dashboards show what it truly
+collects and label the rest honestly:
 
-1. Import the repo in Vercel (Framework Preset: **Other**).
-2. Project -> Settings -> Environment Variables: add `DEEPSEEK_API_KEY` and
-   `ADMIN_PASSWORD`.
-3. Vercel dashboard -> **Storage** -> Create Database -> **Upstash for Redis**
-   (free plan) -> connect it to this project. This injects the
-   `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` env vars.
-4. Redeploy.
+- ✅ **Live now:** wellbeing index, self-worth pre→post shift, mind-state shift, AI
+  sentiment/themes word cloud, booth-experience split, consent-gated testimonials,
+  per-participant journeys, follow-up flags.
+- 🔜 **Phase 2 (survey extension):** NPS, sleep / work-focus, engagement & attendance over
+  time, and per-company corporate before/after. These need a stable participant identity,
+  an employer field, and matched pre/post programme flows. Until then they render as
+  clearly-labeled "Available after survey extension" placeholders — never fabricated.
 
-The storage backend is picked automatically: Redis when the Upstash env vars
-exist, the local JSON file otherwise.
+## Privacy
+
+- Community + Corporate views are **aggregate and anonymised**; Corporate is team-level only,
+  never individual scores.
+- Public testimonials require explicit **admin approval** (consent); the public endpoint
+  whitelists safe fields only.
+- Participant Journeys is **internal/admin-only**.
+- Self-reported wellbeing — **not** clinical data (labeled in every footer).
+
+## Storage & deployment
+
+Locally, responses live in `data/responses.json` (git-ignored). On Vercel the filesystem is
+ephemeral, so storage auto-switches to Redis — Upstash REST (`UPSTASH_REDIS_REST_URL/TOKEN`
+or `KV_REST_API_URL/TOKEN`) or standard Redis over TCP (`REDIS_URL`). The app runs as a
+Vercel serverless function via `api/index.js` + the `vercel.json` rewrite. One-time setup:
+import the repo (Framework Preset **Other**), add `DEEPSEEK_API_KEY` + `ADMIN_PASSWORD`,
+create a Redis store under **Storage** and connect it, then redeploy.

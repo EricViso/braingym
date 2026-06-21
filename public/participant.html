@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>myWIPhealing — Participant Journeys</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/brand.css">
+<style>
+  #gate { max-width: 340px; margin: 16vh auto; }
+  #gate input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 12px; }
+  #gateErr { color: var(--warn); font-size: .85rem; min-height: 1em; }
+  #search { width: 100%; max-width: 340px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius-pill); font: inherit; font-size: 14px; }
+  details.journey { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); padding: 14px 18px; box-shadow: var(--shadow); }
+  details.journey + details.journey { margin-top: 12px; }
+  details.journey summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-weight: 600; list-style: none; }
+  details.journey summary::-webkit-details-marker { display: none; }
+  details.journey summary .who { font-family: var(--font-display); font-size: 15px; }
+  .session { border-top: 1px solid var(--line-soft); margin-top: 12px; padding-top: 12px; }
+  .session .when { font-size: 11.5px; color: var(--muted); }
+  .kv { font-size: 13px; color: var(--ink); margin-top: 6px; }
+  .kv .lbl { color: var(--muted); }
+  .ai-summary { font-size: 13px; color: var(--muted-strong); background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+  .concern { background: #FCE3D4; color: var(--warn); border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 13px; font-weight: 600; }
+</style>
+</head>
+<body class="theme-individual">
+
+<div id="gate" class="card" style="display:none">
+  <h3 style="color:var(--ink)">🔐 Admin access</h3>
+  <input type="password" id="pw" placeholder="Password" autofocus>
+  <button class="btn btn-primary" style="width:100%" onclick="login()">Enter</button>
+  <div id="gateErr"></div>
+  <div style="margin-top:12px"><a href="/admin.html" class="muted" style="font-size:13px">← Admin hub</a></div>
+</div>
+
+<div id="app" class="wrap stack" style="display:none">
+  <div class="appbar">
+    <div>
+      <div class="brand-mark"><h1>myWIPhealing <span class="accent">Participant Journeys</span></h1></div>
+      <div class="subtitle">Internal · individual pre → post journeys &amp; follow-up flags · powered by Gym Brain</div>
+    </div>
+    <div class="bar-actions">
+      <span class="badge on-dark">Internal only</span>
+      <a href="/admin.html" class="btn btn-ghost-dark btn-sm">Hub</a>
+    </div>
+  </div>
+
+  <div class="grid grid-4" id="kpis"></div>
+
+  <div class="card">
+    <h3><span class="dot"></span> Journeys</h3>
+    <input id="search" placeholder="Search by name…" oninput="render()">
+    <div id="list" style="margin-top:14px"></div>
+  </div>
+
+  <div class="foot">
+    <span class="brand">myWIPhealing · Participant Journeys</span>
+    <span>Internal use · self-reported · not clinical data</span>
+    <span>Powered by Gym Brain</span>
+  </div>
+</div>
+
+<script>
+let token = sessionStorage.getItem("adminToken") || "";
+let participants = [];
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const n1 = (v) => (v === null || v === undefined || v === "" ? "—" : v);
+const when = (t) => (t ? new Date(t).toLocaleDateString() : "—");
+
+function show(view) {
+  $("gate").style.display = view === "gate" ? "block" : "none";
+  $("app").style.display = view === "app" ? "block" : "none";
+}
+
+async function login() {
+  $("gateErr").textContent = "";
+  try {
+    const res = await fetch("/api/admin/login", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: $("pw").value }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Login failed");
+    token = data.token; sessionStorage.setItem("adminToken", token);
+    show("app"); load();
+  } catch (e) { $("gateErr").textContent = e.message; }
+}
+
+async function load() {
+  let d;
+  try {
+    const res = await fetch("/api/admin/data", { headers: { Authorization: "Bearer " + token } });
+    if (res.status === 401) { sessionStorage.removeItem("adminToken"); show("gate"); return; }
+    d = await res.json();
+    if (!res.ok) throw new Error(d.error || "Failed");
+  } catch (e) {
+    $("list").innerHTML = `⚠️ ${esc(e.message)}`;
+    return;
+  }
+  participants = d.participants || [];
+  const flagged = (d.responses || []).filter((r) => r.analysis && r.analysis.concern_flag).length;
+  const returning = participants.filter((p) => !p.anonymous && p.count > 1).length;
+
+  $("kpis").innerHTML = [
+    `<div class="kpi"><div class="kpi-label">Participants</div><div class="kpi-value">${participants.length}</div><div class="kpi-context">distinct (named + anon)</div></div>`,
+    `<div class="kpi"><div class="kpi-label">Responses</div><div class="kpi-value">${(d.responses || []).length}</div></div>`,
+    `<div class="kpi"><div class="kpi-label">Returning</div><div class="kpi-value">${returning}</div><div class="kpi-context">named, 2+ sessions</div></div>`,
+    `<div class="kpi ${flagged ? "" : ""}"><div class="kpi-label">Follow-up flags</div><div class="kpi-value">${flagged}</div><div class="kpi-context">AI concern flags</div></div>`,
+  ].join("");
+
+  render();
+}
+
+function pair(label, before, after, note) {
+  return `<div class="kv"><span class="lbl">${esc(label)}:</span> ${n1(before)} → <strong>${n1(after)}</strong> /5${note ? ` <span class="lbl">(${esc(note)})</span>` : ""}</div>`;
+}
+
+function session(r) {
+  const d = r.data || {}, a = r.analysis || {};
+  const txt = [
+    ["Mood brought in", d.pre_mood],
+    ["What it taught them", d.post_strength_lesson],
+    ["Change in self-view", d.post_self_view_change],
+    ["Suggestion", d.suggestions],
+  ].filter(([, v]) => v).map(([l, v]) => `<div class="kv"><span class="lbl">${l}:</span> ${esc(v)}</div>`).join("");
+
+  const themes = Array.isArray(a.themes) ? a.themes.map((t) => `<span class="tag">${esc(t)}</span>`).join(" ") : "";
+
+  return `<div class="session">
+    <div class="when">${when(r.submittedAt)} · ${esc(d.creative_expression || "session")}${d.community_role ? " · " + esc(d.community_role) : ""}</div>
+    ${pair("Self-worth", d.pre_self_worth, d.post_self_worth)}
+    ${pair("Mind state", d.pre_mind_heavy, d.post_mind_peaceful, "heaviness → calm")}
+    <div class="kv"><span class="lbl">Felt lighter / understood feelings:</span> ${n1(d.post_mind_lighter)} / ${n1(d.post_understand_feelings)} /5</div>
+    ${txt}
+    ${a.sentiment ? `<div style="margin-top:8px">${tag(a.sentiment)} ${a.wellbeing_shift ? `<span class="tag">${esc(a.wellbeing_shift)}</span>` : ""} ${themes}</div>` : ""}
+    ${a.summary ? `<div class="ai-summary">🤖 ${esc(a.summary)}</div>` : ""}
+    ${a.concern_flag ? `<div class="concern">⚠ Follow-up: ${esc(a.concern_note || "AI flagged possible distress")}</div>` : ""}
+  </div>`;
+}
+
+function tag(sentiment) {
+  const cls = sentiment === "positive" ? "pos" : sentiment === "negative" ? "neg" : "";
+  return `<span class="tag ${cls}">${esc(sentiment)}</span>`;
+}
+
+function render() {
+  const q = ($("search").value || "").toLowerCase();
+  const list = participants.filter((p) => !q || (p.label || "").toLowerCase().includes(q));
+  $("list").innerHTML = list.length
+    ? list.map((p) => {
+        const flagged = p.responses.some((r) => r.analysis && r.analysis.concern_flag);
+        return `<details class="journey">
+          <summary>
+            <span class="who">${esc(p.label || "Anonymous")}</span>
+            <span class="tag">${p.count} session${p.count > 1 ? "s" : ""}</span>
+            <span class="muted" style="font-size:12px">last ${when(p.lastAt)}</span>
+            ${flagged ? '<span class="tag flag">⚠ follow-up</span>' : ""}
+          </summary>
+          ${p.responses.slice().reverse().map(session).join("")}
+        </details>`;
+      }).join("")
+    : '<div class="muted">No participants yet. Share the survey to start collecting journeys 🌱</div>';
+}
+
+document.getElementById("pw").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
+if (token) { show("app"); load(); } else { show("gate"); }
+</script>
+</body>
+</html>
