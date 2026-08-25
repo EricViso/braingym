@@ -15,6 +15,9 @@
   #gate { max-width: 340px; margin: 16vh auto; }
   #gate input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 12px; }
   #gateErr { color: var(--warn); font-size: .85rem; min-height: 1em; }
+  .delta-tag { font-family: var(--font-mono); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-left: 6px; }
+  .delta-tag.up { background: #DBF3DE; color: #1B5E20; }
+  .delta-tag.flat { background: var(--line-soft); color: var(--muted); }
   /* Print: clean A4 one-pager */
   @media print {
     body { background: #fff; }
@@ -74,8 +77,8 @@
       <div id="pairs"></div>
     </div>
     <div class="card">
-      <h3><span class="dot"></span> Programme engagement</h3>
-      <div id="engagement"></div>
+      <h3><span class="dot"></span> Theory of Change — Deltas</h3>
+      <div id="toc"></div>
     </div>
   </div>
 
@@ -101,7 +104,7 @@
 <script>
 let token = sessionStorage.getItem("adminToken") || "";
 const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","'":"&quot;","'":"&#39;" }[c]));
 const n1 = (v) => (v === null || v === undefined ? "—" : v);
 
 function show(view) {
@@ -131,10 +134,13 @@ function kpi(label, value, unit, context, pending) {
   </div>`;
 }
 
-function barPair(label, before, after, max, note) {
+function barPair(label, before, after, max, note, delta, pctImproved) {
   const pct = (v) => (v === null ? 0 : Math.round((v / max) * 100));
+  const deltaHtml = delta !== null
+    ? `<span class="delta-tag ${delta > 0 ? "up" : "flat"}">${delta > 0 ? "+" : ""}${delta} pts${pctImproved !== null ? " · " + pctImproved + "%↑" : ""}</span>`
+    : "";
   return `<div class="bar-group">
-    <div class="bar-group-label">${esc(label)}${note ? ` <span class="muted">· ${esc(note)}</span>` : ""}</div>
+    <div class="bar-group-label">${esc(label)}${deltaHtml}${note ? ` <span class="muted">· ${esc(note)}</span>` : ""}</div>
     <div class="bar-row"><div class="tier">Before</div><div class="bar-track"><div class="bar-fill" style="width:${pct(before)}%">${n1(before)}</div></div></div>
     <div class="bar-row"><div class="tier">After</div><div class="bar-track"><div class="bar-fill after" style="width:${pct(after)}%">${n1(after)}</div></div></div>
   </div>`;
@@ -177,16 +183,36 @@ async function load() {
     kpi("Net Promoter Score", s.nps, "", "0–100 scale"),
   ].join("");
 
+  const toc = s.theoryOfChange || {};
+  const tocLabels = {
+    happy_safe: "Happy & safe",
+    self_kind: "Kind to self",
+    self_worth: "Self-worth",
+    mind_calm: "Mind calm",
+    social_connection: "Social connection",
+  };
+  const tocOrder = ["happy_safe", "self_kind", "self_worth", "mind_calm", "social_connection"];
+
   $("pairs").innerHTML = s.count
-    ? `<div class="bars">${s.pairs.map((p) => barPair(p.label + " (1–5)", p.before, p.after, 5, p.note)).join("")}</div>`
+    ? `<div class="bars">${s.pairs.map((p, i) => {
+        const key = tocOrder[i];
+        const t = toc[key] || {};
+        return barPair(p.label + " (1–5)", p.before, p.after, 5, p.note, t.avgDelta, t.pctImproved);
+      }).join("")}</div>`
     : '<div class="muted">No data for this filter.</div>';
 
-  $("engagement").innerHTML = `<div class="bars">
-    ${kpiInline("Want it to continue", s.wantContinue)}
-    ${kpiInline("Attendance rate", s.attendanceRate)}
-    ${kpiInline("Work-focus improvement", s.workFocusDelta)}
-  </div>
-  <div class="muted" style="font-size:11.5px;margin-top:10px">These light up automatically once the corporate pre/post flow is live (Phase 2).</div>`;
+  $("toc").innerHTML = s.avgDeltaOverall !== null
+    ? `<div class="bars">${tocOrder.map((key) => {
+        const t = toc[key] || {};
+        const label = tocLabels[key];
+        return `<div class="bar-row">
+          <div class="tier" style="width:140px">${label}</div>
+          <div class="bar-track"><div class="bar-fill after" style="width:${t.pctImproved || 0}%">${t.pctImproved !== null ? t.pctImproved + "%" : "—"}</div></div>
+          <div style="width:70px;text-align:right;font-family:var(--font-mono);font-size:11px;color:var(--muted)">${t.avgDelta !== null ? (t.avgDelta > 0 ? "+" : "") + t.avgDelta + " pts" : "—"}</div>
+        </div>`;
+      }).join("")}</div>
+      <div class="muted" style="font-size:11.5px;margin-top:12px">% of participants who improved in each dimension · Overall Δ ${s.avgDeltaOverall > 0 ? "+" : ""}${s.avgDeltaOverall} pts</div>`
+    : `<div class="muted">No matched pre/post pairs for this filter.</div>`;
 
   // ROI stat boxes from real computed values
   $("roiNums").innerHTML = [
@@ -202,13 +228,6 @@ async function load() {
           <div class="quote-text">${esc(q.text)}</div>
           <div class="quote-author">— ${esc(q.author)}</div></div>`).join("") + `</div>`
     : "";
-}
-
-function kpiInline(label, value) {
-  const pending = value === null || value === undefined;
-  return `<div class="bar-row"><div class="tier" style="width:150px">${esc(label)}</div>
-    <div class="bar-track"><div class="bar-fill ${pending ? "" : "after"}" style="width:${pending ? 0 : value}%">${pending ? "" : value + "%"}</div></div>
-    ${pending ? '<span class="pending-note" style="margin:0">Phase 2</span>' : ""}</div>`;
 }
 
 document.getElementById("pw").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });

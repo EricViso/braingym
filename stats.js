@@ -8,11 +8,13 @@ const SCALE_FIELDS = {
   pre_self_kind: "Pre: kind to myself",
   pre_self_worth: "Pre: I know I am important",
   pre_mind_calm: "Pre: mind calm & at ease",
+  pre_social_connection: "Pre: people I can talk to",
   mental_health_understanding: "Understanding of mental health link",
   post_happy_safe: "Post: happy & safe to be myself",
   post_self_kind: "Post: kind to myself",
   post_self_worth: "Post: I know I am important",
   post_mind_calm: "Post: mind calm & at ease",
+  post_social_connection: "Post: people I can talk to",
   program_effectiveness: "Program effectiveness",
 };
 
@@ -24,12 +26,13 @@ const CATEGORY_FIELDS = {
   program_experience: "Program experience (A best - E worst)",
 };
 
-// The four post-assessment scales that compose the Wellbeing Index.
+// The five post-assessment scales that compose the Wellbeing Index.
 const WELLBEING_POST = [
   "post_happy_safe",
   "post_self_kind",
   "post_self_worth",
   "post_mind_calm",
+  "post_social_connection",
 ];
 
 // ---------- small helpers ----------
@@ -134,8 +137,53 @@ function communityStats(responses) {
   const preCalm = avg(scaleVals(datas, "pre_mind_calm"));
   const postCalm = avg(scaleVals(datas, "post_mind_calm"));
 
+  const preSocial = avg(scaleVals(datas, "pre_social_connection"));
+  const postSocial = avg(scaleVals(datas, "post_social_connection"));
+
   const understanding = avg(scaleVals(datas, "mental_health_understanding"));
   const effectiveness = avg(scaleVals(datas, "program_effectiveness"));
+
+  // Theory of Change: compute average delta per matched response for each scale.
+  const tocPairs = [
+    { key: "happy_safe", pre: "pre_happy_safe", post: "post_happy_safe" },
+    { key: "self_kind", pre: "pre_self_kind", post: "post_self_kind" },
+    { key: "self_worth", pre: "pre_self_worth", post: "post_self_worth" },
+    { key: "mind_calm", pre: "pre_mind_calm", post: "post_mind_calm" },
+    { key: "social_connection", pre: "pre_social_connection", post: "post_social_connection" },
+  ];
+
+  const theoryOfChange = {};
+  let totalDeltaSum = 0;
+  let totalDeltaCount = 0;
+  let improvedPctSum = 0;
+
+  for (const { key, pre, post } of tocPairs) {
+    const deltas = datas
+      .map((d) => {
+        const a = Number(d[pre]);
+        const b = Number(d[post]);
+        if (Number.isFinite(a) && a >= 1 && a <= 5 && Number.isFinite(b) && b >= 1 && b <= 5) {
+          return b - a;
+        }
+        return null;
+      })
+      .filter((n) => n !== null);
+    const avgDelta = deltas.length ? round2(deltas.reduce((a, b) => a + b, 0) / deltas.length) : null;
+    const pctImproved = deltas.length
+      ? Math.round((deltas.filter((d) => d > 0).length / deltas.length) * 100)
+      : null;
+    theoryOfChange[key] = { avgDelta, pctImproved, count: deltas.length };
+    if (avgDelta !== null) {
+      totalDeltaSum += avgDelta;
+      totalDeltaCount++;
+    }
+    if (pctImproved !== null) {
+      improvedPctSum += pctImproved;
+    }
+  }
+
+  const avgDeltaOverall = totalDeltaCount ? round2(totalDeltaSum / totalDeltaCount) : null;
+  const pctImprovedOverall = totalDeltaCount ? Math.round(improvedPctSum / totalDeltaCount) : null;
 
   // NPS: would_recommend is 0-10. Skip 0 values (not collected / default).
   const npsScores = datas
@@ -182,10 +230,16 @@ function communityStats(responses) {
     postWorth,
     preCalm,
     postCalm,
+    preSocial,
+    postSocial,
     understanding,
     effectiveness,
+    theoryOfChange,
+    avgDeltaOverall,
+    pctImprovedOverall,
     sentiment: sentimentSplit(responses),
     programExperience: distribution(datas, "program_experience"),
+    programEffectiveness: distribution(datas, "program_effectiveness"),
     words,
     testimonials: approvedTestimonials(responses),
     nps,
@@ -222,14 +276,55 @@ function corporateStats(responses, filters = {}) {
   const preCalm = avg(scaleVals(datas, "pre_mind_calm"));
   const postCalm = avg(scaleVals(datas, "post_mind_calm"));
 
+  const preSocial = avg(scaleVals(datas, "pre_social_connection"));
+  const postSocial = avg(scaleVals(datas, "post_social_connection"));
+
   const pairs = [
     { label: "Happy & safe to be myself", before: preHappy, after: postHappy },
     { label: "Kind to self", before: preKind, after: postKind },
     { label: "Sense of self-worth", before: preWorth, after: postWorth },
     { label: "Mind calm & at ease", before: preCalm, after: postCalm },
+    { label: "People I can talk to", before: preSocial, after: postSocial },
   ];
 
-  const after = avg([postHappy, postKind, postWorth, postCalm]);
+  const after = avg([postHappy, postKind, postWorth, postCalm, postSocial]);
+
+  // Theory of Change for corporate view
+  const tocPairs = [
+    { key: "happy_safe", pre: "pre_happy_safe", post: "post_happy_safe" },
+    { key: "self_kind", pre: "pre_self_kind", post: "post_self_kind" },
+    { key: "self_worth", pre: "pre_self_worth", post: "post_self_worth" },
+    { key: "mind_calm", pre: "pre_mind_calm", post: "post_mind_calm" },
+    { key: "social_connection", pre: "pre_social_connection", post: "post_social_connection" },
+  ];
+
+  const theoryOfChange = {};
+  let totalDeltaSum = 0;
+  let totalDeltaCount = 0;
+
+  for (const { key, pre, post } of tocPairs) {
+    const deltas = datas
+      .map((d) => {
+        const a = Number(d[pre]);
+        const b = Number(d[post]);
+        if (Number.isFinite(a) && a >= 1 && a <= 5 && Number.isFinite(b) && b >= 1 && b <= 5) {
+          return b - a;
+        }
+        return null;
+      })
+      .filter((n) => n !== null);
+    const avgDelta = deltas.length ? round2(deltas.reduce((a, b) => a + b, 0) / deltas.length) : null;
+    const pctImproved = deltas.length
+      ? Math.round((deltas.filter((d) => d > 0).length / deltas.length) * 100)
+      : null;
+    theoryOfChange[key] = { avgDelta, pctImproved, count: deltas.length };
+    if (avgDelta !== null) {
+      totalDeltaSum += avgDelta;
+      totalDeltaCount++;
+    }
+  }
+
+  const avgDeltaOverall = totalDeltaCount ? round2(totalDeltaSum / totalDeltaCount) : null;
 
   // NPS for this filtered group. Skip 0 values (not collected / default).
   const npsScores = datas
@@ -249,6 +344,8 @@ function corporateStats(responses, filters = {}) {
     pairs,
     afterWellbeing: after,
     afterWellbeing10: after !== null ? round2(after * 2) : null,
+    theoryOfChange,
+    avgDeltaOverall,
     programExperience: distribution(datas, "program_experience"),
     sentiment: sentimentSplit(rs),
     testimonials: approvedTestimonials(rs),

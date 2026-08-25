@@ -6,6 +6,26 @@
 <title>myWIPhealing — Community Health</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/brand.css">
+<style>
+  .toc-header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .toc-header h3 { margin-bottom: 0 !important; }
+  .toc-badge { font-family: var(--font-mono); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--ink); }
+  .toc-badge.up { background: #DBF3DE; color: #1B5E20; }
+  .delta-tag { font-family: var(--font-mono); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-left: 6px; }
+  .delta-tag.up { background: #DBF3DE; color: #1B5E20; }
+  .delta-tag.flat { background: var(--line-soft); color: var(--muted); }
+  .eff-chart { display: flex; flex-direction: column; gap: 8px; }
+  .eff-row { display: flex; align-items: center; gap: 10px; }
+  .eff-label { width: 90px; font-size: 11.5px; color: var(--muted-strong); font-weight: 600; flex-shrink: 0; }
+  .eff-track { flex: 1; height: 22px; background: rgba(44,44,42,0.05); border-radius: 6px; overflow: hidden; }
+  .eff-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: var(--white); background: var(--accent); transition: width 1s cubic-bezier(.22,.61,.36,1); }
+  .eff-fill.e1 { background: #C2410C; }
+  .eff-fill.e2 { background: #E8794A; }
+  .eff-fill.e3 { background: #D4A017; }
+  .eff-fill.e4 { background: #2E8B3D; }
+  .eff-fill.e5 { background: #1B5E20; }
+  .eff-count { width: 32px; text-align: right; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+</style>
 </head>
 <body class="theme-community">
 <div class="wrap stack">
@@ -20,14 +40,28 @@
     </div>
   </div>
 
-  <!-- Hero metrics -->
+  <!-- Hero KPIs: 4 pillars -->
   <div class="grid grid-4" id="hero"></div>
 
+  <!-- Theory of Change: before / after -->
+  <div class="card">
+    <div class="toc-header">
+      <h3><span class="dot"></span> Theory of Change — Before vs After</h3>
+      <span class="toc-badge up" id="tocOverall">—</span>
+      <span class="toc-badge" id="tocImproved">—</span>
+    </div>
+    <div id="shift"></div>
+    <div class="muted" style="font-size:11.5px;margin-top:14px">
+      Matched pre/post scores across 5 wellbeing dimensions. Higher = better. 
+      <strong>Δ</strong> shows average point change. <strong>%↑</strong> shows share of participants who improved.
+    </div>
+  </div>
+
   <div class="grid grid-2">
-    <!-- Before → After -->
+    <!-- Program Effectiveness -->
     <div class="card">
-      <h3><span class="dot"></span> The shift, in their own scores</h3>
-      <div id="shift"></div>
+      <h3><span class="dot"></span> Program Effectiveness</h3>
+      <div id="effectiveness"></div>
     </div>
     <!-- Sentiment + program experience -->
     <div class="card">
@@ -57,7 +91,7 @@
 
 <script>
 const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","'":"&quot;","'":"&#39;" }[c]));
 const n1 = (v) => (v === null || v === undefined ? "—" : v);
 
 function kpi(label, value, unit, context, pending) {
@@ -68,10 +102,13 @@ function kpi(label, value, unit, context, pending) {
   </div>`;
 }
 
-function barPair(label, before, after, max, note) {
+function barPair(label, before, after, max, note, delta, pctImproved) {
   const pct = (v) => (v === null ? 0 : Math.round((v / max) * 100));
+  const deltaHtml = delta !== null
+    ? `<span class="delta-tag ${delta > 0 ? "up" : "flat"}">${delta > 0 ? "+" : ""}${delta} pts${pctImproved !== null ? " · " + pctImproved + "%↑" : ""}</span>`
+    : "";
   return `<div class="bar-group">
-    <div class="bar-group-label">${esc(label)}${note ? ` <span class="muted">· ${esc(note)}</span>` : ""}</div>
+    <div class="bar-group-label">${esc(label)}${deltaHtml}${note ? ` <span class="muted">· ${esc(note)}</span>` : ""}</div>
     <div class="bar-row"><div class="tier">Before</div><div class="bar-track"><div class="bar-fill" style="width:${pct(before)}%">${n1(before)}</div></div></div>
     <div class="bar-row"><div class="tier">After</div><div class="bar-track"><div class="bar-fill after" style="width:${pct(after)}%">${n1(after)}</div></div></div>
   </div>`;
@@ -104,23 +141,78 @@ async function load() {
   const sentTotal = (sent.positive || 0) + (sent.mixed || 0) + (sent.negative || 0);
   const posPct = sentTotal ? Math.round((sent.positive / sentTotal) * 100) : null;
 
+  // Effectiveness positivity % (4 or 5)
+  const eff = s.programEffectiveness || {};
+  const effTotal = [1,2,3,4,5].reduce((sum, k) => sum + (eff[k] || 0), 0);
+  const effPositive = effTotal ? Math.round(((eff[4] || 0) + (eff[5] || 0)) / effTotal * 100) : null;
+
   $("hero").innerHTML = [
-    kpi("Community Wellbeing Index", s.wellbeingIndex10, "/10", "Mean of post-session wellbeing scales"),
-    kpi("Positive sessions", posPct, "%", "Share of responses read as positive"),
-    kpi("Net Promoter Score", s.nps, "", "0–100 scale"),
-    kpi("Program effectiveness", s.effectiveness, "/5", "Mean rating"),
+    kpi("Community Wellbeing Index", s.wellbeingIndex10, "/10", "Mean of 5 post-session scales"),
+    kpi("Positive Sessions", posPct, "%", "Share read as positive sentiment"),
+    kpi("Program Effectiveness", effPositive, "%", "Rated 4–5 / 5 (Very or Extremely effective)"),
+    kpi("Total Responses", s.total, "", "All-time submissions"),
   ].join("");
 
-  // Shift card — matched pre/post pairs
+  // Theory of Change badges
+  const toc = s.theoryOfChange || {};
+  if (s.avgDeltaOverall !== null) {
+    $("tocOverall").textContent = `Δ +${s.avgDeltaOverall} pts avg`;
+    $("tocOverall").className = "toc-badge up";
+  } else {
+    $("tocOverall").textContent = "Awaiting matched pairs";
+    $("tocOverall").className = "toc-badge";
+  }
+  if (s.pctImprovedOverall !== null) {
+    $("tocImproved").textContent = `${s.pctImprovedOverall}% of participants improved`;
+  } else {
+    $("tocImproved").textContent = "—";
+  }
+
+  // Shift card — matched pre/post pairs with deltas
+  const tocLabels = {
+    happy_safe: "Happy & safe to be myself",
+    self_kind: "Kind to self",
+    self_worth: "Sense of self-worth",
+    mind_calm: "Mind calm & at ease",
+    social_connection: "People I can talk to",
+  };
+  const tocOrder = ["happy_safe", "self_kind", "self_worth", "mind_calm", "social_connection"];
+
   $("shift").innerHTML = s.total
-    ? `<div class="bars">
-        ${barPair("Happy & safe to be myself (1–5)", s.preHappy, s.postHappy, 5)}
-        ${barPair("Kind to self (1–5)", s.preKind, s.postKind, 5)}
-        ${barPair("Sense of self-worth (1–5)", s.preWorth, s.postWorth, 5)}
-        ${barPair("Mind calm & at ease (1–5)", s.preCalm, s.postCalm, 5)}
-      </div>
-      <div class="muted" style="font-size:11.5px;margin-top:12px">Matched single-session pre/post scores. Self-reported. Higher = better.</div>`
+    ? `<div class="bars">` +
+        tocOrder.map((key) => {
+          const t = toc[key] || {};
+          const fieldMap = {
+            happy_safe: [s.preHappy, s.postHappy],
+            self_kind: [s.preKind, s.postKind],
+            self_worth: [s.preWorth, s.postWorth],
+            mind_calm: [s.preCalm, s.postCalm],
+            social_connection: [s.preSocial, s.postSocial],
+          };
+          const [b, a] = fieldMap[key] || [null, null];
+          return barPair(tocLabels[key] + " (1–5)", b, a, 5, null, t.avgDelta, t.pctImproved);
+        }).join("") +
+      `</div>`
     : `<div class="muted">No responses yet.</div>`;
+
+  // Program Effectiveness distribution
+  const effLabels = { 1: "Not effective", 2: "Slightly", 3: "Moderately", 4: "Very", 5: "Extremely" };
+  const effOrder = [5, 4, 3, 2, 1];
+  const effMax = Math.max(1, ...effOrder.map((k) => eff[k] || 0));
+  $("effectiveness").innerHTML = effTotal
+    ? `<div class="eff-chart">` +
+        effOrder.map((k) => {
+          const count = eff[k] || 0;
+          const pct = Math.round((count / effMax) * 100);
+          return `<div class="eff-row">
+            <div class="eff-label">${effLabels[k]}</div>
+            <div class="eff-track"><div class="eff-fill e${k}" style="width:${pct}%"></div></div>
+            <div class="eff-count">${count}</div>
+          </div>`;
+        }).join("") +
+      `</div>
+      <div class="muted" style="font-size:11.5px;margin-top:12px">Mean effectiveness: ${n1(s.effectiveness)} / 5 · n=${effTotal}</div>`
+    : `<div class="muted">No effectiveness ratings yet.</div>`;
 
   // Landing card: sentiment split + program experience (A best → E)
   const prog = s.programExperience || {};

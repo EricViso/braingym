@@ -65,7 +65,7 @@
 let token = sessionStorage.getItem("adminToken") || "";
 let participants = [];
 const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","'":"&quot;","'":"&#39;" }[c]));
 const n1 = (v) => (v === null || v === undefined || v === "" ? "—" : v);
 const when = (t) => (t ? new Date(t).toLocaleDateString() : "—");
 
@@ -134,6 +134,7 @@ function session(r) {
     ${pair("Kind to self", d.pre_self_kind, d.post_self_kind)}
     ${pair("Self-worth", d.pre_self_worth, d.post_self_worth)}
     ${pair("Mind calm", d.pre_mind_calm, d.post_mind_calm)}
+    ${pair("Social connection", d.pre_social_connection, d.post_social_connection)}
     <div class="kv"><span class="lbl">Program effectiveness:</span> ${n1(d.program_effectiveness)} /5 · <span class="lbl">Would recommend:</span> ${n1(d.would_recommend)} /10</div>
     ${txt}
     ${a.sentiment ? `<div style="margin-top:8px">${tag(a.sentiment)} ${a.wellbeing_shift ? `<span class="tag">${esc(a.wellbeing_shift)}</span>` : ""} ${themes}</div>` : ""}
