@@ -1,39 +1,35 @@
 // Aggregation layer over stored survey responses.
 // Pure functions: every export takes the array returned by storage.loadResponses()
 // and returns plain JSON. No I/O, no new storage shape.
-//
-// Honesty note: metrics the single-session booth survey does not collect
-// (NPS, attendance/engagement, sleep, work-focus, per-company before/after)
-// are returned as null and rendered by the UI as "Phase 2" placeholders —
-// never as fabricated numbers.
 
 // Matched 1-5 scale fields and their human labels (used by the admin view).
 const SCALE_FIELDS = {
   pre_happy_safe: "Pre: happy & safe to be myself",
-  pre_self_critical: "Pre: hard on myself",
+  pre_self_kind: "Pre: kind to myself",
   pre_self_worth: "Pre: I know I am important",
-  pre_mind_heavy: "Pre: mind heavy / stressed",
+  pre_mind_calm: "Pre: mind calm & at ease",
   mental_health_understanding: "Understanding of mental health link",
-  post_understand_feelings: "Post: understood my feelings better",
-  post_self_worth: "Post: I am valuable and strong",
-  post_mind_lighter: "Post: mind lighter putting thoughts on paper",
-  post_mind_peaceful: "Post: mind lighter / peaceful",
+  post_happy_safe: "Post: happy & safe to be myself",
+  post_self_kind: "Post: kind to myself",
+  post_self_worth: "Post: I know I am important",
+  post_mind_calm: "Post: mind calm & at ease",
+  program_effectiveness: "Program effectiveness",
 };
 
 const CATEGORY_FIELDS = {
   age_group: "Age group",
   gender: "Gender",
-  creative_expression: "Creative expression",
+  program: "Program joined",
   community_role: "Community role",
-  booth_experience: "Booth experience (A best - E worst)",
+  program_experience: "Program experience (A best - E worst)",
 };
 
-// The four positive post-session scales that compose the Wellbeing Index.
+// The four post-assessment scales that compose the Wellbeing Index.
 const WELLBEING_POST = [
-  "post_understand_feelings",
+  "post_happy_safe",
+  "post_self_kind",
   "post_self_worth",
-  "post_mind_lighter",
-  "post_mind_peaceful",
+  "post_mind_calm",
 ];
 
 // ---------- small helpers ----------
@@ -91,7 +87,7 @@ function approvedTestimonials(responses) {
     .filter((t) => t.text);
 }
 
-// ---------- admin: full stats (kept compatible with the old computeStats) ----------
+// ---------- admin: full stats ----------
 
 function computeStats(responses) {
   const datas = responses.map((r) => r.data).filter(Boolean);
@@ -120,20 +116,38 @@ function communityStats(responses) {
   const datas = responses.map((r) => r.data).filter(Boolean);
   const total = responses.length;
 
-  // Wellbeing Index: per-response mean of the positive post scales, averaged.
+  // Wellbeing Index: per-response mean of the post-assessment scales, averaged.
   const wb = avg(datas.map((d) => rowScaleAvg(d, WELLBEING_POST)));
   const wellbeingIndex = wb;                       // 1-5
   const wellbeingIndex10 = wb !== null ? round2(wb * 2) : null; // 0-10 framing
 
-  // Honest mind-state story (different scales — UI labels them explicitly).
-  const preHeavy = avg(scaleVals(datas, "pre_mind_heavy"));     // higher = heavier
-  const postPeace = avg(scaleVals(datas, "post_mind_peaceful")); // higher = calmer
+  // Matched pre/post wellbeing pairs (same direction: higher = better).
+  const preHappy = avg(scaleVals(datas, "pre_happy_safe"));
+  const postHappy = avg(scaleVals(datas, "post_happy_safe"));
 
-  // Self-worth shift (one truly matched pre/post pair).
+  const preKind = avg(scaleVals(datas, "pre_self_kind"));
+  const postKind = avg(scaleVals(datas, "post_self_kind"));
+
   const preWorth = avg(scaleVals(datas, "pre_self_worth"));
   const postWorth = avg(scaleVals(datas, "post_self_worth"));
 
+  const preCalm = avg(scaleVals(datas, "pre_mind_calm"));
+  const postCalm = avg(scaleVals(datas, "post_mind_calm"));
+
   const understanding = avg(scaleVals(datas, "mental_health_understanding"));
+  const effectiveness = avg(scaleVals(datas, "program_effectiveness"));
+
+  // NPS: would_recommend is 0-10. Skip 0 values (not collected / default).
+  const npsScores = datas
+    .map((d) => Number(d.would_recommend))
+    .filter((n) => Number.isFinite(n) && n >= 1 && n <= 10);
+  const nps = npsScores.length >= 3
+    ? round2(
+        (npsScores.filter((n) => n >= 9).length / npsScores.length -
+          npsScores.filter((n) => n <= 6).length / npsScores.length) *
+          100
+      )
+    : null;
 
   // Theme word cloud: AI themes + short pre-session mood words.
   const wordCounts = {};
@@ -160,17 +174,21 @@ function communityStats(responses) {
     total,
     wellbeingIndex,
     wellbeingIndex10,
-    preHeavy,
-    postPeace,
+    preHappy,
+    postHappy,
+    preKind,
+    postKind,
     preWorth,
     postWorth,
+    preCalm,
+    postCalm,
     understanding,
+    effectiveness,
     sentiment: sentimentSplit(responses),
-    booth: distribution(datas, "booth_experience"),
+    programExperience: distribution(datas, "program_experience"),
     words,
     testimonials: approvedTestimonials(responses),
-    // Phase 2 — not yet collected by the survey:
-    nps: null,
+    nps,
     engagementRate: null,
   };
 }
@@ -191,25 +209,39 @@ function corporateStats(responses, filters = {}) {
 
   const datas = rs.map((r) => r.data).filter(Boolean);
 
+  // Matched pre/post pairs (same direction, higher = better).
+  const preHappy = avg(scaleVals(datas, "pre_happy_safe"));
+  const postHappy = avg(scaleVals(datas, "post_happy_safe"));
+
+  const preKind = avg(scaleVals(datas, "pre_self_kind"));
+  const postKind = avg(scaleVals(datas, "post_self_kind"));
+
   const preWorth = avg(scaleVals(datas, "pre_self_worth"));
   const postWorth = avg(scaleVals(datas, "post_self_worth"));
-  const preHeavy = avg(scaleVals(datas, "pre_mind_heavy"));
-  const postPeace = avg(scaleVals(datas, "post_mind_peaceful"));
-  const postLighter = avg(scaleVals(datas, "post_mind_lighter"));
-  const postUnderstand = avg(scaleVals(datas, "post_understand_feelings"));
 
-  // Matched, same-direction pairs we can show honestly as before → after.
+  const preCalm = avg(scaleVals(datas, "pre_mind_calm"));
+  const postCalm = avg(scaleVals(datas, "post_mind_calm"));
+
   const pairs = [
+    { label: "Happy & safe to be myself", before: preHappy, after: postHappy },
+    { label: "Kind to self", before: preKind, after: postKind },
     { label: "Sense of self-worth", before: preWorth, after: postWorth },
-    {
-      label: "Mind state",
-      before: preHeavy,
-      after: postPeace,
-      note: "before = heaviness, after = calm (different scales)",
-    },
+    { label: "Mind calm & at ease", before: preCalm, after: postCalm },
   ];
 
-  const after = avg([postWorth, postPeace, postLighter, postUnderstand]);
+  const after = avg([postHappy, postKind, postWorth, postCalm]);
+
+  // NPS for this filtered group. Skip 0 values (not collected / default).
+  const npsScores = datas
+    .map((d) => Number(d.would_recommend))
+    .filter((n) => Number.isFinite(n) && n >= 1 && n <= 10);
+  const nps = npsScores.length >= 3
+    ? round2(
+        (npsScores.filter((n) => n >= 9).length / npsScores.length -
+          npsScores.filter((n) => n <= 6).length / npsScores.length) *
+          100
+      )
+    : null;
 
   return {
     filters: { program: program || null, company: company || null, from: from || null, to: to || null },
@@ -217,12 +249,11 @@ function corporateStats(responses, filters = {}) {
     pairs,
     afterWellbeing: after,
     afterWellbeing10: after !== null ? round2(after * 2) : null,
-    booth: distribution(datas, "booth_experience"),
+    programExperience: distribution(datas, "program_experience"),
     sentiment: sentimentSplit(rs),
     testimonials: approvedTestimonials(rs),
+    nps,
     hasCompanyField: datas.some((d) => d.company),
-    // Phase 2 — require survey extension:
-    nps: null,
     wantContinue: null,
     attendanceRate: null,
     workFocusDelta: null,

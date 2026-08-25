@@ -13,7 +13,7 @@
   <div class="appbar">
     <div>
       <div class="brand-mark"><h1>myWIPhealing <span class="accent">Community Health</span></h1></div>
-      <div class="subtitle">Aggregate, anonymised wellbeing across all Seni Scape &amp; Harmoni Circle sessions · Powered by Gym Brain</div>
+      <div class="subtitle">Aggregate, anonymised wellbeing across all myWIPhealing programs · Powered by Gym Brain</div>
     </div>
     <div class="bar-actions">
       <span class="badge on-dark" id="periodBadge">Loading…</span>
@@ -29,9 +29,9 @@
       <h3><span class="dot"></span> The shift, in their own scores</h3>
       <div id="shift"></div>
     </div>
-    <!-- Sentiment + booth -->
+    <!-- Sentiment + program experience -->
     <div class="card">
-      <h3><span class="dot"></span> How sessions land</h3>
+      <h3><span class="dot"></span> How programs land</h3>
       <div id="landing"></div>
     </div>
   </div>
@@ -107,32 +107,34 @@ async function load() {
   $("hero").innerHTML = [
     kpi("Community Wellbeing Index", s.wellbeingIndex10, "/10", "Mean of post-session wellbeing scales"),
     kpi("Positive sessions", posPct, "%", "Share of responses read as positive"),
-    kpi("Net Promoter Score", null, "", "", true),
-    kpi("3-month engagement", null, "", "", true),
+    kpi("Net Promoter Score", s.nps, "", "0–100 scale"),
+    kpi("Program effectiveness", s.effectiveness, "/5", "Mean rating"),
   ].join("");
 
-  // Shift card
+  // Shift card — matched pre/post pairs
   $("shift").innerHTML = s.total
     ? `<div class="bars">
+        ${barPair("Happy & safe to be myself (1–5)", s.preHappy, s.postHappy, 5)}
+        ${barPair("Kind to self (1–5)", s.preKind, s.postKind, 5)}
         ${barPair("Sense of self-worth (1–5)", s.preWorth, s.postWorth, 5)}
-        ${barPair("Mind state (1–5)", s.preHeavy, s.postPeace, 5, "before = heaviness, after = calm")}
+        ${barPair("Mind calm & at ease (1–5)", s.preCalm, s.postCalm, 5)}
       </div>
-      <div class="muted" style="font-size:11.5px;margin-top:12px">Matched single-session pre/post scores. Self-reported.</div>`
+      <div class="muted" style="font-size:11.5px;margin-top:12px">Matched single-session pre/post scores. Self-reported. Higher = better.</div>`
     : `<div class="muted">No responses yet.</div>`;
 
-  // Landing card: sentiment split + booth experience (A best → E)
-  const booth = s.booth || {};
-  const boothOrder = ["A", "B", "C", "D", "E"];
-  const boothMax = Math.max(1, ...boothOrder.map((k) => booth[k] || 0));
-  const boothLabels = { A: "Love it", B: "Enjoyed", C: "Okay", D: "Not much", E: "Didn't enjoy" };
+  // Landing card: sentiment split + program experience (A best → E)
+  const prog = s.programExperience || {};
+  const progOrder = ["A", "B", "C", "D", "E"];
+  const progMax = Math.max(1, ...progOrder.map((k) => prog[k] || 0));
+  const progLabels = { A: "Love it", B: "Enjoyed", C: "Okay", D: "Not much", E: "Didn't enjoy" };
   $("landing").innerHTML = `
     <div class="bars">
-      ${boothOrder.filter((k) => booth[k]).map((k) => `
-        <div class="bar-row"><div class="tier" style="width:72px">${boothLabels[k]}</div>
-        <div class="bar-track"><div class="bar-fill after" style="width:${Math.round((booth[k]/boothMax)*100)}%">${booth[k]}</div></div></div>
-      `).join("") || '<div class="muted">No booth feedback yet.</div>'}
+      ${progOrder.filter((k) => prog[k]).map((k) => `
+        <div class="bar-row"><div class="tier" style="width:72px">${progLabels[k]}</div>
+        <div class="bar-track"><div class="bar-fill after" style="width:${Math.round((prog[k]/progMax)*100)}%">${prog[k]}</div></div></div>
+      `).join("") || '<div class="muted">No program feedback yet.</div>'}
     </div>
-    <div class="muted" style="font-size:11.5px;margin-top:12px">Booth experience rating · ${sent.positive || 0} positive / ${sent.mixed || 0} mixed / ${sent.negative || 0} negative (AI-read)</div>`;
+    <div class="muted" style="font-size:11.5px;margin-top:12px">Program experience rating · ${sent.positive || 0} positive / ${sent.mixed || 0} mixed / ${sent.negative || 0} negative (AI-read)</div>`;
 
   // Word cloud
   const words = s.words || [];

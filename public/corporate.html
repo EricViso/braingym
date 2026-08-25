@@ -44,7 +44,7 @@
   <div class="appbar">
     <div>
       <div class="brand-mark"><h1>myWIPhealing <span class="accent">→ Team Impact</span></h1></div>
-      <div class="subtitle" id="sub">Corporate pilot · powered by Gym Brain</div>
+      <div class="subtitle" id="sub">Program impact · powered by Gym Brain</div>
     </div>
     <div class="bar-actions no-print">
       <span class="badge on-dark">Confidential</span>
@@ -57,12 +57,12 @@
   <div class="card no-print">
     <h3><span class="dot"></span> Filter</h3>
     <div class="filters">
-      <div class="field"><label>Company</label><input id="fCompany" placeholder="(Phase 2)" disabled></div>
+      <div class="field"><label>Program</label><input id="fProgram" placeholder="e.g. WIP Nadi Workshop"></div>
       <div class="field"><label>From</label><input id="fFrom" type="date"></div>
       <div class="field"><label>To</label><input id="fTo" type="date"></div>
       <button class="btn btn-banana btn-sm" onclick="load()">Apply</button>
     </div>
-    <div class="muted" style="font-size:11.5px;margin-top:10px">Per-company before/after activates once the survey captures employer + a matched pre/post programme flow (Phase 2). Today this shows aggregate single-session pilot data.</div>
+    <div class="muted" style="font-size:11.5px;margin-top:10px">Filter by program name and date range to see aggregated impact data.</div>
   </div>
 
   <!-- KPI row -->
@@ -70,7 +70,7 @@
 
   <div class="grid grid-2">
     <div class="card">
-      <h3><span class="dot"></span> Before vs after — key metrics</h3>
+      <h3><span class="dot"></span> Before vs after — wellbeing metrics</h3>
       <div id="pairs"></div>
     </div>
     <div class="card">
@@ -142,6 +142,7 @@ function barPair(label, before, after, max, note) {
 
 async function load() {
   const params = new URLSearchParams();
+  if ($("fProgram").value) params.set("program", $("fProgram").value);
   if ($("fFrom").value) params.set("from", new Date($("fFrom").value).toISOString());
   if ($("fTo").value) params.set("to", new Date($("fTo").value + "T23:59:59").toISOString());
 
@@ -159,10 +160,10 @@ async function load() {
   }
   const s = d.stats;
 
-  $("sub").textContent = `Corporate pilot · ${s.count} participants · powered by Gym Brain`;
+  $("sub").textContent = `Program impact · ${s.count} participants · powered by Gym Brain`;
   $("footMeta").textContent = `Self-reported · n=${s.count} · aggregated & anonymised · team-level only`;
 
-  // Self-worth uplift
+  // Wellbeing uplift (average across all post scales)
   const worth = s.pairs.find((p) => p.label === "Sense of self-worth") || {};
   const uplift = worth.before && worth.after ? Math.round(((worth.after - worth.before) / worth.before) * 100) : null;
   const sent = s.sentiment || {};
@@ -173,7 +174,7 @@ async function load() {
     kpi("Team wellbeing (after)", s.afterWellbeing10, "/10", "Mean of post-session scales"),
     kpi("Self-worth uplift", uplift === null ? null : "+" + uplift, "%", `from ${n1(worth.before)} → ${n1(worth.after)} /5`),
     kpi("Positive sessions", posPct, "%", "AI-read sentiment"),
-    kpi("Net Promoter Score", null, "", "", true),
+    kpi("Net Promoter Score", s.nps, "", "0–100 scale"),
   ].join("");
 
   $("pairs").innerHTML = s.count

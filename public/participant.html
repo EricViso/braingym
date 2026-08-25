@@ -129,10 +129,12 @@ function session(r) {
   const themes = Array.isArray(a.themes) ? a.themes.map((t) => `<span class="tag">${esc(t)}</span>`).join(" ") : "";
 
   return `<div class="session">
-    <div class="when">${when(r.submittedAt)} · ${esc(d.creative_expression || "session")}${d.community_role ? " · " + esc(d.community_role) : ""}</div>
+    <div class="when">${when(r.submittedAt)} · ${esc(d.program || "session")}${d.community_role ? " · " + esc(d.community_role) : ""}</div>
+    ${pair("Happy & safe", d.pre_happy_safe, d.post_happy_safe)}
+    ${pair("Kind to self", d.pre_self_kind, d.post_self_kind)}
     ${pair("Self-worth", d.pre_self_worth, d.post_self_worth)}
-    ${pair("Mind state", d.pre_mind_heavy, d.post_mind_peaceful, "heaviness → calm")}
-    <div class="kv"><span class="lbl">Felt lighter / understood feelings:</span> ${n1(d.post_mind_lighter)} / ${n1(d.post_understand_feelings)} /5</div>
+    ${pair("Mind calm", d.pre_mind_calm, d.post_mind_calm)}
+    <div class="kv"><span class="lbl">Program effectiveness:</span> ${n1(d.program_effectiveness)} /5 · <span class="lbl">Would recommend:</span> ${n1(d.would_recommend)} /10</div>
     ${txt}
     ${a.sentiment ? `<div style="margin-top:8px">${tag(a.sentiment)} ${a.wellbeing_shift ? `<span class="tag">${esc(a.wellbeing_shift)}</span>` : ""} ${themes}</div>` : ""}
     ${a.summary ? `<div class="ai-summary">🤖 ${esc(a.summary)}</div>` : ""}
