@@ -64,6 +64,17 @@ function distribution(datas, field) {
   for (const d of datas) {
     const v = d[field];
     if (v === null || v === undefined || v === "") continue;
+    // Skip 0 on numeric scales — it means "not collected / default".
+    if (v === 0 || v === "0") continue;
+    const key = String(v);
+    counts[key] = (counts[key] || 0) + 1;
+  }
+  return counts;
+}
+  const counts = {};
+  for (const d of datas) {
+    const v = d[field];
+    if (v === null || v === undefined || v === "") continue;
     const key = String(v);
     counts[key] = (counts[key] || 0) + 1;
   }

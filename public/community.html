@@ -141,7 +141,17 @@ async function load() {
   const sentTotal = (sent.positive || 0) + (sent.mixed || 0) + (sent.negative || 0);
   const posPct = sentTotal ? Math.round((sent.positive / sentTotal) * 100) : null;
 
-  // Effectiveness positivity % (4 or 5)
+  // Effectiveness positivity % (4 or 5) — only meaningful with 3+ real ratings
+  const eff = s.programEffectiveness || {};
+  const effTotal = [1,2,3,4,5].reduce((sum, k) => sum + (eff[k] || 0), 0);
+  const effPositive = effTotal >= 3 ? Math.round(((eff[4] || 0) + (eff[5] || 0)) / effTotal * 100) : null;
+
+  $("hero").innerHTML = [
+    kpi("Community Wellbeing Index", s.wellbeingIndex10, "/10", "Mean of 5 post-session scales"),
+    kpi("Positive Sessions", posPct, "%", "Share read as positive sentiment"),
+    kpi("Program Effectiveness", effPositive, "%", "Rated 4–5 / 5 (Very or Extremely effective)", effTotal < 3),
+    kpi("Total Responses", s.total, "", "All-time submissions"),
+  ].join("");
   const eff = s.programEffectiveness || {};
   const effTotal = [1,2,3,4,5].reduce((sum, k) => sum + (eff[k] || 0), 0);
   const effPositive = effTotal ? Math.round(((eff[4] || 0) + (eff[5] || 0)) / effTotal * 100) : null;
@@ -196,6 +206,23 @@ async function load() {
     : `<div class="muted">No responses yet.</div>`;
 
   // Program Effectiveness distribution
+  const effLabels = { 1: "Not effective", 2: "Slightly", 3: "Moderately", 4: "Very", 5: "Extremely" };
+  const effOrder = [5, 4, 3, 2, 1];
+  const effMax = Math.max(1, ...effOrder.map((k) => eff[k] || 0));
+  $("effectiveness").innerHTML = effTotal >= 3
+    ? `<div class="eff-chart">` +
+        effOrder.map((k) => {
+          const count = eff[k] || 0;
+          const pct = Math.round((count / effMax) * 100);
+          return `<div class="eff-row">
+            <div class="eff-label">${effLabels[k]}</div>
+            <div class="eff-track"><div class="eff-fill e${k}" style="width:${pct}%"></div></div>
+            <div class="eff-count">${count}</div>
+          </div>`;
+        }).join("") +
+      `</div>
+      <div class="muted" style="font-size:11.5px;margin-top:12px">Mean effectiveness: ${n1(s.effectiveness)} / 5 · n=${effTotal}</div>`
+    : `<div class="muted">Awaiting effectiveness ratings. This metric lights up once 3+ participants rate the program.</div>`;
   const effLabels = { 1: "Not effective", 2: "Slightly", 3: "Moderately", 4: "Very", 5: "Extremely" };
   const effOrder = [5, 4, 3, 2, 1];
   const effMax = Math.max(1, ...effOrder.map((k) => eff[k] || 0));
