@@ -71,15 +71,6 @@ function distribution(datas, field) {
   }
   return counts;
 }
-  const counts = {};
-  for (const d of datas) {
-    const v = d[field];
-    if (v === null || v === undefined || v === "") continue;
-    const key = String(v);
-    counts[key] = (counts[key] || 0) + 1;
-  }
-  return counts;
-}
 
 function sentimentSplit(responses) {
   const s = { positive: 0, mixed: 0, negative: 0 };
