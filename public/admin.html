@@ -109,26 +109,15 @@
 let token = sessionStorage.getItem("adminToken") || "";
 let allResponses = [];
 
-const FIELD_LABELS = {
+// Labels and quote-eligible fields come from the server (survey.js) so a new
+// question always shows up here and in the CSV export. The literals below are
+// only a fallback for a stale cached page.
+let FIELD_LABELS = {
   name: "Name", age_group: "Age group", gender: "Gender", location: "Location",
-  email: "Email", phone: "Phone", program: "Program joined", community_role: "Community role",
-  pre_happy_safe: "Pre: happy & safe (1-5)", pre_self_kind: "Pre: kind to self (1-5)",
-  pre_self_worth: "Pre: I am important (1-5)", pre_mind_calm: "Pre: mind calm (1-5)",
-  pre_social_connection: "Pre: people I can talk to (1-5)",
-  pre_mood: "Mood brought in",
-  post_happy_safe: "Post: happy & safe (1-5)", post_self_kind: "Post: kind to self (1-5)",
-  post_self_worth: "Post: I am important (1-5)", post_mind_calm: "Post: mind calm (1-5)",
-  post_social_connection: "Post: people I can talk to (1-5)",
-  post_strength_lesson: "Lesson on strength/self-love", post_self_view_change: "Change in self-view",
-  program_effectiveness: "Program effectiveness (1-5)", would_recommend: "Would recommend (0-10)",
-  program_experience: "Program experience (A-E)", suggestions: "Suggestions",
-  // Legacy fields (backwards compatibility with historical data)
-  pre_heavy_feeling: "Pre: heavy feeling (legacy)", personal_experience: "Personal creative experience (legacy)",
-  emotions_while_creating: "Emotions while creating (legacy)", impactful_zone: "Most impactful zone (legacy)",
-  mental_health_understanding: "Mental health understanding (legacy)",
+  email: "Email", phone: "Phone", program: "Program", community_role: "Community role",
 };
-
-const QUOTE_FIELDS = ["post_strength_lesson", "post_self_view_change", "personal_experience", "emotions_while_creating", "suggestions", "pre_mood"];
+let QUOTE_FIELDS = ["post_strength_lesson", "personal_experience",
+  "emotions_while_creating", "significant_moment", "suggestions", "pre_mood"];
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","'":"&quot;","'":"&#39;" }[c]));
@@ -159,8 +148,11 @@ function logout() {
 
 async function showDash() {
   $("login").style.display = "none"; $("dash").style.display = "block";
-  const { stats, responses, participants } = await api("/api/admin/data");
+  const d = await api("/api/admin/data");
+  const { stats, responses, participants } = d;
   allResponses = responses;
+  if (d.fieldLabels) FIELD_LABELS = d.fieldLabels;
+  if (d.quoteFields) QUOTE_FIELDS = d.quoteFields;
 
   const returning = (participants || []).filter((p) => !p.anonymous && p.count > 1).length;
   $("cards").innerHTML = [

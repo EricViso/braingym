@@ -60,7 +60,7 @@
   <div class="card no-print">
     <h3><span class="dot"></span> Filter</h3>
     <div class="filters">
-      <div class="field"><label>Program</label><input id="fProgram" placeholder="e.g. WIP Nadi Workshop"></div>
+      <div class="field"><label>Program</label><select id="fProgram"><option value="">All programs</option></select></div>
       <div class="field"><label>From</label><input id="fFrom" type="date"></div>
       <div class="field"><label>To</label><input id="fTo" type="date"></div>
       <button class="btn btn-banana btn-sm" onclick="load()">Apply</button>
@@ -122,7 +122,7 @@ async function login() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Login failed");
     token = data.token; sessionStorage.setItem("adminToken", token);
-    show("app"); load();
+    show("app"); loadPrograms(); load();
   } catch (e) { $("gateErr").textContent = e.message; }
 }
 
@@ -144,6 +144,20 @@ function barPair(label, before, after, max, note, delta, pctImproved) {
     <div class="bar-row"><div class="tier">Before</div><div class="bar-track"><div class="bar-fill" style="width:${pct(before)}%">${n1(before)}</div></div></div>
     <div class="bar-row"><div class="tier">After</div><div class="bar-track"><div class="bar-fill after" style="width:${pct(after)}%">${n1(after)}</div></div></div>
   </div>`;
+}
+
+// Program options come from survey.js, so adding a program there is enough.
+// Values are ids; stats.js normalises legacy label-valued rows to match.
+async function loadPrograms() {
+  try {
+    const { programs } = await (await fetch("/api/programs")).json();
+    const sel = $("fProgram");
+    for (const p of programs || []) {
+      const o = document.createElement("option");
+      o.value = p.id; o.textContent = p.label;
+      sel.appendChild(o);
+    }
+  } catch { /* filter just stays on "All programs" */ }
 }
 
 async function load() {
@@ -231,7 +245,7 @@ async function load() {
 }
 
 document.getElementById("pw").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
-if (token) { show("app"); load(); } else { show("gate"); }
+if (token) { show("app"); loadPrograms(); load(); } else { show("gate"); }
 </script>
 </body>
 </html>

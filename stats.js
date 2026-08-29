@@ -3,13 +3,14 @@
 // and returns plain JSON. No I/O, no new storage shape.
 
 // Matched 1-5 scale fields and their human labels (used by the admin view).
+const survey = require("./survey");
+
 const SCALE_FIELDS = {
   pre_happy_safe: "Pre: happy & safe to be myself",
   pre_self_kind: "Pre: kind to myself",
   pre_self_worth: "Pre: I know I am important",
   pre_mind_calm: "Pre: mind calm & at ease",
   pre_social_connection: "Pre: people I can talk to",
-  mental_health_understanding: "Understanding of mental health link",
   post_happy_safe: "Post: happy & safe to be myself",
   post_self_kind: "Post: kind to myself",
   post_self_worth: "Post: I know I am important",
@@ -27,6 +28,18 @@ const CATEGORY_FIELDS = {
 };
 
 // The five post-assessment scales that compose the Wellbeing Index.
+// Open-text answers eligible to become a public testimonial. Shared by the
+// server-side validator and the admin UI so the two cannot disagree.
+// Includes the Harmoni Circle reflection fields.
+const QUOTE_FIELDS = [
+  "post_strength_lesson",
+  "personal_experience",
+  "emotions_while_creating",
+  "significant_moment",
+  "suggestions",
+  "pre_mood",
+];
+
 const WELLBEING_POST = [
   "post_happy_safe",
   "post_self_kind",
@@ -34,6 +47,21 @@ const WELLBEING_POST = [
   "post_mind_calm",
   "post_social_connection",
 ];
+
+// Programme identity. Responses collected before this refactor stored the
+// programme's display label ("WIP Harmoni Circle"); new ones store the stable
+// id ("wip-harmoni-circle"). Both normalise to the id here so imported
+// historical rows keep matching the filters instead of silently dropping out.
+const PROGRAM_KEYS = new Map();
+for (const p of survey.PROGRAMS) {
+  PROGRAM_KEYS.set(p.id.toLowerCase(), p.id);
+  PROGRAM_KEYS.set(p.label.toLowerCase(), p.id);
+}
+function programId(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const k = String(value).trim().toLowerCase();
+  return PROGRAM_KEYS.get(k) || String(value).trim();
+}
 
 // ---------- small helpers ----------
 
@@ -62,7 +90,7 @@ function rowScaleAvg(d, fields) {
 function distribution(datas, field) {
   const counts = {};
   for (const d of datas) {
-    const v = d[field];
+    const v = field === "program" ? programId(d[field]) : d[field];
     if (v === null || v === undefined || v === "") continue;
     // Skip 0 on numeric scales — it means "not collected / default".
     if (v === 0 || v === "0") continue;
@@ -112,7 +140,31 @@ function computeStats(responses) {
     (r) => r.analysis && r.analysis.concern_flag
   ).length;
 
-  return { total: responses.length, flagged, averages, distributions };
+  // Scale averages recomputed within each programme. Programmes share the
+  // matched pre/post battery but not the reflection section, so a pooled
+  // average can hide a difference that only exists in one of them.
+  const byProgram = {};
+  for (const p of survey.PROGRAMS) {
+    const rows = datas.filter((d) => programId(d.program) === p.id);
+    if (!rows.length) continue;
+    const avgs = {};
+    for (const [field, label] of Object.entries(SCALE_FIELDS)) {
+      const nums = scaleVals(rows, field);
+      if (nums.length) avgs[field] = { label, average: avg(nums), count: nums.length };
+    }
+    byProgram[p.id] = { label: p.label, count: rows.length, averages: avgs };
+  }
+
+  const unattributed = datas.filter((d) => !d.program).length;
+
+  return {
+    total: responses.length,
+    flagged,
+    averages,
+    distributions,
+    byProgram,
+    unattributed,
+  };
 }
 
 // ---------- community (public, anonymised, aggregate only) ----------
@@ -257,7 +309,10 @@ function corporateStats(responses, filters = {}) {
   let rs = responses.slice();
   if (from) rs = rs.filter((r) => r.submittedAt && r.submittedAt >= from);
   if (to) rs = rs.filter((r) => r.submittedAt && r.submittedAt <= to);
-  if (program) rs = rs.filter((r) => r.data && r.data.program === program);
+  if (program)
+    rs = rs.filter(
+      (r) => r.data && programId(r.data.program) === programId(program)
+    );
   if (company)
     rs = rs.filter(
       (r) => r.data && (r.data.company || "").toLowerCase() === company.toLowerCase()
@@ -400,6 +455,8 @@ function groupByParticipant(responses) {
 module.exports = {
   SCALE_FIELDS,
   CATEGORY_FIELDS,
+  QUOTE_FIELDS,
+  programId,
   computeStats,
   communityStats,
   corporateStats,
