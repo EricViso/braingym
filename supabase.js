@@ -8,15 +8,43 @@
 // their answers because a backup write failed would be strictly worse than
 // having no backup at all.
 
-// Deliberately NOT the bare SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY names.
-// Those are already set ambiently in this org's environments and point at the
-// Treelance recruitment database. Survey responses silently mirroring into that
-// project would be a serious data-mixing incident, so this store requires its
-// own explicitly-named variables and stays off until they are set.
-const URL_BASE = (process.env.SURVEY_SUPABASE_URL || "").replace(/\/+$/, "");
-const SERVICE_KEY = process.env.SURVEY_SUPABASE_SERVICE_ROLE_KEY;
+// Vercel's Supabase integration injects SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY
+// automatically, so those are accepted. SURVEY_-prefixed names win when both
+// exist, for the case where a project is linked to more than one database.
+//
+// The bare names are not safe on their own: they are also set in some of this
+// org's other environments, where they resolve to the Treelance recruitment
+// database. Mirroring survey responses there would mix two sensitive datasets.
+// preflight() below is the actual guard - it refuses to write to any database
+// that does not already have the responses table.
+const URL_BASE = (
+  process.env.SURVEY_SUPABASE_URL ||
+  process.env.SUPABASE_URL ||
+  ""
+).replace(/\/+$/, "");
 
-const enabled = Boolean(URL_BASE && SERVICE_KEY);
+const SERVICE_KEY =
+  process.env.SURVEY_SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Optional belt-and-braces pin: set to the project ref (the subdomain) to
+// hard-refuse any other project, whatever the URL variable happens to say.
+const EXPECTED_REF = process.env.SURVEY_SUPABASE_PROJECT_REF;
+
+function projectRef(url) {
+  const m = /^https?:\/\/([a-z0-9-]+)\.supabase\./i.exec(url);
+  return m ? m[1] : null;
+}
+
+const ref = projectRef(URL_BASE);
+const refMismatch = Boolean(EXPECTED_REF && ref && ref !== EXPECTED_REF);
+if (refMismatch) {
+  console.error(
+    `Supabase mirror disabled: SURVEY_SUPABASE_PROJECT_REF is "${EXPECTED_REF}" but the configured URL points at "${ref}".`
+  );
+}
+
+const enabled = Boolean(URL_BASE && SERVICE_KEY && !refMismatch);
 
 const TABLE = "responses";
 const REST = `${URL_BASE}/rest/v1/${TABLE}`;

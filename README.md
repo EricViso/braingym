@@ -96,9 +96,15 @@ create a Redis store under **Storage** and connect it, then redeploy.
 
 ### Supabase backup mirror
 
-Set `SURVEY_SUPABASE_URL` + `SURVEY_SUPABASE_SERVICE_ROLE_KEY` and every response is written
-to Supabase as well as to the primary store. Run `supabase/schema.sql` in the project first
-(Supabase dashboard -> SQL Editor).
+Vercel's Supabase integration already sets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`, and
+those are used automatically - no extra variables needed. Run `supabase/schema.sql` in that
+project first (Supabase dashboard -> SQL Editor); the mirror refuses to write to a database
+that has no `responses` table, so a wrong or unmigrated project fails safe rather than
+scattering participant answers into it.
+
+To override the integration's values, set `SURVEY_SUPABASE_URL` / `SURVEY_SUPABASE_SERVICE_ROLE_KEY`
+(these win). `SURVEY_SUPABASE_PROJECT_REF` optionally pins an expected project ref and refuses
+anything else.
 
 - **Writes** go to both stores. Either one failing is logged and tolerated; only losing *both*
   fails the request, so a mirror outage never costs a participant their answers.
@@ -111,5 +117,6 @@ to Supabase as well as to the primary store. Run `supabase/schema.sql` in the pr
 - `GET /api/admin/storage` (admin auth) reports which stores are live and how many responses
   each holds - check it before a session to catch a silently-empty backend.
 
-The variables are deliberately **not** named `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`: those
-are set ambiently in some environments here and point at an unrelated project.
+Note that `SUPABASE_URL` is also set in some of this org's *other* environments, where it points
+at an unrelated database. The table-existence preflight is what makes that safe: the mirror only
+engages against a project that has already been migrated with `supabase/schema.sql`.
