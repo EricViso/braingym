@@ -93,3 +93,30 @@ or `KV_REST_API_URL/TOKEN`) or standard Redis over TCP (`REDIS_URL`). The app ru
 Vercel serverless function via `api/index.js` + the `vercel.json` rewrite. One-time setup:
 import the repo (Framework Preset **Other**), add `DEEPSEEK_API_KEY` + `ADMIN_PASSWORD`,
 create a Redis store under **Storage** and connect it, then redeploy.
+
+### Supabase backup mirror
+
+Vercel's Supabase integration already sets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`, and
+those are used automatically - no extra variables needed. Run `supabase/schema.sql` in that
+project first (Supabase dashboard -> SQL Editor); the mirror refuses to write to a database
+that has no `responses` table, so a wrong or unmigrated project fails safe rather than
+scattering participant answers into it.
+
+To override the integration's values, set `SURVEY_SUPABASE_URL` / `SURVEY_SUPABASE_SERVICE_ROLE_KEY`
+(these win). `SURVEY_SUPABASE_PROJECT_REF` optionally pins an expected project ref and refuses
+anything else.
+
+- **Writes** go to both stores. Either one failing is logged and tolerated; only losing *both*
+  fails the request, so a mirror outage never costs a participant their answers.
+- **Reads** come from the primary, and fall back to Supabase when the primary errors *or*
+  comes back empty - which is what a recycled or unprovisioned Redis store looks like.
+- With no Redis configured at all, Supabase simply becomes the primary store.
+- Answers are stored in a single `data` jsonb column, so **changing the questionnaire needs no
+  migration here**. Bump `SURVEY_SCHEMA_VERSION` when questions change; it is recorded per row
+  so answers to reworded questions can be segmented rather than blindly averaged.
+- `GET /api/admin/storage` (admin auth) reports which stores are live and how many responses
+  each holds - check it before a session to catch a silently-empty backend.
+
+Note that `SUPABASE_URL` is also set in some of this org's *other* environments, where it points
+at an unrelated database. The table-existence preflight is what makes that safe: the mirror only
+engages against a project that has already been migrated with `supabase/schema.sql`.

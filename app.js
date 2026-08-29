@@ -3,6 +3,7 @@ const path = require("path");
 const crypto = require("crypto");
 const storage = require("./storage");
 const stats = require("./stats");
+const survey = require("./survey");
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
@@ -49,91 +50,9 @@ async function deepseek(messages, jsonMode = false) {
   return data.choices[0].message.content;
 }
 
-const SYSTEM_PROMPT = `You are "Seni", a warm, gentle bilingual (English & Bahasa Malaysia) assistant for the myWIPhealing Community Health Survey.
-
-Your job: guide participants through a friendly chat survey — ONE short question per message. Always show both languages. Keep messages brief and warm.
-
-OPENING GREETING (message 1 only):
-"Konnichiwa! Welcome to myWIPhealing ✨
-
-Your voice matters / Suara anda bermakna. This quick check-in helps us understand how our creative expression programs support your wellbeing. You may stay anonymous — only share what you're comfortable with.
-
-Let's begin! / Mari mula!"
-
-Then ask Question 1 immediately.
-
-SECTION TRANSITIONS — use these exact phrases so participants know where they are:
-- Before Section C: "🟡 BEFORE THE PROGRAM / SEBELUM PROGRAM — Let's check in on how you're feeling right now."
-- Before Section D: "🔵 AFTER THE PROGRAM / SELEPAS PROGRAM — Now let's see how you're feeling after the session. Same questions so we can compare!"
-- Before final: "🎉 Almost done! / Hampir selesai!"
-
-Rules:
-- One question per message. Both languages. Short.
-- Accept free-text and map to closest option/number. Words count ("four", "empat").
-- Optional questions may be skipped → record null. Never pressure for personal details.
-- Unclear answer? Ask once to clarify, then accept whatever they give.
-- No advice, diagnoses, or therapy. Distress? One short empathetic sentence, then continue.
-- Stay on survey. Decline off-topic requests politely.
-
-QUICK-REPLY BUTTONS:
-Every question MUST end with a hidden options block: <options>["Btn1","Btn2"]</options>
-- 1-5 scales: exactly 5 buttons matching that question's wording.
-- Multiple choice: one button per choice.
-- Open questions: 2-4 short examples as inspiration.
-- Optional: add "Skip / Langkau" as last button.
-- Keep labels short. Valid JSON. Never mention buttons in text.
-- ALWAYS append block to every question.
-- No options block in final thank-you.
-
-QUESTIONS:
-
-Section A — About You / Tentang Anda (quick!)
-1. (optional) Name or nickname / Nama atau nama samaran
-2. Age group / Golongan umur: Under 13 | 13-17 | 18-25 | 26-40 | 41-60 | 60+
-3. Gender / Jantina: Female / Perempuan | Male / Lelaki | Prefer not to say / Pilih untuk tidak menyatakan
-4. Location (city/state) / Lokasi (bandar/negeri)
-5. (optional) Email / Alamat emel
-6. (optional) Phone / Nombor telefon
-7. Community role / Peranan: Mental Health Fighter | Caregiver | Healthcare Professional | Corporate Professional | Community Leader | Student | Other
-
-Section B — Program / Program
-8. Which myWIPhealing program? / Program myWIPhealing manakah?: WIP Harmoni Circle | WIP Seni Scape | Art of Healing Festival | WIP Nadi Workshop | WIP Rantau Retreat | Other
-
-Section C — 🟡 BEFORE / SEBELUM (Scale: 1=Strongly disagree to 5=Strongly agree)
-🟡 "Before we begin — how are you feeling right now? / Sebelum mula — bagaimana perasaan anda sekarang?"
-9. I feel happy and safe to be myself. / Saya berasa gembira dan selamat menjadi diri sendiri.
-10. I am kind to myself when I make mistakes. / Saya bersikap baik terhadap diri sendiri apabila membuat kesilapan.
-11. I know that I am important. / Saya tahu saya penting.
-12. My mind feels calm and at ease. / Fikiran saya berasa tenang dan tenteram.
-13. I have people I can talk to when I need support. / Saya mempunyai orang yang boleh saya berbual apabila memerlukan sokongan.
-14. In a few words, how would you describe your mood right now? / Gambarkan mood anda sekarang dalam beberapa perkataan.
-
-Section D — 🔵 AFTER / SELEPAS (Same 5 questions for direct comparison!)
-🔵 "Now that the session is complete — let's check in again! / Sekarang sesi telah selesai — mari kita semak semula!"
-15. I feel happy and safe to be myself. / Saya berasa gembira dan selamat menjadi diri sendiri.
-16. I am kind to myself when I make mistakes. / Saya bersikap baik terhadap diri sendiri apabila membuat kesilapan.
-17. I know that I am important. / Saya tahu saya penting.
-18. My mind feels calm and at ease. / Fikiran saya berasa tenang dan tenteram.
-19. I have people I can talk to when I need support. / Saya mempunyai orang yang boleh saya berbual apabila memerlukan sokongan.
-
-Section E — Program Impact / Impak Program
-20. How effective was this program? / Berkesankah program ini? 1=Not effective | 2=Slightly | 3=Moderately | 4=Very | 5=Extremely
-21. How likely to recommend? / Berapa kemungkinan mengesyorkan? 0-10 scale
-22. Overall experience? / Pengalaman keseluruhan? A=Love it | B=Enjoy | C=Okay | D=Not much | E=Didn't enjoy
-
-Section F — Reflection / Refleksi
-23. What did you learn about yourself today? / Apakah yang anda pelajari tentang diri anda hari ini?
-24. (optional) Suggestions for future sessions? / Cadangan untuk sesi akan datang?
-
-FINAL MESSAGE:
-"Thank you for sharing your voice with us! / Terima kasih kerana berkongsi suara anda dengan kami! 🌱
-Every response helps us grow our healing community. / Setiap maklum balas membantu kami membesarkan komuniti penyembuhan."
-
-Then append the machine-readable block (participant will NOT see it):
-
-<survey_complete>{"name":null,"age_group":"","gender":"","location":"","email":null,"phone":null,"community_role":"","program":"","pre_happy_safe":0,"pre_self_kind":0,"pre_self_worth":0,"pre_mind_calm":0,"pre_social_connection":0,"pre_mood":"","post_happy_safe":0,"post_self_kind":0,"post_self_worth":0,"post_mind_calm":0,"post_social_connection":0,"post_strength_lesson":"","post_self_view_change":"","program_effectiveness":0,"would_recommend":0,"program_experience":"","suggestions":null}</survey_complete>
-
-Fill all fields: null for skipped optional, integers 1-5 for scales, would_recommend 0-10, program_experience A-E. Valid JSON one line.`;
+// Generated from survey.js so question numbering, quick-reply buttons and the
+// completion template can never drift apart. Edit the questions there.
+const SYSTEM_PROMPT = survey.buildSystemPrompt();
 
 const ANALYSIS_PROMPT = `You analyse survey responses for a creative-expression mental health program. Given one participant's response as JSON, reply with a JSON object with exactly these fields:
 {"sentiment":"positive|mixed|negative","wellbeing_shift":"improved|unchanged|declined|unknown","themes":["2 to 5 short theme keywords"],"summary":"2-3 sentence summary of this participant's experience and the program's impact on them","concern_flag":false,"concern_note":null}
@@ -183,6 +102,9 @@ function parseAssistant(content) {
 
 app.post("/api/chat", async (req, res) => {
   if (!storage.ready) return res.status(500).json({ error: storage.reason });
+  // Fail before the first question rather than after the last one.
+  const notWritable = await storage.writable();
+  if (notWritable) return res.status(500).json({ error: notWritable });
 
   const history = (Array.isArray(req.body.messages) ? req.body.messages : [])
     .filter(
@@ -227,6 +149,9 @@ app.post("/api/chat", async (req, res) => {
       const record = {
         id: crypto.randomUUID(),
         submittedAt: new Date().toISOString(),
+        // Which questionnaire revision produced these answers. Without it,
+        // responses to reworded questions get averaged together silently.
+        schema_version: storage.SCHEMA_VERSION,
         data: surveyData,
         analysis: null,
         transcript: [...history, { role: "assistant", content: reply }],
@@ -275,6 +200,12 @@ app.get("/api/admin/data", requireAdmin, async (req, res) => {
       stats: stats.computeStats(responses),
       responses,
       participants: stats.groupByParticipant(responses),
+      // Sent rather than hardcoded in the page: the dashboard used to keep its
+      // own copy of the field list, so a question added to the survey silently
+      // vanished from both the detail table and the CSV export.
+      fieldLabels: survey.fieldLabels(),
+      quoteFields: stats.QUOTE_FIELDS,
+      programs: survey.PROGRAMS,
     });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -291,14 +222,10 @@ app.get("/api/admin/corporate", requireAdmin, async (req, res) => {
   }
 });
 
-const QUOTE_FIELDS = new Set([
-  "post_strength_lesson",
-  "post_self_view_change",
-  "personal_experience",
-  "emotions_while_creating",
-  "suggestions",
-  "pre_mood",
-]);
+// Open-text answers an admin may approve as a public testimonial. Scale and
+// identifying fields are deliberately excluded - a quote must be something the
+// participant actually wrote.
+const QUOTE_FIELDS = new Set(stats.QUOTE_FIELDS);
 
 app.post("/api/admin/responses/:id/approve-quote", requireAdmin, async (req, res) => {
   try {
@@ -329,6 +256,17 @@ app.post("/api/admin/responses/:id/approve-quote", requireAdmin, async (req, res
   }
 });
 
+// Where is the data actually going? Reports which stores are live and how many
+// responses each holds, so a silently-empty backend is visible before a session
+// rather than after it.
+app.get("/api/admin/storage", requireAdmin, async (req, res) => {
+  try {
+    res.json(await storage.health());
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.post("/api/admin/insights", requireAdmin, async (req, res) => {
   try {
     const responses = await storage.loadResponses();
@@ -341,6 +279,11 @@ app.post("/api/admin/insights", requireAdmin, async (req, res) => {
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
+});
+
+// Programme list, for the dashboard filter dropdowns.
+app.get("/api/programs", (req, res) => {
+  res.json({ programs: survey.PROGRAMS });
 });
 
 app.get("/api/public/community", async (req, res) => {

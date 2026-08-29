@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const supabase = require("./supabase");
 
 // On Vercel the filesystem is ephemeral, so responses live in Redis.
 // Two Redis flavours are supported, picked by which env vars exist:
@@ -17,10 +18,16 @@ const REDIS_TCP_URL = process.env.REDIS_URL;
 const useUpstash = Boolean(UPSTASH_URL && UPSTASH_TOKEN);
 const useNodeRedis = !useUpstash && Boolean(REDIS_TCP_URL);
 
-const ready = useUpstash || useNodeRedis || !process.env.VERCEL;
+// Supabase alone is enough to run: if no Redis is configured it becomes the
+// primary store rather than only a mirror.
+const ready = useUpstash || useNodeRedis || supabase.enabled || !process.env.VERCEL;
 const reason = ready
   ? null
-  : "Storage is not configured. In the Vercel dashboard: Storage -> Create Database -> Redis (or Upstash for Redis) -> connect it to this project, then redeploy.";
+  : "Storage is not configured. Either connect a Redis store (Vercel dashboard: Storage -> Create Database -> Redis) or set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY, then redeploy.";
+
+// True when Redis/file handles reads and writes and Supabase is a spare copy.
+// False when Supabase is the only store there is.
+const hasPrimary = useUpstash || useNodeRedis || !process.env.VERCEL;
 
 const KEY = "responses";
 
@@ -75,7 +82,7 @@ function parseItem(item) {
   }
 }
 
-async function loadResponses() {
+async function primaryLoad() {
   if (useUpstash) {
     const items = await upstash.lrange(KEY, 0, -1);
     return items.map(parseItem);
@@ -88,8 +95,69 @@ async function loadResponses() {
   return loadFile();
 }
 
+// Reads prefer the primary store, but fall through to the Supabase mirror in
+// the two cases that actually lose data in practice: the primary erroring, and
+// the primary coming back empty because a Redis store was recycled, swapped or
+// never provisioned. An empty primary with a populated mirror means the mirror
+// is the truth.
+async function loadResponses() {
+  if (!hasPrimary) {
+    const mirrored = await supabase.loadResponses();
+    return mirrored || [];
+  }
+
+  let primary = null;
+  try {
+    primary = await primaryLoad();
+  } catch (e) {
+    console.error("Primary store read failed, trying Supabase:", e.message);
+    const mirrored = await supabase.loadResponses();
+    if (mirrored) return mirrored;
+    throw e;
+  }
+
+  if (primary && primary.length) return primary;
+
+  const mirrored = await supabase.loadResponses();
+  if (mirrored && mirrored.length) {
+    console.warn(
+      `Primary store empty but Supabase holds ${mirrored.length} response(s); serving the mirror.`
+    );
+    return mirrored;
+  }
+  return primary || [];
+}
+
 // Returns the index of the appended record so it can be updated later.
+// Mirrors to Supabase as well; the mirror keys on record.id, not the index.
 async function appendResponse(record) {
+  if (record && record.schema_version === undefined) {
+    record.schema_version = supabase.SCHEMA_VERSION;
+  }
+
+  let index = -1;
+  let primaryError = null;
+  if (hasPrimary) {
+    try {
+      index = await primaryAppend(record);
+    } catch (e) {
+      primaryError = e;
+      console.error("Primary store write failed:", e.message);
+    }
+  }
+
+  const mirrored = await supabase.saveResponse(record);
+
+  // Only a total loss is fatal. If either store took the response, the
+  // participant's answers survive and the survey completes normally.
+  if (primaryError && !mirrored) throw primaryError;
+  if (!hasPrimary && !mirrored) {
+    throw new Error("Supabase write failed and no other store is configured.");
+  }
+  return index;
+}
+
+async function primaryAppend(record) {
   if (useUpstash) {
     const length = await upstash.rpush(KEY, record);
     return length - 1;
@@ -105,7 +173,20 @@ async function appendResponse(record) {
   return all.length - 1;
 }
 
+// index addresses the Redis list position; Supabase upserts on record.id, so
+// an index of -1 (primary write failed, or Supabase-only) still updates cleanly.
 async function updateResponse(index, record) {
+  if (hasPrimary && index >= 0) {
+    try {
+      await primaryUpdate(index, record);
+    } catch (e) {
+      console.error("Primary store update failed:", e.message);
+    }
+  }
+  await supabase.saveResponse(record);
+}
+
+async function primaryUpdate(index, record) {
   if (useUpstash) {
     await upstash.lset(KEY, index, record);
     return;
@@ -122,4 +203,62 @@ async function updateResponse(index, record) {
   }
 }
 
-module.exports = { loadResponses, appendResponse, updateResponse, ready, reason };
+// Whether a response submitted right now could actually be stored. `ready` is a
+// config-level check; this one confirms the store will really accept a write.
+// Without it, a Supabase-only deployment whose table is missing would look fine
+// until a participant finished all 26 questions and lost every answer at the
+// final step. Cached by supabase.preflight(), so this is cheap after the first
+// call. Returns null when there is nothing to add beyond `ready`.
+async function writable() {
+  if (hasPrimary) return null; // Redis or the local file will take the write.
+  if (!supabase.enabled) return null; // `ready`/`reason` already covers this.
+  const ok = await supabase.preflight();
+  return ok
+    ? null
+    : "Supabase is the only configured store and its `responses` table is missing. Run supabase/schema.sql in that project, then redeploy.";
+}
+
+// Counts held by each store, so a silently-empty primary is visible.
+async function health() {
+  const info = backends();
+  let primaryCount = null;
+  if (hasPrimary) {
+    try {
+      primaryCount = (await primaryLoad()).length;
+    } catch (e) {
+      info.primaryError = e.message;
+    }
+  }
+  return {
+    ...info,
+    primaryCount,
+    supabaseCount: supabase.enabled ? await supabase.count() : null,
+  };
+}
+
+// Which stores are live, for the admin storage-health endpoint.
+function backends() {
+  return {
+    primary: useUpstash
+      ? "upstash-redis"
+      : useNodeRedis
+      ? "redis-tcp"
+      : hasPrimary
+      ? "json-file"
+      : null,
+    supabase: supabase.enabled,
+    schemaVersion: supabase.SCHEMA_VERSION,
+  };
+}
+
+module.exports = {
+  loadResponses,
+  appendResponse,
+  updateResponse,
+  backends,
+  health,
+  writable,
+  SCHEMA_VERSION: supabase.SCHEMA_VERSION,
+  ready,
+  reason,
+};
