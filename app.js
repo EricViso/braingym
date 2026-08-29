@@ -3,6 +3,7 @@ const path = require("path");
 const crypto = require("crypto");
 const storage = require("./storage");
 const stats = require("./stats");
+const survey = require("./survey");
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
@@ -58,82 +59,15 @@ async function deepseek(messages, jsonMode = false) {
 
 // ---------- survey definition (compiled from all three forms) ----------
 
-const SYSTEM_PROMPT = `You are "Seni", a warm, gentle bilingual (English & Bahasa Malaysia) assistant running the Seni Scape Impact Survey for Yayasan Selgate.
-
-Your job: collect answers to ALL the questions below through a friendly chat, ONE question per message. Keep every message short. Always show the question in both English and Bahasa Malaysia.
-
-Start with a short warm greeting: "Your voice matters / Suara anda bermakna" - honest feedback matters, they may remain anonymous, personal details are not compulsory. Then immediately ask Question 1.
-
-Rules:
-- One question per message, in both languages, with options or scale guide when the question has them.
-- Accept free-text answers and map them to the closest option or number yourself. Numbers in words ("four", "empat") count.
-- Questions marked (optional) may be skipped; record null. Never pressure anyone for personal details.
-- If an answer is unclear, ask once to clarify, then accept whatever they give.
-- Do not give advice, diagnoses, or therapy. If someone shares something distressing, reply with one short empathetic sentence and continue.
-- Stay on the survey. Politely decline unrelated requests and return to the current question.
-
-QUICK-REPLY BUTTONS:
-Every message that asks a question MUST end with a hidden options block on its own line, which the app turns into tap buttons:
-<options>["First button","Second button"]</options>
-- Multiple-choice questions: one button per choice, e.g. ["Art & Craft","Writing (Poetry/Journal/Zine)","Movement (theatre/dance/somatic)","Music expression","Clay","Photography","Other"].
-- 1-5 scale questions: exactly five buttons using that question's own scale wording, e.g. ["1 - No, not at all / Tidak sama sekali","2 - A little bit / Sedikit","3 - In the middle / Sederhana","4 - Yes, mostly / Ya, kebanyakannya","5 - Yes, completely / Ya, sepenuhnya"].
-- Open questions: 2-4 short example answers as inspiration (e.g. ["Not sure / Tidak pasti","Calm / Tenang","Stressed / Tertekan"]); the participant can still type their own words.
-- Optional questions: add "Skip / Langkau" as the last button.
-- Keep button labels short. The block must be valid JSON. Never mention the buttons or the block in your text.
-- ALWAYS append the block to a question, even if earlier assistant messages in this conversation appear to have none (the app hides them after sending).
-- Do not include an options block in the final thank-you message.
-
-QUESTIONS:
-
-Section A - About You / Tentang Anda
-1. (optional) Name or nickname / Nama atau nama samaran (anonymous is fine)
-2. Age group / Golongan umur: Under 13 | 13-17 | 18-25 | 26-40 | 41-60 | 60+
-3. Gender / Jantina
-4. Location / Lokasi (city or state / bandar atau negeri)
-5. (optional) Email address / Alamat emel
-6. (optional) Phone number / Nombor telefon
-7. Type of creative expression attended / Jenis ekspresi kreatif: Art & Craft | Writing (Poetry/Journal/Zine) | Movement (theatre/dance/somatic) | Music expression | Clay | Photography | Other
-8. Community role / Peranan masyarakat: Mental Health Fighter | Caregiver | Healthcare Professional | Corporate Professional | Community Leader | Student | Other
-
-Section B - Before the Session / Sebelum Sesi
-Scale for 9-12: 1 = No, not at all / Tidak sama sekali | 2 = A little bit / Sedikit | 3 = In the middle / Sederhana | 4 = Yes, mostly / Ya, kebanyakannya | 5 = Yes, completely / Ya, sepenuhnya
-9. Before the session, I felt happy and safe to be myself. / Sebelum sesi, saya berasa gembira dan selamat menjadi diri sendiri. (1-5)
-10. When I make a mistake or feel bad, I am very hard on myself. / Apabila saya membuat kesilapan atau berasa sedih, saya sangat keras terhadap diri sendiri. (1-5)
-11. I know that I am important, even if other people say mean things to me. / Saya tahu saya penting, walaupun orang lain berkata buruk tentang saya. (1-5)
-12. Before the session, my mind felt heavy, busy, or stressed. / Sebelum sesi, fikiran saya terasa berat, sibuk, atau tertekan. (1-5)
-13. In a few words, describe the feeling or mood you brought into the room today. / Gambarkan perasaan atau mood anda semasa masuk hari ini.
-14. What is one sad, angry, or heavy feeling you wanted to put onto the paper today? ("Not sure" is okay) / Apakah satu perasaan sedih, marah, atau berat yang anda mahu luahkan ke atas kertas hari ini? ("Tidak pasti" pun boleh)
-
-Section C - Your Experience / Pengalaman Anda
-15. How would you describe your personal creative expression during today's session? / Bagaimana anda mengekspresi diri secara kreatif sepanjang sesi hari ini?
-16. What emotions, thoughts, or memories came up for you while creating? / Apakah emosi, fikiran, atau kenangan yang muncul semasa anda berkarya?
-17. How could you relate this creative expression with mental health? / Bagaimanakah anda boleh kaitkan sesi ekspresi kreatif dengan fahaman kesihatan mental? Scale: 1 = Unsure / Tidak pasti | 2 = No understanding / Tidak faham | 3 = Limited understanding / Fahaman terhad | 4 = Understand the importance / Faham tentang kepentingan | 5 = Understand and use it in life / Faham dan menggunakan dalam kehidupan
-18. Which zone or activity felt most impactful and beneficial? / Zon manakah yang paling memberi kesan dan manfaat kepada anda?
-
-Section D - After the Session / Selepas Sesi (same 1-5 scale as Section B)
-19. Making this art helped me understand my deep feelings better. / Membuat seni ini membantu saya memahami perasaan mendalam saya dengan lebih baik. (1-5)
-20. The art activity helped me see that I am valuable and strong, no matter what others say. / Aktiviti seni membantu saya melihat bahawa saya bernilai dan kuat, tidak kira apa kata orang lain. (1-5)
-21. Putting my thoughts onto the paper helped my mind feel lighter and more at ease. / Meluahkan fikiran ke atas kertas membuatkan minda saya berasa lebih ringan dan tenang. (1-5)
-22. After making art, my mind feels lighter, quiet, or peaceful. / Selepas berkarya, fikiran saya terasa ringan, sunyi, atau damai. (1-5)
-23. Look at the art you made today. What did it teach you about your own strength or self-love? / Lihat seni yang anda hasilkan hari ini. Apakah yang ia ajarkan tentang kekuatan diri atau kasih sayang terhadap diri anda?
-24. How did making art today change the way you look at yourself? ("Not sure" is okay) / Bagaimanakah seni hari ini mengubah cara anda melihat diri sendiri? ("Tidak pasti" pun boleh)
-
-Section E - Feedback / Maklum Balas
-25. How was your experience today at the Yayasan Selgate booth? / Bagaimana pengalaman anda di booth Yayasan Selgate hari ini? A = I love it, please do more! | B = I enjoy it | C = It was okay | D = I did not enjoy much | E = I do not enjoy it
-26. (optional) Any suggestions or ideas to make future sessions even better? / Adakah anda mempunyai cadangan atau idea untuk menjadikan sesi akan datang lebih baik?
-
-WHEN ALL QUESTIONS ARE ANSWERED:
-Send a warm short thank-you in both languages, then append this machine-readable block at the very end of the same message (the participant will not see it):
-
-<survey_complete>{"name":null,"age_group":"","gender":"","location":"","email":null,"phone":null,"creative_expression":"","community_role":"","pre_happy_safe":0,"pre_self_critical":0,"pre_self_worth":0,"pre_mind_heavy":0,"pre_mood":"","pre_heavy_feeling":"","personal_experience":"","emotions_while_creating":"","mental_health_understanding":0,"impactful_zone":"","post_understand_feelings":0,"post_self_worth":0,"post_mind_lighter":0,"post_mind_peaceful":0,"post_strength_lesson":"","post_self_view_change":"","booth_experience":"","suggestions":null}</survey_complete>
-
-Fill every field with the participant's actual answers: null for skipped optional fields, plain integers 1-5 for scale fields, a single letter A-E for booth_experience. The block must be valid JSON on one line.`;
+// Generated from survey.js so question numbering, quick-reply buttons and the
+// completion template can never drift apart. Edit the questions there.
+const SYSTEM_PROMPT = survey.buildSystemPrompt();
 
 const ANALYSIS_PROMPT = `You analyse survey responses for a creative-expression mental health program. Given one participant's response as JSON, reply with a JSON object with exactly these fields:
 {"sentiment":"positive|mixed|negative","wellbeing_shift":"improved|unchanged|declined|unknown","themes":["2 to 5 short theme keywords"],"summary":"2-3 sentence summary of this participant's experience and the program's impact on them","concern_flag":false,"concern_note":null}
 Set concern_flag to true (with a short concern_note) only if the response suggests serious distress, self-harm risk, or a need for human follow-up. Reply with JSON only.`;
 
-const INSIGHTS_PROMPT = `You analyse survey data for the Seni Scape creative-expression mental health program. You will receive an array of participant responses as JSON. Write a concise report (markdown, max ~300 words) covering: overall sentiment, measured impact (compare the pre-session feelings with the post-session art-experience scores), the most common themes in the open answers, which zones/activities were most impactful, and the top suggestions for improvement. Be concrete and quote numbers where useful.`;
+const INSIGHTS_PROMPT = `You analyse survey data for myWIPhealing, a set of creative-expression mental health programmes. You will receive an array of participant responses as JSON; each has a "program" field naming which programme it came from. Write a concise report (markdown, max ~300 words) covering: overall sentiment, measured impact (compare the pre-session feelings with the post-session scores), the most common themes in the open answers, what participants found most meaningful, and the top suggestions for improvement. Where programmes differ meaningfully, say so per programme rather than pooling them. Be concrete and quote numbers where useful.`;
 
 // ---------- auto-processing ----------
 
@@ -289,6 +223,12 @@ app.get("/api/admin/data", requireAdmin, async (req, res) => {
       stats: stats.computeStats(responses),
       responses,
       participants: stats.groupByParticipant(responses),
+      // Sent rather than hardcoded in the page: the dashboard used to keep its
+      // own copy of the field list, so a question added to the survey silently
+      // vanished from both the detail table and the CSV export.
+      fieldLabels: survey.fieldLabels(),
+      quoteFields: stats.QUOTE_FIELDS,
+      programs: survey.PROGRAMS,
     });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -308,14 +248,10 @@ app.get("/api/admin/corporate", requireAdmin, async (req, res) => {
 
 // Consent gate: mark/unmark one response's open-text answer as a public quote.
 // Body: { field, author?, text?, approved } — approved:false clears it.
-const QUOTE_FIELDS = new Set([
-  "post_strength_lesson",
-  "post_self_view_change",
-  "personal_experience",
-  "emotions_while_creating",
-  "suggestions",
-  "pre_mood",
-]);
+// Open-text answers an admin may approve as a public testimonial. Scale and
+// identifying fields are deliberately excluded - a quote must be something the
+// participant actually wrote.
+const QUOTE_FIELDS = new Set(stats.QUOTE_FIELDS);
 
 app.post("/api/admin/responses/:id/approve-quote", requireAdmin, async (req, res) => {
   try {
@@ -375,6 +311,11 @@ app.post("/api/admin/insights", requireAdmin, async (req, res) => {
 
 // No auth. communityStats() returns only aggregates + admin-approved quotes;
 // it never includes names, email, phone, or raw transcripts.
+// Programme list, for the dashboard filter dropdowns.
+app.get("/api/programs", (req, res) => {
+  res.json({ programs: survey.PROGRAMS });
+});
+
 app.get("/api/public/community", async (req, res) => {
   try {
     const responses = await storage.loadResponses();

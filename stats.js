@@ -7,6 +7,8 @@
 // are returned as null and rendered by the UI as "Phase 2" placeholders —
 // never as fabricated numbers.
 
+const survey = require("./survey");
+
 // Matched 1-5 scale fields and their human labels (used by the admin view).
 const SCALE_FIELDS = {
   pre_happy_safe: "Pre: happy & safe to be myself",
@@ -21,12 +23,25 @@ const SCALE_FIELDS = {
 };
 
 const CATEGORY_FIELDS = {
+  program: "Programme",
   age_group: "Age group",
   gender: "Gender",
   creative_expression: "Creative expression",
   community_role: "Community role",
   booth_experience: "Booth experience (A best - E worst)",
 };
+
+// Open-text answers eligible to become a public testimonial. Shared by the
+// server-side validator and the admin UI so the two cannot disagree.
+const QUOTE_FIELDS = [
+  "post_strength_lesson",
+  "post_self_view_change",
+  "personal_experience",
+  "emotions_while_creating",
+  "significant_moment",
+  "suggestions",
+  "pre_mood",
+];
 
 // The four positive post-session scales that compose the Wellbeing Index.
 const WELLBEING_POST = [
@@ -111,7 +126,32 @@ function computeStats(responses) {
     (r) => r.analysis && r.analysis.concern_flag
   ).length;
 
-  return { total: responses.length, flagged, averages, distributions };
+  // Scale averages recomputed within each programme. Programmes share the
+  // pre/post batteries but not every question, so a pooled average can hide a
+  // difference that only exists in one of them.
+  const byProgram = {};
+  for (const p of survey.PROGRAMS) {
+    const rows = datas.filter((d) => d.program === p.id);
+    if (!rows.length) continue;
+    const avgs = {};
+    for (const [field, label] of Object.entries(SCALE_FIELDS)) {
+      const nums = scaleVals(rows, field);
+      if (nums.length) avgs[field] = { label, average: avg(nums), count: nums.length };
+    }
+    byProgram[p.id] = { label: p.label, count: rows.length, averages: avgs };
+  }
+
+  // Responses collected before the programme question existed.
+  const unattributed = datas.filter((d) => !d.program).length;
+
+  return {
+    total: responses.length,
+    flagged,
+    averages,
+    distributions,
+    byProgram,
+    unattributed,
+  };
 }
 
 // ---------- community (public, anonymised, aggregate only) ----------
@@ -221,6 +261,7 @@ function corporateStats(responses, filters = {}) {
     sentiment: sentimentSplit(rs),
     testimonials: approvedTestimonials(rs),
     hasCompanyField: datas.some((d) => d.company),
+    programsPresent: [...new Set(datas.map((d) => d.program).filter(Boolean))],
     // Phase 2 — require survey extension:
     nps: null,
     wantContinue: null,
@@ -270,6 +311,7 @@ function groupByParticipant(responses) {
 module.exports = {
   SCALE_FIELDS,
   CATEGORY_FIELDS,
+  QUOTE_FIELDS,
   computeStats,
   communityStats,
   corporateStats,

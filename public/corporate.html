@@ -57,6 +57,7 @@
   <div class="card no-print">
     <h3><span class="dot"></span> Filter</h3>
     <div class="filters">
+      <div class="field"><label>Programme</label><select id="fProgram"><option value="">All programmes</option></select></div>
       <div class="field"><label>Company</label><input id="fCompany" placeholder="(Phase 2)" disabled></div>
       <div class="field"><label>From</label><input id="fFrom" type="date"></div>
       <div class="field"><label>To</label><input id="fTo" type="date"></div>
@@ -119,7 +120,7 @@ async function login() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Login failed");
     token = data.token; sessionStorage.setItem("adminToken", token);
-    show("app"); load();
+    show("app"); loadPrograms(); load();
   } catch (e) { $("gateErr").textContent = e.message; }
 }
 
@@ -140,8 +141,22 @@ function barPair(label, before, after, max, note) {
   </div>`;
 }
 
+// Programme options come from survey.js, so adding a programme there is enough.
+async function loadPrograms() {
+  try {
+    const { programs } = await (await fetch("/api/programs")).json();
+    const sel = $("fProgram");
+    for (const p of programs || []) {
+      const o = document.createElement("option");
+      o.value = p.id; o.textContent = p.label;
+      sel.appendChild(o);
+    }
+  } catch { /* filter just stays on "All programmes" */ }
+}
+
 async function load() {
   const params = new URLSearchParams();
+  if ($("fProgram").value) params.set("program", $("fProgram").value);
   if ($("fFrom").value) params.set("from", new Date($("fFrom").value).toISOString());
   if ($("fTo").value) params.set("to", new Date($("fTo").value + "T23:59:59").toISOString());
 
@@ -211,7 +226,7 @@ function kpiInline(label, value) {
 }
 
 document.getElementById("pw").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
-if (token) { show("app"); load(); } else { show("gate"); }
+if (token) { show("app"); loadPrograms(); load(); } else { show("gate"); }
 </script>
 </body>
 </html>

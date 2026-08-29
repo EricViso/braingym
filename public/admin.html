@@ -31,6 +31,9 @@
   details.resp summary::-webkit-details-marker { display: none; }
   .resp .summary-txt { font-size: .85rem; color: var(--muted-strong); margin: 10px 0; }
   .resp table { width: 100%; border-collapse: collapse; font-size: .8rem; margin-top: 8px; }
+  .prog-tbl { width: 100%; border-collapse: collapse; font-size: .8rem; margin-top: 6px; }
+  .prog-tbl td { padding: 3px 0; border-bottom: 1px solid var(--line, #eee); }
+  .prog-tbl td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
   .resp td { border-top: 1px solid var(--line-soft); padding: 6px 8px; vertical-align: top; }
   .resp td:first-child { color: var(--muted); width: 38%; }
   .quote-tools { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 12px; }
@@ -109,20 +112,16 @@
 let token = sessionStorage.getItem("adminToken") || "";
 let allResponses = [];
 
-const FIELD_LABELS = {
+// Labels and quote-eligible fields come from the server (survey.js) so a new
+// question always shows up here and in the CSV export. The literals below are
+// only a fallback for a stale cached page.
+let FIELD_LABELS = {
   name: "Name", age_group: "Age group", gender: "Gender", location: "Location",
-  email: "Email", phone: "Phone", creative_expression: "Creative expression", community_role: "Community role",
-  pre_happy_safe: "Pre: happy & safe (1-5)", pre_self_critical: "Pre: hard on myself (1-5)",
-  pre_self_worth: "Pre: I am important (1-5)", pre_mind_heavy: "Pre: mind heavy (1-5)",
-  pre_mood: "Mood brought in", pre_heavy_feeling: "Heavy feeling to release",
-  personal_experience: "Personal creative experience", emotions_while_creating: "Emotions while creating",
-  mental_health_understanding: "Mental health understanding (1-5)", impactful_zone: "Most impactful zone",
-  post_understand_feelings: "Post: understood feelings (1-5)", post_self_worth: "Post: valuable & strong (1-5)",
-  post_mind_lighter: "Post: mind lighter (1-5)", post_mind_peaceful: "Post: peaceful (1-5)",
-  post_strength_lesson: "Lesson on strength/self-love", post_self_view_change: "Change in self-view",
-  booth_experience: "Booth experience (A-E)", suggestions: "Suggestions",
+  email: "Email", phone: "Phone", creative_expression: "Creative expression",
+  program: "Programme", community_role: "Community role",
 };
-const QUOTE_FIELDS = ["post_strength_lesson", "post_self_view_change", "personal_experience", "emotions_while_creating", "suggestions", "pre_mood"];
+let QUOTE_FIELDS = ["post_strength_lesson", "post_self_view_change", "personal_experience",
+  "emotions_while_creating", "significant_moment", "suggestions", "pre_mood"];
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
@@ -153,8 +152,11 @@ function logout() {
 
 async function showDash() {
   $("login").style.display = "none"; $("dash").style.display = "block";
-  const { stats, responses, participants } = await api("/api/admin/data");
+  const d = await api("/api/admin/data");
+  const { stats, responses, participants } = d;
   allResponses = responses;
+  if (d.fieldLabels) FIELD_LABELS = d.fieldLabels;
+  if (d.quoteFields) QUOTE_FIELDS = d.quoteFields;
 
   const returning = (participants || []).filter((p) => !p.anonymous && p.count > 1).length;
   $("cards").innerHTML = [
@@ -163,6 +165,23 @@ async function showDash() {
     `<div class="kpi"><div class="kpi-label">Returning</div><div class="kpi-value">${returning}</div></div>`,
     `<div class="kpi pending" style="${stats.flagged ? "border-color:var(--warn)" : ""}"><div class="kpi-label">Follow-up flags</div><div class="kpi-value" style="${stats.flagged ? "color:var(--warn)" : ""}">${stats.flagged}</div></div>`,
   ].join("");
+
+  // Per-programme scale averages. Programmes share the pre/post batteries but
+  // not every question, so these are never pooled into one number.
+  const bp = stats.byProgram || {};
+  const progKeys = Object.keys(bp);
+  if (progKeys.length) {
+    $("cards").insertAdjacentHTML("afterend", `<div class="card"><h3><span class="dot"></span> By programme</h3>
+      ${progKeys.map((k) => {
+        const p = bp[k];
+        const rows = Object.entries(p.averages).map(([f, a]) =>
+          `<tr><td>${esc(a.label)}</td><td>${a.average ?? "—"}<span class="muted"> (n=${a.count})</span></td></tr>`).join("");
+        return `<div style="margin-bottom:14px"><strong>${esc(p.label)}</strong> <span class="muted">· ${p.count} response${p.count === 1 ? "" : "s"}</span>
+          <table class="prog-tbl">${rows || '<tr><td class="muted">No scale answers yet</td></tr>'}</table></div>`;
+      }).join("")}
+      ${stats.unattributed ? `<div class="muted" style="font-size:11.5px">${stats.unattributed} response${stats.unattributed === 1 ? "" : "s"} predate the programme question and are not attributed to one.</div>` : ""}
+    </div>`);
+  }
 
   // Triage
   const flagged = responses.filter((r) => r.analysis && r.analysis.concern_flag);
