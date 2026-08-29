@@ -93,3 +93,23 @@ or `KV_REST_API_URL/TOKEN`) or standard Redis over TCP (`REDIS_URL`). The app ru
 Vercel serverless function via `api/index.js` + the `vercel.json` rewrite. One-time setup:
 import the repo (Framework Preset **Other**), add `DEEPSEEK_API_KEY` + `ADMIN_PASSWORD`,
 create a Redis store under **Storage** and connect it, then redeploy.
+
+### Supabase backup mirror
+
+Set `SURVEY_SUPABASE_URL` + `SURVEY_SUPABASE_SERVICE_ROLE_KEY` and every response is written
+to Supabase as well as to the primary store. Run `supabase/schema.sql` in the project first
+(Supabase dashboard -> SQL Editor).
+
+- **Writes** go to both stores. Either one failing is logged and tolerated; only losing *both*
+  fails the request, so a mirror outage never costs a participant their answers.
+- **Reads** come from the primary, and fall back to Supabase when the primary errors *or*
+  comes back empty - which is what a recycled or unprovisioned Redis store looks like.
+- With no Redis configured at all, Supabase simply becomes the primary store.
+- Answers are stored in a single `data` jsonb column, so **changing the questionnaire needs no
+  migration here**. Bump `SURVEY_SCHEMA_VERSION` when questions change; it is recorded per row
+  so answers to reworded questions can be segmented rather than blindly averaged.
+- `GET /api/admin/storage` (admin auth) reports which stores are live and how many responses
+  each holds - check it before a session to catch a silently-empty backend.
+
+The variables are deliberately **not** named `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY`: those
+are set ambiently in some environments here and point at an unrelated project.

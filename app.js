@@ -230,6 +230,9 @@ app.post("/api/chat", async (req, res) => {
       const record = {
         id: crypto.randomUUID(),
         submittedAt: new Date().toISOString(),
+        // Which questionnaire revision produced these answers. Without it,
+        // responses to reworded questions get averaged together silently.
+        schema_version: storage.SCHEMA_VERSION,
         data: surveyData,
         analysis: null,
         transcript: [...history, { role: "assistant", content: reply }],
@@ -338,6 +341,17 @@ app.post("/api/admin/responses/:id/approve-quote", requireAdmin, async (req, res
 
     await storage.updateResponse(index, record);
     res.json({ ok: true, approvedQuote: record.approvedQuote || null });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Where is the data actually going? Reports which stores are live and how many
+// responses each holds, so a silently-empty backend is visible before a booth
+// session rather than after it.
+app.get("/api/admin/storage", requireAdmin, async (req, res) => {
+  try {
+    res.json(await storage.health());
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
