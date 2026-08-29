@@ -117,6 +117,9 @@ function parseAssistant(content) {
 
 app.post("/api/chat", async (req, res) => {
   if (!storage.ready) return res.status(500).json({ error: storage.reason });
+  // Fail before the first question rather than after the last one.
+  const notWritable = await storage.writable();
+  if (notWritable) return res.status(500).json({ error: notWritable });
 
   const history = (Array.isArray(req.body.messages) ? req.body.messages : [])
     .filter(

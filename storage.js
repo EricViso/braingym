@@ -203,6 +203,21 @@ async function primaryUpdate(index, record) {
   }
 }
 
+// Whether a response submitted right now could actually be stored. `ready` is a
+// config-level check; this one confirms the store will really accept a write.
+// Without it, a Supabase-only deployment whose table is missing would look fine
+// until a participant finished all 26 questions and lost every answer at the
+// final step. Cached by supabase.preflight(), so this is cheap after the first
+// call. Returns null when there is nothing to add beyond `ready`.
+async function writable() {
+  if (hasPrimary) return null; // Redis or the local file will take the write.
+  if (!supabase.enabled) return null; // `ready`/`reason` already covers this.
+  const ok = await supabase.preflight();
+  return ok
+    ? null
+    : "Supabase is the only configured store and its `responses` table is missing. Run supabase/schema.sql in that project, then redeploy.";
+}
+
 // Counts held by each store, so a silently-empty primary is visible.
 async function health() {
   const info = backends();
@@ -242,6 +257,7 @@ module.exports = {
   updateResponse,
   backends,
   health,
+  writable,
   SCHEMA_VERSION: supabase.SCHEMA_VERSION,
   ready,
   reason,

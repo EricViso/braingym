@@ -108,9 +108,37 @@ function fromRow(row) {
   return record;
 }
 
+// One-time check that this database is actually the survey's: it must already
+// have a responses table. Any other project (an unrelated database that happens
+// to be what SUPABASE_URL resolves to) 404s here and the mirror stays off,
+// rather than every single write failing separately against the wrong target.
+// Cached across warm invocations; a failed probe retries on the next request.
+let preflightPromise = null;
+function preflight() {
+  if (!enabled) return Promise.resolve(false);
+  if (!preflightPromise) {
+    preflightPromise = request(`${REST}?select=id&limit=1`, { method: "GET" })
+      .then(() => true)
+      .catch((e) => {
+        preflightPromise = null;
+        if (/\b404\b/.test(e.message)) {
+          console.error(
+            `Supabase mirror disabled: project "${ref || URL_BASE}" has no "${TABLE}" table. ` +
+              `Run supabase/schema.sql there, and confirm the URL points at the survey project.`
+          );
+        } else {
+          console.error("Supabase preflight failed:", e.message);
+        }
+        return false;
+      });
+  }
+  return preflightPromise;
+}
+
 // Upsert on the record's uuid, so this doubles as both insert and update.
 async function saveResponse(record) {
   if (!enabled || !record || !record.id) return false;
+  if (!(await preflight())) return false;
   try {
     await request(`${REST}?on_conflict=id`, {
       method: "POST",
@@ -129,6 +157,7 @@ async function saveResponse(record) {
 // Ordered by insertion so positions line up with the Redis list.
 async function loadResponses() {
   if (!enabled) return null;
+  if (!(await preflight())) return null;
   try {
     const res = await request(
       `${REST}?select=*&order=seq.asc`,
@@ -146,6 +175,7 @@ async function loadResponses() {
 // Cheap liveness probe for the admin storage-health endpoint.
 async function count() {
   if (!enabled) return null;
+  if (!(await preflight())) return null;
   try {
     const res = await request(`${REST}?select=id`, {
       method: "HEAD",
@@ -160,4 +190,4 @@ async function count() {
   }
 }
 
-module.exports = { enabled, saveResponse, loadResponses, count, SCHEMA_VERSION };
+module.exports = { enabled, ref, saveResponse, loadResponses, count, preflight, SCHEMA_VERSION };
