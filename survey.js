@@ -46,6 +46,7 @@ const SECTION_A = {
     { field: "phone", optional: true, text: "Phone number / Nombor telefon" },
     {
       field: "creative_expression",
+      multi: true,
       text: "Type of creative expression attended / Jenis ekspresi kreatif",
       options: ["Art & Craft", "Writing (Poetry/Journal/Zine)", "Movement (theatre/dance/somatic)", "Music expression", "Clay", "Photography", "Other"],
     },
@@ -58,6 +59,7 @@ const SECTION_A = {
     },
     {
       field: "community_role",
+      multi: true,
       text: "Community role / Peranan masyarakat",
       options: ["Mental Health Fighter", "Caregiver", "Healthcare Professional", "Corporate Professional", "Community Leader", "Student", "Other"],
     },
@@ -150,10 +152,34 @@ function renderQuestion(q, n) {
   const parts = [`${n}.${q.optional ? " (optional)" : ""} ${q.text}`];
   if (q.scale) parts.push(`   Scale: ${q.scale.join(" | ")}`);
   else if (q.options) parts.push(`   Options: ${q.options.join(" | ")}`);
+  if (q.multi) {
+    parts.push(
+      "   Several answers allowed: say so in the question (choose all that apply / pilih semua yang berkenaan). " +
+        "The participant's reply may list several options separated by commas; store them all as one comma-separated string."
+    );
+  }
   if (q.note) parts.push(`   ${q.note}`);
   const btns = buttonsFor(q);
   if (btns.length) parts.push(`   Buttons: <options>${JSON.stringify(btns)}</options>`);
   return parts.join("\n");
+}
+
+// True when a set of quick-reply buttons belongs to a multi-select question.
+// Decided here from the survey definition rather than trusting the model to
+// flag it, so the page's tick-and-Next mode can't drift from the questionnaire.
+// Case and spacing are ignored, so small wording drift by the model still matches.
+const normOption = (o) => String(o).toLowerCase().replace(/\s+/g, " ").trim();
+const MULTI_OPTION_SETS = [];
+for (const p of PROGRAMS) {
+  for (const q of questionsFor(p.id)) {
+    if (q.multi && q.options) MULTI_OPTION_SETS.push(new Set(q.options.map(normOption)));
+  }
+}
+
+function isMultiSelect(options) {
+  return MULTI_OPTION_SETS.some(
+    (set) => options.length === set.size && options.every((o) => set.has(normOption(o)))
+  );
 }
 
 // All questions for one programme, in the order they are asked.
@@ -279,4 +305,5 @@ module.exports = {
   completionTemplate,
   fieldLabels,
   allFields,
+  isMultiSelect,
 };
