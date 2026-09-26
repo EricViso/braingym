@@ -193,7 +193,7 @@ app.post("/api/chat", async (req, res) => {
 
     // raw keeps the hidden blocks so the model sees its own prior format
     // in the conversation history and stays consistent with it.
-    res.json({ reply, options, done, raw: content });
+    res.json({ reply, options, multi: survey.isMultiSelect(options), done, raw: content });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: e.message });
