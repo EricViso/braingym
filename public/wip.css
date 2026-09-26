@@ -1,0 +1,166 @@
+/* ============================================================
+   myWIPhealing — dashboard skin, after mywiphealing.com
+   Load after brand.css. Bricolage headings, ink-bordered sticker
+   cards, pastel pills, doodles from /img/doodles.svg.
+   Shared by admin, community and corporate. The survey page
+   (index.html) carries its own copy of the tokens.
+   ============================================================ */
+
+:root {
+  --font-display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+  --ink: #1d1d1f;
+  --forest: #2a6f2b;
+  --leaf: #8ed462;
+  --coral-site: #ef6442;
+  --pink: #FFDEE6;
+  --mint: #C8E6C2;
+  --lavender: #DFCFFF;
+  --sky: #C8DEFF;
+  --line: rgba(29,29,31,.14);
+}
+/* Section accents, retuned to the site's colours */
+.theme-community { --accent: var(--coral-site); --accent-soft: var(--pink); }
+.theme-corporate { --accent: #4F55E2;           --accent-soft: var(--sky); }
+
+body {
+  background:
+    radial-gradient(1100px 520px at 105% -8%, rgba(213,252,75,.26), transparent 60%),
+    radial-gradient(900px 480px at -8% 108%, rgba(255,222,230,.5), transparent 60%),
+    var(--stone);
+  background-attachment: fixed;
+}
+.wrap { max-width: 1120px; padding: 28px 24px 16px; }
+/* Pages flip their .stack between flex and block from JS; margins work in both */
+.stack { gap: 0; }
+.stack > * + * { margin-top: 20px; }
+
+/* ── Sticker surfaces ── */
+.card, .kpi, .quote, .roi { border: 1.5px solid var(--ink); box-shadow: none; }
+.card { border-radius: 24px; padding: 22px 24px; }
+.card h3 {
+  font-family: var(--font-display); font-size: 1.05rem; text-transform: none;
+  letter-spacing: -0.01em; color: var(--ink); font-weight: 700; margin-bottom: 16px;
+}
+.card h3 .dot { width: 12px; height: 12px; border: 1.5px solid var(--ink); background: var(--banana-bright); }
+.sticker { position: absolute; pointer-events: none; }
+
+/* ── Password gate (admin #login, corporate #gate) ── */
+.gate-card {
+  position: relative; max-width: 380px; margin: 14vh auto; text-align: center;
+  padding: 30px 28px 26px; box-shadow: 6px 6px 0 var(--banana-bright);
+}
+.gate-card .logo { height: 52px; }
+.gate-card h2 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em; margin-top: 6px; }
+.gate-card .hint { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+.gate-card input {
+  width: 100%; padding: 12px 18px; font-size: 16px; font-family: inherit;
+  border: 1.5px solid var(--ink); border-radius: var(--radius-pill); margin: 18px 0 10px; outline: none;
+}
+.gate-card input:focus { box-shadow: 3px 3px 0 var(--banana-bright); }
+.gate-card .btn { width: 100%; justify-content: center; }
+.gate-card .sticker { width: 50px; top: -22px; right: -16px; transform: rotate(14deg); }
+.gate-card .sticker.two { width: 40px; top: auto; right: auto; bottom: -18px; left: -14px; transform: rotate(-10deg); }
+.gate-card .err { color: var(--warn); font-size: .85rem; min-height: 1.2em; margin-top: 8px; }
+.gate-card .back { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--muted); }
+
+/* ── App bar: near-black "dark section", banana swash ── */
+.appbar { background: var(--ink); border-radius: 28px; padding: 22px 26px; overflow: visible; }
+.appbar::after { display: none; }
+.appbar .brand-mark { align-items: center; gap: 14px; }
+.appbar .logo-badge {
+  width: 50px; height: 50px; border-radius: 50%; background: var(--banana-bright);
+  display: grid; place-items: center; flex-shrink: 0;
+}
+.appbar .logo-badge img { height: 34px; }
+.appbar h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em; }
+.swash { position: relative; white-space: nowrap; z-index: 0; color: var(--ink); padding: 0 .12em; }
+.swash::before {
+  content: ''; position: absolute; inset: .12em -.05em .02em; z-index: -1;
+  background: var(--banana-bright); border-radius: 10px 14px 8px 16px; transform: rotate(-1.5deg);
+}
+.appbar .subtitle { font-size: .82rem; color: rgba(255,255,255,.7); margin-top: 4px; }
+.appbar .sticker.a { width: 46px; top: -20px; right: 26%; transform: rotate(12deg); }
+.appbar .sticker.b { width: 34px; bottom: -14px; left: 38%; transform: rotate(-8deg); }
+.btn-on-dark:hover, .btn-ghost-dark:hover { transform: rotate(-2deg); }
+.badge.on-dark { background: transparent; color: var(--banana-pastel); border: 1.2px solid var(--banana-pastel); }
+
+/* ── KPIs: pastel pill labels, big Bricolage numbers ── */
+.kpi { border-radius: 22px; padding: 18px 20px; }
+.kpi::before { display: none; }
+.kpi .kpi-label {
+  display: inline-block; font-size: 11px; letter-spacing: .4px; color: var(--ink);
+  border: 1.2px solid var(--ink); border-radius: 14px; padding: 3px 10px;
+  background: var(--banana-pastel);
+}
+.kpi:nth-child(4n+2) .kpi-label { background: var(--pink); }
+.kpi:nth-child(4n+3) .kpi-label { background: var(--mint); }
+.kpi:nth-child(4n+4) .kpi-label { background: var(--lavender); }
+.kpi .kpi-value { font-size: 46px; font-weight: 800; letter-spacing: -0.03em; margin-top: 12px; }
+.kpi .kpi-value .unit { font-family: var(--font-display); }
+.kpi .kpi-context { font-size: 12px; margin-top: 6px; }
+.pending {
+  background: var(--white); border: 1.5px dashed rgba(29,29,31,.35);
+}
+.pending .kpi-label { background: transparent !important; border-style: dashed; color: var(--muted); }
+.pending-note { color: var(--muted); }
+
+/* ── Before → after bars (brand.css .bar-track / .bar-fill) ── */
+.bar-track { background: var(--stone); border: 1.2px solid var(--ink); border-radius: var(--radius-pill); height: 26px; }
+.bar-fill { border-radius: var(--radius-pill); background: var(--accent-soft); border-right: 1.2px solid var(--ink); }
+.bar-fill[style*="width:0%"] { border-right: none; padding: 0; }
+.bar-fill.after { background: var(--accent); color: var(--white); }
+.bar-group-label { color: var(--ink); font-weight: 600; }
+.bar-row .tier { font-weight: 600; color: var(--muted-strong); }
+
+/* ── Word cloud: the loudest words become stickers ── */
+.word-cloud { gap: 10px 12px; padding: 8px 0; }
+.word { font-family: var(--font-display); color: var(--ink); }
+.word.s1 { color: var(--muted); }
+.word.s3, .word.s4 {
+  color: var(--ink); border: 1.5px solid var(--ink); border-radius: var(--radius-pill);
+  padding: .08em .5em .14em; line-height: 1.15;
+}
+.word.s3 { background: var(--pink); transform: rotate(1.5deg); }
+.word.s4 { background: var(--banana-bright); transform: rotate(-2deg); font-weight: 800; }
+.word.s3:nth-child(even) { background: var(--mint); transform: rotate(-1.5deg); }
+
+/* ── Testimonials ── */
+.quote { border-radius: 24px; border-left-width: 1.5px; padding: 22px 26px; background: var(--white); }
+.grid > .quote:nth-child(odd)  { transform: rotate(-.5deg); }
+.grid > .quote:nth-child(even) { transform: rotate(.5deg); box-shadow: 5px 5px 0 var(--banana-bright); }
+.quote .mark { font-family: var(--font-display); font-weight: 800; font-size: 60px; color: var(--accent); opacity: 1; }
+.quote .quote-text { font-style: normal; font-size: 16px; }
+.quote .quote-author { color: var(--ink); }
+
+/* ── ROI: banana callout ── */
+.roi { background: var(--banana-bright); border-radius: 26px; box-shadow: 6px 6px 0 var(--ink); }
+.roi h3 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; }
+.roi p { color: rgba(29,29,31,.8); }
+.roi .muted { color: rgba(29,29,31,.6); }
+.roi-stat { background: var(--white); border: 1.5px solid var(--ink); border-radius: 18px; padding: 12px 16px; }
+.roi-stat .num { font-weight: 800; letter-spacing: -0.02em; }
+.roi-stat .lbl { color: rgba(29,29,31,.7); }
+
+/* ── Form bits ── */
+.field label { color: var(--ink); }
+.field input, .field select {
+  border: 1.5px solid var(--ink); border-radius: var(--radius-pill); padding: 9px 14px;
+  font: inherit; font-size: 14px; color: var(--ink); background: var(--white);
+}
+.field input:disabled { border-style: dashed; color: var(--muted); background: transparent; }
+
+.foot .brand { font-family: var(--font-display); }
+.btn:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
+
+@media (max-width: 560px) {
+  .appbar h1 { font-size: 1.35rem; }
+  .appbar .sticker { display: none; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .kpi { padding: 14px 16px; }
+  .kpi .kpi-value { font-size: 34px; }
+  .kpi .kpi-label { font-size: 10px; }
+  .roi-nums { flex-wrap: wrap; gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

@@ -4,26 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>myWIPhealing — Team Wellbeing Impact</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#F5EFE6">
+<link rel="icon" href="/img/favicon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/brand.css">
+<link rel="stylesheet" href="/wip.css">
 <style>
   .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
   .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
-  .field input { border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; font: inherit; font-size: 14px; color: var(--ink); background: var(--white); }
-  /* Login overlay */
-  #gate { max-width: 340px; margin: 16vh auto; }
-  #gate input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 12px; }
-  #gateErr { color: var(--warn); font-size: .85rem; min-height: 1em; }
+  .field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
   /* Print: clean A4 one-pager */
   @media print {
     body { background: #fff; }
     .no-print { display: none !important; }
     .wrap { padding: 0; max-width: 100%; }
-    .card, .kpi, .quote, .roi { box-shadow: none; break-inside: avoid; }
-    .appbar { background: #fff; color: var(--ink); border: 1px solid var(--line); }
-    .appbar h1, .appbar h1 .accent { color: var(--ink); }
+    .card, .kpi, .quote, .roi { box-shadow: none !important; break-inside: avoid; transform: none !important; }
+    .appbar { background: #fff; color: var(--ink); border: 1.5px solid var(--ink); }
+    .appbar h1 { color: var(--ink); }
     .appbar .subtitle { color: var(--muted); }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     @page { size: A4; margin: 12mm; }
   }
 </style>
@@ -31,20 +32,29 @@
 <body class="theme-corporate">
 
 <!-- Login gate -->
-<div id="gate" class="card" style="display:none">
-  <h3 style="color:var(--ink)">🔐 Admin access</h3>
-  <input type="password" id="pw" placeholder="Password" autofocus>
-  <button class="btn btn-primary" style="width:100%" onclick="login()">Enter</button>
-  <div id="gateErr"></div>
-  <div style="margin-top:12px"><a href="/admin.html" class="muted" style="font-size:13px">← Admin hub</a></div>
+<div id="gate" class="card gate-card" style="display:none">
+  <svg class="sticker" viewBox="0 0 100 100" aria-hidden="true"><use href="/img/doodles.svg#d-star"/></svg>
+  <svg class="sticker two" viewBox="0 0 100 100" aria-hidden="true"><use href="/img/doodles.svg#d-gold"/></svg>
+  <img class="logo" src="/img/wip-logo.png" alt="myWIPhealing">
+  <h2>Team Impact</h2>
+  <p class="hint">myWIPhealing team only</p>
+  <input type="password" id="pw" placeholder="Password" aria-label="Password" autofocus>
+  <button class="btn btn-primary" onclick="login()">Enter</button>
+  <div id="gateErr" class="err"></div>
+  <a href="/admin.html" class="back">← Admin hub</a>
 </div>
 
 <div id="app" class="wrap stack" style="display:none">
 
   <div class="appbar">
-    <div>
-      <div class="brand-mark"><h1>myWIPhealing <span class="accent">→ Team Impact</span></h1></div>
-      <div class="subtitle" id="sub">Corporate pilot · powered by Gym Brain</div>
+    <svg class="sticker a no-print" viewBox="0 0 100 100" aria-hidden="true"><use href="/img/doodles.svg#d-star"/></svg>
+    <svg class="sticker b no-print" viewBox="0 0 100 100" aria-hidden="true"><use href="/img/doodles.svg#d-gold"/></svg>
+    <div class="brand-mark">
+      <span class="logo-badge"><img src="/img/wip-logo.png" alt=""></span>
+      <div>
+        <h1>myWIPhealing <span class="swash">Team Impact</span></h1>
+        <div class="subtitle" id="sub">Corporate pilot · powered by Gym Brain</div>
+      </div>
     </div>
     <div class="bar-actions no-print">
       <span class="badge on-dark">Confidential</span>
