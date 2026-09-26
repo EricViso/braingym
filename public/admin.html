@@ -4,55 +4,233 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>myWIPhealing — Admin Hub</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#F5EFE6">
+<link rel="icon" href="/img/favicon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/brand.css">
 <style>
-  #login { max-width: 360px; margin: 16vh auto; text-align: center; }
-  #login input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid var(--line); border-radius: 12px; margin: 8px 0 12px; }
-  #loginError { color: var(--warn); font-size: .85rem; min-height: 1em; }
-  .navcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-  .navcard { display: block; text-decoration: none; color: var(--ink); border-radius: var(--radius-lg); padding: 20px 22px; border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); position: relative; overflow: hidden; transition: transform .12s; }
-  .navcard:hover { transform: translateY(-2px); }
-  .navcard::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--accent); }
-  .navcard.c-comm { --accent: #E8794A; }
-  .navcard.c-corp { --accent: #4F55E2; }
-  .navcard.c-indiv { --accent: #174509; }
-  .navcard h4 { font-family: var(--font-display); font-size: 16px; }
-  .navcard p { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
-  .navcard .go { font-size: 12px; font-weight: 700; color: var(--accent); margin-top: 10px; display: inline-block; }
-  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: .82rem; }
+  /* Page-local tokens, shared with the survey page (index.html) */
+  :root {
+    --font-display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+    --ink: #1d1d1f;
+    --forest: #2a6f2b;
+    --leaf: #8ed462;
+    --coral-site: #ef6442;
+    --pink: #FFDEE6;
+    --mint: #C8E6C2;
+    --lavender: #DFCFFF;
+    --sky: #C8DEFF;
+    --accent: var(--forest);
+    --line: rgba(29,29,31,.14);
+  }
+  body {
+    background:
+      radial-gradient(1100px 520px at 105% -8%, rgba(213,252,75,.26), transparent 60%),
+      radial-gradient(900px 480px at -8% 108%, rgba(255,222,230,.5), transparent 60%),
+      var(--stone);
+    background-attachment: fixed;
+  }
+  .wrap { max-width: 1120px; padding: 28px 24px 16px; }
+  /* showDash() sets #dash to display:block, so .stack's flex gap never applies */
+  #dash > * + * { margin-top: 20px; }
+
+  /* ── Sticker-style surfaces ── */
+  .card, .kpi, details.resp {
+    border: 1.5px solid var(--ink); box-shadow: none;
+  }
+  .card { border-radius: 24px; padding: 22px 24px; }
+  .card h3 {
+    font-family: var(--font-display); font-size: 1.05rem; text-transform: none;
+    letter-spacing: -0.01em; color: var(--ink); font-weight: 700; margin-bottom: 16px;
+  }
+  .card h3 .dot { width: 12px; height: 12px; border: 1.5px solid var(--ink); background: var(--banana-bright); }
+
+  /* ── Login ── */
+  #login {
+    position: relative; max-width: 380px; margin: 14vh auto; text-align: center;
+    padding: 30px 28px 26px; box-shadow: 6px 6px 0 var(--banana-bright);
+  }
+  #login .logo { height: 52px; }
+  #login h2 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em; margin-top: 6px; }
+  #login .hint { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+  #login input {
+    width: 100%; padding: 12px 18px; font-size: 16px; font-family: inherit;
+    border: 1.5px solid var(--ink); border-radius: var(--radius-pill); margin: 18px 0 10px; outline: none;
+  }
+  #login input:focus { box-shadow: 3px 3px 0 var(--banana-bright); }
+  #login .sticker { position: absolute; width: 50px; top: -22px; right: -16px; transform: rotate(14deg); }
+  #login .sticker.two { width: 40px; top: auto; right: auto; bottom: -18px; left: -14px; transform: rotate(-10deg); }
+  #loginError { color: var(--warn); font-size: .85rem; min-height: 1.2em; margin-top: 8px; }
+
+  /* ── App bar: near-black "dark section" with a banana swash ── */
+  .appbar {
+    background: var(--ink); border-radius: 28px; padding: 22px 26px; overflow: visible;
+  }
+  .appbar::after { display: none; }
+  .appbar .brand-mark { align-items: center; gap: 14px; }
+  .appbar .logo-badge {
+    width: 50px; height: 50px; border-radius: 50%; background: var(--banana-bright);
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+  .appbar .logo-badge img { height: 34px; }
+  .appbar h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em; }
+  .swash { position: relative; white-space: nowrap; z-index: 0; color: var(--ink); padding: 0 .12em; }
+  .swash::before {
+    content: ''; position: absolute; inset: .12em -.05em .02em; z-index: -1;
+    background: var(--banana-bright); border-radius: 10px 14px 8px 16px; transform: rotate(-1.5deg);
+  }
+  .appbar .subtitle { font-size: .82rem; color: rgba(255,255,255,.7); margin-top: 4px; }
+  .appbar .sticker { position: absolute; pointer-events: none; }
+  .appbar .sticker.a { width: 46px; top: -20px; right: 26%; transform: rotate(12deg); }
+  .appbar .sticker.b { width: 34px; bottom: -14px; left: 38%; transform: rotate(-8deg); }
+  .btn-on-dark:hover, .btn-ghost-dark:hover { transform: rotate(-2deg); }
+
+  /* ── Dashboard nav: pastel sticker cards ── */
+  .navcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .navcard {
+    display: block; text-decoration: none; color: var(--ink); position: relative;
+    border-radius: 22px; padding: 20px 22px 18px; border: 1.5px solid var(--ink);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .navcard:hover { transform: translateY(-3px) rotate(-.6deg); box-shadow: 5px 5px 0 var(--ink); }
+  .navcard:nth-child(even):hover { transform: translateY(-3px) rotate(.6deg); }
+  .navcard.c-comm  { background: var(--pink); }
+  .navcard.c-corp  { background: var(--sky); }
+  .navcard.c-indiv { background: var(--mint); }
+  .navcard .ico { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; }
+  .navcard h4 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; padding-right: 40px; }
+  .navcard p { font-size: 12.5px; color: rgba(29,29,31,.72); margin-top: 4px; }
+  .navcard .go {
+    display: inline-block; margin-top: 12px; font-size: 12px; font-weight: 700; color: var(--white);
+    background: var(--ink); border-radius: var(--radius-pill); padding: 5px 12px;
+  }
+
+  /* ── KPIs ── */
+  .kpi { border-radius: 22px; padding: 18px 20px; }
+  .kpi::before { display: none; }
+  .kpi .kpi-label {
+    display: inline-block; font-size: 11px; letter-spacing: .4px; color: var(--ink);
+    border: 1.2px solid var(--ink); border-radius: var(--radius-pill); padding: 3px 10px;
+  }
+  #cards .kpi:nth-child(1) .kpi-label { background: var(--banana-pastel); }
+  #cards .kpi:nth-child(2) .kpi-label { background: var(--pink); }
+  #cards .kpi:nth-child(3) .kpi-label { background: var(--mint); }
+  #cards .kpi:nth-child(4) .kpi-label { background: var(--lavender); }
+  .kpi .kpi-value { font-size: 46px; font-weight: 800; letter-spacing: -0.03em; margin-top: 12px; }
+  .kpi.pending { background: var(--white); border-style: solid; }
+
+  /* ── Bars: pill tracks, banana fill ── */
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; font-size: .82rem; }
   .bar-row .name { flex: 0 0 46%; text-align: right; color: var(--muted-strong); }
-  .bar-row .track { flex: 1; background: rgba(44,44,42,.05); border-radius: 6px; height: 18px; overflow: hidden; }
-  .bar-row .fill { height: 100%; background: var(--accent); border-radius: 6px; }
-  .bar-row .val { flex: 0 0 64px; font-weight: 700; font-family: var(--font-mono); font-size: 12px; color: var(--ink); }
+  .bar-row .track {
+    flex: 1; background: var(--stone); border: 1.2px solid var(--ink);
+    border-radius: var(--radius-pill); height: 18px; overflow: hidden;
+  }
+  .bar-row .fill { height: 100%; background: var(--banana-bright); border-right: 1.2px solid var(--ink); border-radius: var(--radius-pill); }
+  #distributions .bar-row .fill { background: var(--leaf); }
+  .bar-row .val { flex: 0 0 86px; white-space: nowrap; font-weight: 600; font-family: var(--font-mono); font-size: 12px; color: var(--ink); }
+
   #insightsOut { margin-top: 14px; font-size: .9rem; line-height: 1.6; white-space: pre-wrap; }
-  details.resp { border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-bottom: 10px; background: var(--card); }
+  #insightsOut:not(:empty) {
+    background: var(--banana-pastel); border-radius: 18px; padding: 14px 18px;
+    border: 1.5px dashed rgba(29,29,31,.35);
+  }
+
+  /* Needs follow-up: coral, loud on purpose */
+  #triageCard { border-color: var(--coral-site); box-shadow: 5px 5px 0 var(--coral-site); background: #FFF6F2; }
+
+  /* ── Responses ── */
+  details.resp {
+    border-radius: 18px; padding: 12px 16px; margin-bottom: 10px; background: var(--card);
+    border-color: rgba(29,29,31,.22); transition: border-color .15s, box-shadow .15s;
+  }
+  details.resp:hover, details.resp[open] { border-color: var(--ink); }
+  details.resp[open] { box-shadow: 4px 4px 0 var(--banana-bright); }
   details.resp summary { cursor: pointer; font-size: .9rem; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; list-style: none; }
   details.resp summary::-webkit-details-marker { display: none; }
+  details.resp summary::after { content: '+'; margin-left: auto; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; }
+  details.resp[open] summary::after { content: '−'; }
+  .tag { border: 1.2px solid currentColor; padding: 2px 10px; }
+  .tag:not(.pos):not(.neg):not(.flag) { border-color: var(--ink); color: var(--ink); background: var(--lavender); }
   .resp .summary-txt { font-size: .85rem; color: var(--muted-strong); margin: 10px 0; }
   .resp table { width: 100%; border-collapse: collapse; font-size: .8rem; margin-top: 8px; }
+  .prog-tbl { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: 6px; }
+  .prog-tbl td { padding: 5px 0; border-bottom: 1px dashed var(--line); }
+  .prog-tbl td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-size: 12px; }
   .resp td { border-top: 1px solid var(--line-soft); padding: 6px 8px; vertical-align: top; }
   .resp td:first-child { color: var(--muted); width: 38%; }
-  .quote-tools { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 12px; }
+  .quote-tools { margin-top: 12px; border-top: 1.5px dashed var(--line); padding-top: 12px; }
   .quote-tools .qrow { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; font-size: 12.5px; }
   .quote-tools .qrow .qtext { flex: 1; color: var(--ink); }
-  .author-in { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 12.5px; }
+  .author-in { border: 1.5px solid var(--ink); border-radius: var(--radius-pill); padding: 6px 12px; font: inherit; font-size: 12.5px; }
+
+  .btn:focus-visible, .navcard:focus-visible, summary:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
+  .foot .brand { font-family: var(--font-display); }
+
+  @media (max-width: 900px) { .navcards { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) {
+    .appbar h1 { font-size: 1.35rem; }
+    .appbar .sticker { display: none; }
+    #cards.grid-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .kpi { padding: 14px 16px; }
+    .kpi .kpi-value { font-size: 36px; }
+    .kpi .kpi-label { font-size: 10px; }
+    .bar-row .name { flex-basis: 40%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
 </style>
 </head>
 <body>
 
+<!-- Doodle library, same stickers as the survey page -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="d-sparkle" viewBox="0 0 100 100">
+      <path d="M50 4 L56 34 L78 12 L66 40 L96 36 L70 52 L94 70 L64 64 L72 94 L52 70 L40 96 L38 66 L10 80 L30 56 L4 44 L34 40 L20 12 L44 32 Z"
+            fill="#F7A6C8" stroke="#1d1d1f" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="d-smiley" viewBox="0 0 100 100">
+      <path d="M50 8 C74 8 92 25 92 48 C92 71 74 86 50 86 C44 86 38 85 33 83 L16 93 L21 76 C12 69 8 59 8 48 C8 25 26 8 50 8 Z"
+            fill="#BFE6EE" stroke="#1d1d1f" stroke-width="4" stroke-linejoin="round"/>
+      <ellipse cx="38" cy="40" rx="4.5" ry="7" fill="#1d1d1f"/>
+      <ellipse cx="62" cy="40" rx="4.5" ry="7" fill="#1d1d1f"/>
+      <path d="M31 55 Q50 74 69 55" fill="none" stroke="#1d1d1f" stroke-width="5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="d-star" viewBox="0 0 100 100">
+      <path d="M50 4 C54 38 62 46 96 50 C62 54 54 62 50 96 C46 62 38 54 4 50 C38 46 46 38 50 4 Z"
+            fill="#8ed462" stroke="#1d1d1f" stroke-width="3" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="d-gold" viewBox="0 0 100 100">
+      <path d="M50 4 C54 38 62 46 96 50 C62 54 54 62 50 96 C46 62 38 54 4 50 C38 46 46 38 50 4 Z" fill="#f5c11f"/>
+    </symbol>
+  </defs>
+</svg>
+
 <div id="login" class="card" style="display:none">
-  <h3>🔐 myWIPhealing Admin</h3>
-  <input type="password" id="pw" placeholder="Password" autofocus>
-  <button class="btn btn-primary" style="width:100%" onclick="login()">Enter</button>
+  <svg class="sticker" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-sparkle"/></svg>
+  <svg class="sticker two" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-star"/></svg>
+  <img class="logo" src="/img/wip-logo.png" alt="myWIPhealing">
+  <h2>Admin Hub</h2>
+  <p class="hint">myWIPhealing team only</p>
+  <input type="password" id="pw" placeholder="Password" aria-label="Password" autofocus>
+  <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="login()">Enter</button>
   <div id="loginError"></div>
 </div>
 
 <div id="dash" class="wrap stack" style="display:none">
   <div class="appbar">
-    <div>
-      <div class="brand-mark"><h1>myWIPhealing <span class="accent">Admin Hub</span></h1></div>
-      <div class="subtitle">Seni · powered by Gym Brain</div>
+    <svg class="sticker a" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-sparkle"/></svg>
+    <svg class="sticker b" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-gold"/></svg>
+    <div class="brand-mark">
+      <span class="logo-badge"><img src="/img/wip-logo.png" alt=""></span>
+      <div>
+        <h1>myWIPhealing <span class="swash">Admin Hub</span></h1>
+        <div class="subtitle">Seni · powered by Gym Brain</div>
+      </div>
     </div>
     <div class="bar-actions">
       <button class="btn btn-ghost-dark btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
@@ -63,12 +241,15 @@
   <!-- Dashboard nav -->
   <div class="navcards">
     <a class="navcard c-comm" href="/community.html">
+      <svg class="ico" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-sparkle"/></svg>
       <h4>Community Health</h4><p>Public social-proof aggregate. Shareable.</p><span class="go">Open →</span>
     </a>
     <a class="navcard c-corp" href="/corporate.html">
+      <svg class="ico" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-star"/></svg>
       <h4>Corporate Impact</h4><p>Per-client before/after + ROI one-pager.</p><span class="go">Open →</span>
     </a>
     <a class="navcard c-indiv" href="/participant.html">
+      <svg class="ico" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-smiley"/></svg>
       <h4>Participant Journeys</h4><p>Internal pre→post journeys &amp; flags.</p><span class="go">Open →</span>
     </a>
   </div>
@@ -109,29 +290,19 @@
 let token = sessionStorage.getItem("adminToken") || "";
 let allResponses = [];
 
-const FIELD_LABELS = {
+// Labels and quote-eligible fields come from the server (survey.js) so a new
+// question always shows up here and in the CSV export. The literals below are
+// only a fallback for a stale cached page.
+let FIELD_LABELS = {
   name: "Name", age_group: "Age group", gender: "Gender", location: "Location",
-  email: "Email", phone: "Phone", program: "Program joined", community_role: "Community role",
-  pre_happy_safe: "Pre: happy & safe (1-5)", pre_self_kind: "Pre: kind to self (1-5)",
-  pre_self_worth: "Pre: I am important (1-5)", pre_mind_calm: "Pre: mind calm (1-5)",
-  pre_social_connection: "Pre: people I can talk to (1-5)",
-  pre_mood: "Mood brought in",
-  post_happy_safe: "Post: happy & safe (1-5)", post_self_kind: "Post: kind to self (1-5)",
-  post_self_worth: "Post: I am important (1-5)", post_mind_calm: "Post: mind calm (1-5)",
-  post_social_connection: "Post: people I can talk to (1-5)",
-  post_strength_lesson: "Lesson on strength/self-love", post_self_view_change: "Change in self-view",
-  program_effectiveness: "Program effectiveness (1-5)", would_recommend: "Would recommend (0-10)",
-  program_experience: "Program experience (A-E)", suggestions: "Suggestions",
-  // Legacy fields (backwards compatibility with historical data)
-  pre_heavy_feeling: "Pre: heavy feeling (legacy)", personal_experience: "Personal creative experience (legacy)",
-  emotions_while_creating: "Emotions while creating (legacy)", impactful_zone: "Most impactful zone (legacy)",
-  mental_health_understanding: "Mental health understanding (legacy)",
+  email: "Email", phone: "Phone", creative_expression: "Creative expression",
+  program: "Programme", community_role: "Community role",
 };
-
-const QUOTE_FIELDS = ["post_strength_lesson", "post_self_view_change", "personal_experience", "emotions_while_creating", "suggestions", "pre_mood"];
+let QUOTE_FIELDS = ["post_strength_lesson", "post_self_view_change", "personal_experience",
+  "emotions_while_creating", "significant_moment", "suggestions", "pre_mood"];
 
 const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","'":"&quot;","'":"&#39;" }[c]));
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 
 async function api(path, opts = {}) {
   const res = await fetch(path, { ...opts, headers: { "Content-Type": "application/json", Authorization: "Bearer " + token, ...(opts.headers || {}) } });
@@ -159,8 +330,11 @@ function logout() {
 
 async function showDash() {
   $("login").style.display = "none"; $("dash").style.display = "block";
-  const { stats, responses, participants } = await api("/api/admin/data");
+  const d = await api("/api/admin/data");
+  const { stats, responses, participants } = d;
   allResponses = responses;
+  if (d.fieldLabels) FIELD_LABELS = d.fieldLabels;
+  if (d.quoteFields) QUOTE_FIELDS = d.quoteFields;
 
   const returning = (participants || []).filter((p) => !p.anonymous && p.count > 1).length;
   $("cards").innerHTML = [
@@ -169,6 +343,23 @@ async function showDash() {
     `<div class="kpi"><div class="kpi-label">Returning</div><div class="kpi-value">${returning}</div></div>`,
     `<div class="kpi pending" style="${stats.flagged ? "border-color:var(--warn)" : ""}"><div class="kpi-label">Follow-up flags</div><div class="kpi-value" style="${stats.flagged ? "color:var(--warn)" : ""}">${stats.flagged}</div></div>`,
   ].join("");
+
+  // Per-programme scale averages. Programmes share the pre/post batteries but
+  // not every question, so these are never pooled into one number.
+  const bp = stats.byProgram || {};
+  const progKeys = Object.keys(bp);
+  if (progKeys.length) {
+    $("cards").insertAdjacentHTML("afterend", `<div class="card"><h3><span class="dot"></span> By programme</h3>
+      ${progKeys.map((k) => {
+        const p = bp[k];
+        const rows = Object.entries(p.averages).map(([f, a]) =>
+          `<tr><td>${esc(a.label)}</td><td>${a.average ?? "—"}<span class="muted"> (n=${a.count})</span></td></tr>`).join("");
+        return `<div style="margin-bottom:14px"><strong>${esc(p.label)}</strong> <span class="muted">· ${p.count} response${p.count === 1 ? "" : "s"}</span>
+          <table class="prog-tbl">${rows || '<tr><td class="muted">No scale answers yet</td></tr>'}</table></div>`;
+      }).join("")}
+      ${stats.unattributed ? `<div class="muted" style="font-size:11.5px">${stats.unattributed} response${stats.unattributed === 1 ? "" : "s"} predate the programme question and are not attributed to one.</div>` : ""}
+    </div>`);
+  }
 
   // Triage
   const flagged = responses.filter((r) => r.analysis && r.analysis.concern_flag);
