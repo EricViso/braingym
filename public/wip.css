@@ -21,6 +21,7 @@
 /* Section accents, retuned to the site's colours */
 .theme-community { --accent: var(--coral-site); --accent-soft: var(--pink); }
 .theme-corporate { --accent: #4F55E2;           --accent-soft: var(--sky); }
+.theme-individual { --accent: var(--forest);    --accent-soft: var(--mint); }
 
 body {
   background:
@@ -140,6 +141,10 @@ body {
 .roi-stat { background: var(--white); border: 1.5px solid var(--ink); border-radius: 18px; padding: 12px 16px; }
 .roi-stat .num { font-weight: 800; letter-spacing: -0.02em; }
 .roi-stat .lbl { color: rgba(29,29,31,.7); }
+
+/* ── Tags: outlined pills; neutral ones go lavender ── */
+.tag { border: 1.2px solid currentColor; padding: 2px 10px; }
+.tag:not(.pos):not(.neg):not(.flag) { border-color: var(--ink); color: var(--ink); background: var(--lavender); }
 
 /* ── Form bits ── */
 .field label { color: var(--ink); }
