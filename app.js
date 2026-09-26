@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const storage = require("./storage");
 const stats = require("./stats");
 const survey = require("./survey");
+const emotions = require("./emotions");
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
@@ -196,6 +197,28 @@ app.post("/api/chat", async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: e.message });
+  }
+});
+
+// ---------- emotion wheel (TypeSafe Jev) ----------
+
+// The page draws the wheel from this, and only shows the panel when enabled.
+app.get("/api/emotion/wheel", (req, res) => {
+  res.json({ enabled: emotions.enabled(), wheel: emotions.wheel() });
+});
+
+// Body: { message, context? } where context is the recent chat history. Runs
+// alongside /api/chat, so reading emotions never slows the survey down.
+app.post("/api/emotion", async (req, res) => {
+  const { message, context } = req.body || {};
+  if (typeof message !== "string" || !message.trim()) {
+    return res.status(400).json({ error: "message is required" });
+  }
+  try {
+    res.json(await emotions.analyze(message, context));
+  } catch (e) {
+    console.error(e);
+    res.status(e.status || 500).json({ error: e.message });
   }
 });
 
