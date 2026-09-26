@@ -142,6 +142,7 @@ function barPair(label, before, after, max, note) {
 }
 
 // Programme options come from survey.js, so adding a programme there is enough.
+// Values are ids; stats.js normalises legacy label-valued rows to match.
 async function loadPrograms() {
   try {
     const { programs } = await (await fetch("/api/programs")).json();

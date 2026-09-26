@@ -51,6 +51,21 @@ const WELLBEING_POST = [
   "post_mind_peaceful",
 ];
 
+// Programme identity. Responses collected before this refactor stored the
+// programme's display label ("WIP Harmoni Circle"); new ones store the stable
+// id ("wip-harmoni-circle"). Both normalise to the id here so imported
+// historical rows keep matching the filters instead of silently dropping out.
+const PROGRAM_KEYS = new Map();
+for (const p of survey.PROGRAMS) {
+  PROGRAM_KEYS.set(p.id.toLowerCase(), p.id);
+  PROGRAM_KEYS.set(p.label.toLowerCase(), p.id);
+}
+function programId(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const k = String(value).trim().toLowerCase();
+  return PROGRAM_KEYS.get(k) || String(value).trim();
+}
+
 // ---------- small helpers ----------
 
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -78,7 +93,7 @@ function rowScaleAvg(d, fields) {
 function distribution(datas, field) {
   const counts = {};
   for (const d of datas) {
-    const v = d[field];
+    const v = field === "program" ? programId(d[field]) : d[field];
     if (v === null || v === undefined || v === "") continue;
     const key = String(v);
     counts[key] = (counts[key] || 0) + 1;
@@ -131,7 +146,7 @@ function computeStats(responses) {
   // difference that only exists in one of them.
   const byProgram = {};
   for (const p of survey.PROGRAMS) {
-    const rows = datas.filter((d) => d.program === p.id);
+    const rows = datas.filter((d) => programId(d.program) === p.id);
     if (!rows.length) continue;
     const avgs = {};
     for (const [field, label] of Object.entries(SCALE_FIELDS)) {
@@ -223,7 +238,10 @@ function corporateStats(responses, filters = {}) {
   let rs = responses.slice();
   if (from) rs = rs.filter((r) => r.submittedAt && r.submittedAt >= from);
   if (to) rs = rs.filter((r) => r.submittedAt && r.submittedAt <= to);
-  if (program) rs = rs.filter((r) => r.data && r.data.program === program);
+  if (program)
+    rs = rs.filter(
+      (r) => r.data && programId(r.data.program) === programId(program)
+    );
   if (company)
     rs = rs.filter(
       (r) => r.data && (r.data.company || "").toLowerCase() === company.toLowerCase()
@@ -312,6 +330,7 @@ module.exports = {
   SCALE_FIELDS,
   CATEGORY_FIELDS,
   QUOTE_FIELDS,
+  programId,
   computeStats,
   communityStats,
   corporateStats,
