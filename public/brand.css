@@ -5,47 +5,47 @@
    ============================================================ */
 
 :root {
-  /* ── Primary palette ── */
-  --myrtle:        #174509;  /* footer / dark sections / high-energy */
-  --banana:        #C9EE21;  /* brand signature accent */
-  --banana-bright: #D5FC4C;  /* primary button fill (on dark) */
-  --banana-pastel: #DEFFA9;  /* soft accent, AA on near-black */
-  --gold:          #FFD91E;  /* high-energy callouts */
-  --coral:         #E8794A;  /* section accent, hover; white text only */
-  --ink:           #2C2C2A;  /* body text, navbar, footer, borders */
+  /* ── Primary palette (from mywiphealing.com Kadence globals) ── */
+  --myrtle:        #204825;  /* footer / dark sections / high-energy */
+  --banana:        #D5DD64;  /* brand signature lime accent */
+  --banana-bright: #D5DD64;  /* primary button fill (on dark) */
+  --banana-pastel: #EEF2D9;  /* soft lime tint, AA on near-black */
+  --gold:          #F5A524;  /* high-energy callouts */
+  --coral:         #EF583D;  /* section accent, hover; white text only */
+  --ink:           #1D1D1F;  /* body text, navbar, footer, borders */
 
   /* ── Surfaces ── */
-  --stone:         #F5EFE6;  /* default page background */
+  --stone:         #EEF2E3;  /* default page background (WP sage) */
   --white:         #FFFFFF;
   --card:          #FFFFFF;
 
   /* ── Derived neutrals ── */
-  --muted:         rgba(44,44,42,0.60);
-  --muted-strong:  rgba(44,44,42,0.78);
-  --line:          rgba(44,44,42,0.12);
-  --line-soft:     rgba(44,44,42,0.06);
-  --good:          #2E8B3D;  /* positive delta (AA on light) */
-  --warn:          #C2410C;  /* concern / attention */
+  --muted:         rgba(29,29,31,0.60);
+  --muted-strong:  rgba(29,29,31,0.78);
+  --line:          rgba(29,29,31,0.12);
+  --line-soft:     rgba(29,29,31,0.06);
+  --good:          #204825;  /* positive delta (AA on light) */
+  --warn:          #B82105;  /* concern / attention */
 
   /* ── Section accent (defaults to brand banana/myrtle) ── */
   --accent:        var(--myrtle);
   --accent-soft:   var(--banana-pastel);
 
   /* ── Shape & type ── */
-  --radius:        14px;
-  --radius-lg:     20px;
+  --radius:        16px;
+  --radius-lg:     24px;
   --radius-pill:   999px;
-  --shadow:        0 1px 3px rgba(44,44,42,0.08), 0 8px 24px rgba(44,44,42,0.05);
-  --font-display:  'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --shadow:        0 1px 3px rgba(29,29,31,0.08), 0 8px 24px rgba(29,29,31,0.05);
+  --font-display:  'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
   --font-body:     'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono:     'JetBrains Mono', ui-monospace, monospace;
 }
 
 /* ── Section themes: set on <body class="theme-*"> ── */
-.theme-individual { --accent: var(--myrtle);  --accent-soft: #C8E6C2; }  /* mint */
-.theme-corporate  { --accent: #4F55E2;        --accent-soft: #C8DEFF; }  /* electric / soft blue */
-.theme-community  { --accent: #E8794A;        --accent-soft: #FFDEE6; }  /* coral / misty rose */
-.theme-caregiver  { --accent: #9769F0;        --accent-soft: #DFCFFF; }  /* lavender */
+.theme-individual { --accent: var(--myrtle);  --accent-soft: #E3ECD2; }  /* sage / dark green */
+.theme-corporate  { --accent: #1159AF;        --accent-soft: #DCE8F8; }  /* WP blue */
+.theme-community  { --accent: #EF583D;        --accent-soft: #FBDCD5; }  /* WP coral / soft peach */
+.theme-caregiver  { --accent: #9769F0;        --accent-soft: #EADFFA; }  /* lavender */
 
 /* ── Reset & base ── */
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -100,9 +100,9 @@ a { color: inherit; }
   display: inline-block; padding: 3px 10px; border-radius: var(--radius-pill);
   font-size: 11px; font-weight: 600; background: var(--accent-soft); color: var(--ink);
 }
-.tag.pos  { background: #DBF3DE; color: var(--good); }
-.tag.neg  { background: #FFDEE6; color: #B11B3B; }
-.tag.flag { background: #FCE3D4; color: var(--warn); font-weight: 700; }
+.tag.pos  { background: #E3ECD2; color: var(--good); }
+.tag.neg  { background: #FBDCD5; color: #B82105; }
+.tag.flag { background: #FADBD3; color: var(--warn); font-weight: 700; }
 
 /* ── Buttons: fully-rounded pill, fill/text change by context ── */
 .btn {
