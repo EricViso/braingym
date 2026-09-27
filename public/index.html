@@ -374,16 +374,12 @@
   .emo-wheel { flex-shrink: 0; padding: 8px 14px 12px; border-top: 1.5px dashed rgba(29,29,31,.18); }
   .emo-wheel svg { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 auto; }
   .emo-wheel .w-base { stroke: #1d1d1f; stroke-width: .55; }
-  .emo-wheel .w-bg { opacity: .7; }
-  .emo-wheel .w-thermal { pointer-events: none; }
+  .emo-wheel .w-heat { fill: #C21F3A; stroke: none; pointer-events: none; transition: fill-opacity .6s ease; }
   .emo-wheel .w-latest { fill: none; stroke: #1d1d1f; stroke-width: 2; pointer-events: none; }
-  /* A light halo keeps labels legible over any heat colour. */
-  .emo-wheel text {
-    font-family: var(--font-body); fill: #1d1d1f; pointer-events: none;
-    paint-order: stroke; stroke: rgba(255,255,255,.75); stroke-width: 1.6px; stroke-linejoin: round;
-  }
+  .emo-wheel text { font-family: var(--font-body); fill: #1d1d1f; pointer-events: none; transition: fill .6s ease; }
+  .emo-wheel text.hot { fill: #fff; }
   .emo-legend { display: flex; align-items: center; gap: 8px; justify-content: center; font-size: .7rem; color: var(--muted-strong); margin-top: 6px; }
-  .emo-legend .ramp { width: 90px; height: 8px; border-radius: 99px; border: 1px solid rgba(29,29,31,.2); background: linear-gradient(90deg, #1e3cff, #00b7ff 25%, #19e38c 45%, #f6f01e 62%, #ff8a00 80%, #ff1a1a); }
+  .emo-legend .ramp { width: 90px; height: 8px; border-radius: 99px; border: 1px solid rgba(29,29,31,.2); background: linear-gradient(90deg, rgba(194,31,58,0), rgba(194,31,58,.9)); }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -713,9 +709,7 @@ const SVGNS = "http://www.w3.org/2000/svg";
 
 // Heat saturates rather than normalising to the hottest wedge, so the wheel
 // visibly fills in as the conversation goes on. Smaller = saturates sooner.
-// Core nouls are independent (up to 6 per message) while each ring's choice
-// probabilities sum to 1, so the core saturates more slowly to stay in balance.
-const SATURATION = { core: 3.2, middle: 0.5, outer: 0.35 };
+const SATURATION = { core: 1.6, middle: 0.9, outer: 0.7 };
 const RADII = [22, 64, 110, 168]; // hole, core | middle | outer ring edges
 
 let wheel = null;
@@ -774,14 +768,10 @@ function drawWheel() {
     return [start + idx[0] * step, start + (idx[idx.length - 1] + 1) * step];
   };
 
-  // Layers, bottom to top: the coloured wheel, the thermal image, the labels.
-  const base = svgEl("g", { class: "w-bg" }, wheelSvg);
-  wedges = { core: [], middle: [], outer: [] };
-  wedges.heatImg = svgEl("image", {
-    x: -RADII[3], y: -RADII[3], width: RADII[3] * 2, height: RADII[3] * 2,
-    preserveAspectRatio: "none", class: "w-thermal",
-  }, wheelSvg);
+  const base = svgEl("g", {}, wheelSvg);
+  const heatLayer = svgEl("g", {}, wheelSvg);
   const labels = svgEl("g", {}, wheelSvg);
+  wedges = { core: [], middle: [], outer: [] };
 
   const ring = (list, level, r0, r1, spanOf, fillOf, size) => {
     list.forEach((item, i) => {
@@ -789,14 +779,9 @@ function drawWheel() {
       const d = sector(r0, r1, a0, a1);
       const b = svgEl("path", { d, class: "w-base", fill: fillOf(item) }, base);
       svgEl("title", {}, b).textContent = item.label;
+      const h = svgEl("path", { d, class: "w-heat", "fill-opacity": 0 }, heatLayer);
       const label = radialLabel(item.label, (r0 + r1) / 2, (a0 + a1) / 2, size, labels);
-      // Heat sources spread along the wedge's arc, about one blob-width apart,
-      // so a wide wedge glows along its whole length rather than at one point.
-      const r = (r0 + r1) / 2;
-      const arc = (Math.PI * r * (a1 - a0)) / 180;
-      const n = Math.max(1, Math.round(arc / (HEAT_BLOB[level] * 0.9)));
-      const pts = Array.from({ length: n }, (_, k) => polar(r, a0 + ((k + 0.5) * (a1 - a0)) / n));
-      wedges[level].push({ base: b, label, d, pts });
+      wedges[level].push({ base: b, heat: h, label, d });
     });
   };
 
@@ -815,82 +800,15 @@ function drawWheel() {
   wedges.centre.textContent = "0";
 }
 
-// ── Thermal heatmap ──
-// Blobs are drawn as greyscale alpha on a canvas, where overlapping ones build
-// up, then each pixel's density is mapped through a thermal colour ramp. The
-// result is placed in the SVG between the wheel and its labels.
-const HEAT_PX = 680;                                 // canvas size (2x the wheel)
-const HEAT_BLOB = { core: 20, middle: 27, outer: 24 }; // blob radius, wheel units
-const HEAT_GAIN = { core: 0.55, middle: 0.9, outer: 1 };  // per-blob strength
-const THERMAL = [                                   // density -> colour
-  [0.0, "#1e3cff"], [0.25, "#00b7ff"], [0.45, "#19e38c"],
-  [0.62, "#f6f01e"], [0.8, "#ff8a00"], [1.0, "#ff1a1a"],
-];
-
-let thermalLut = null;
-function thermalPalette() {
-  if (thermalLut) return thermalLut;
-  const c = document.createElement("canvas");
-  c.width = 256; c.height = 1;
-  const ctx = c.getContext("2d");
-  const g = ctx.createLinearGradient(0, 0, 256, 0);
-  for (const [at, col] of THERMAL) g.addColorStop(at, col);
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, 256, 1);
-  return (thermalLut = ctx.getImageData(0, 0, 256, 1).data);
-}
-
-function renderThermal() {
-  const c = document.createElement("canvas");
-  c.width = c.height = HEAT_PX;
-  const ctx = c.getContext("2d");
-  const k = HEAT_PX / (RADII[3] * 2);
-  const toPx = ([x, y]) => [(x + RADII[3]) * k, (y + RADII[3]) * k];
-
-  for (const level of ["core", "middle", "outer"]) {
-    const rad = HEAT_BLOB[level] * k;
-    heat[level].forEach((v, i) => {
-      const w = 1 - Math.exp(-v / SATURATION[level]);
-      if (w < 0.01) return;
-      ctx.globalAlpha = Math.min(1, w * HEAT_GAIN[level]);
-      for (const pt of wedges[level][i].pts) {
-        const [x, y] = toPx(pt);
-        const g = ctx.createRadialGradient(x, y, 0, x, y, rad);
-        g.addColorStop(0, "rgba(0,0,0,1)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
-      }
-    });
-  }
-
-  const img = ctx.getImageData(0, 0, HEAT_PX, HEAT_PX);
-  const px = img.data;
-  const lut = thermalPalette();
-  const mid = HEAT_PX / 2, edge = RADII[3] * k, hole = RADII[0] * k;
-  for (let y = 0; y < HEAT_PX; y++) {
-    for (let x = 0; x < HEAT_PX; x++) {
-      const p = (y * HEAT_PX + x) * 4;
-      const a = px[p + 3];
-      const d = Math.hypot(x - mid, y - mid);
-      if (a < 14 || d > edge || d < hole) { px[p + 3] = 0; continue; }
-      const j = a * 4;
-      px[p] = lut[j]; px[p + 1] = lut[j + 1]; px[p + 2] = lut[j + 2];
-      // Faint heat stays see-through; the hottest spots are nearly opaque.
-      px[p + 3] = Math.min(225, 30 + a * 0.95);
-    }
-  }
-  ctx.putImageData(img, 0, 0);
-  return c.toDataURL("image/png");
-}
-
 function paintHeat() {
-  const any = ["core", "middle", "outer"].some((l) => heat[l].some((v) => v > 0));
-  wedges.heatImg.setAttribute("href", any ? renderThermal() : "");
   for (const level of ["core", "middle", "outer"]) {
-    const list = { core: wheel.core, middle: wheel.middle, outer: wheel.outer }[level];
     heat[level].forEach((v, i) => {
-      wedges[level][i].base.querySelector("title").textContent = `${list[i].label}: ${v.toFixed(2)} accumulated`;
+      const w = wedges[level][i];
+      const intensity = 1 - Math.exp(-v / SATURATION[level]);
+      w.heat.setAttribute("fill-opacity", (intensity * 0.88).toFixed(3));
+      w.label.classList.toggle("hot", intensity > 0.55);
+      w.base.querySelector("title").textContent =
+        `${[wheel.core, wheel.middle, wheel.outer][["core", "middle", "outer"].indexOf(level)][i].label}: ${v.toFixed(2)} accumulated`;
     });
   }
   wedges.centre.textContent = String(emoRead);
