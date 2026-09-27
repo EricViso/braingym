@@ -52,15 +52,6 @@ Individual = mint (set via `body class="theme-*"`).
 - `GET /api/public/community` — **no auth**. Anonymised, field-whitelisted aggregate that
   powers the Community dashboard. Returns only aggregates + admin-approved testimonials —
   never names, email, phone, or raw transcripts.
-- `POST /api/emotion` — sends one participant message (plus the last few turns for
-  context) to TypeSafe's **Jev** model and returns, per message: a yes-probability for each
-  of the six core emotions, a best-fit feeling from the 34-word middle ring, a specific word
-  from the 68-word outer ring, and an intensity score. The survey page accumulates these into
-  a heatmap over the emotion wheel in a right-hand sidebar, with Jev's latest answers (and the
-  raw response) above it for debugging. The wheel's words live in `emotions.js` and the page
-  draws from `GET /api/emotion/wheel`, so the model's options and the drawn wedges can't drift.
-  Enabled only when `TYPESAFE_API_KEY` is set; otherwise the sidebar is hidden and nothing is
-  sent to TypeSafe. Readings are not stored.
 - `POST /api/admin/login` — exchanges the password for a stateless bearer token.
 - `GET /api/admin/data` — stats + all responses (with AI analysis) + participant groupings.
 - `GET /api/admin/corporate?program=&company=&from=&to=` — team-level before/after aggregates,
@@ -92,8 +83,6 @@ collects and label the rest honestly:
 - Public testimonials require explicit **admin approval** (consent); the public endpoint
   whitelists safe fields only.
 - Participant Journeys is **internal/admin-only**.
-- With `TYPESAFE_API_KEY` set, each participant message is also sent to TypeSafe (Jev) for
-  the emotion wheel. The readings are shown to whoever is on the survey page and not stored.
 - Self-reported wellbeing — **not** clinical data (labeled in every footer).
 
 ## Storage & deployment
