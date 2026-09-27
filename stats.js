@@ -51,6 +51,37 @@ const WELLBEING_POST = [
   "post_mind_peaceful",
 ];
 
+// Field-name history: every stored response predates the questionnaire
+// refactor, so the DB holds the old scale names (pre_self_kind, pre_mind_calm,
+// post_mind_calm) while the current schema asks the same constructs as
+// pre_self_critical, pre_mind_heavy and post_mind_peaceful. calm↔heavy and
+// kind↔critical run in opposite directions, so their 1-5 values are inverted
+// (6 - n); post "calm" lines up with "peaceful" as-is. Reading both names keeps
+// the historical data in the dashboards instead of dropping it.
+const LEGACY_SCALE_FIELDS = {
+  pre_self_critical: (d) => invert5(d.pre_self_kind),
+  pre_mind_heavy: (d) => invert5(d.pre_mind_calm),
+  post_mind_peaceful: (d) => asNumber(d.post_mind_calm),
+};
+function asNumber(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+function invert5(v) {
+  const n = asNumber(v);
+  return n === null ? null : 6 - n;
+}
+// Current field first; legacy name only when the current one has no value.
+function resolveScale(d, field) {
+  const raw = d[field];
+  if (raw !== null && raw !== undefined && raw !== "") {
+    const n = Number(raw);
+    if (Number.isFinite(n)) return n;
+  }
+  const legacy = LEGACY_SCALE_FIELDS[field];
+  return legacy ? legacy(d) : null;
+}
+
 // Programme identity. Responses collected before this refactor stored the
 // programme's display label ("WIP Harmoni Circle"); new ones store the stable
 // id ("wip-harmoni-circle"). Both normalise to the id here so imported
@@ -75,17 +106,19 @@ function avg(nums) {
   return xs.length ? round2(xs.reduce((a, b) => a + b, 0) / xs.length) : null;
 }
 
-// Valid 1-5 values for one field across a list of `data` objects.
+// Valid 1-5 values for one field across a list of `data` objects. Falls back
+// to the pre-refactor field name before giving up on a response.
 function scaleVals(datas, field) {
   return datas
-    .map((d) => Number(d[field]))
+    .map((d) => resolveScale(d, field))
     .filter((n) => Number.isFinite(n) && n >= 1 && n <= 5);
 }
 
-// Mean of several scale fields within a single response (equal participant weight).
+// Mean of several scale fields within a single response (equal participant
+// weight); legacy-named answers count the same as current ones.
 function rowScaleAvg(d, fields) {
   const nums = fields
-    .map((f) => Number(d[f]))
+    .map((f) => resolveScale(d, f))
     .filter((n) => Number.isFinite(n) && n >= 1 && n <= 5);
   return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
 }
