@@ -29,9 +29,14 @@ const SCALE_UNDERSTANDING = [
 // Programmes offered. `id` is what gets stored in data.program and what the
 // corporate dashboard filters on, so keep these stable once responses exist.
 // The label is what the participant taps, in both languages.
+// Programmes without an entry in PROGRAM_QUESTIONS get the shared questions only.
 const PROGRAMS = [
-  { id: "seni-scape", label: "Seni Scape" },
   { id: "wip-harmoni-circle", label: "WIP Harmoni Circle" },
+  { id: "seni-scape", label: "WIP Seni Scape" },
+  { id: "art-of-healing-festival", label: "Art of Healing Festival" },
+  { id: "wip-nadi-workshop", label: "WIP Nadi Workshop" },
+  { id: "wip-ruang-discord", label: "WIP Ruang Discord" },
+  { id: "wip-rantau-retreat", label: "WIP Rantau Retreat" },
 ];
 
 // ---- Section A: asked of everyone, in every programme ----
