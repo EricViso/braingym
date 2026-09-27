@@ -202,11 +202,11 @@ const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const n1 = (v) => (v === null || v === undefined ? "—" : v);
 
-function kpi(label, value, unit, context, pending) {
+function kpi(label, value, unit, context, pending, pendingNote) {
   return `<div class="kpi ${pending ? "pending" : ""}">
     <div class="kpi-label">${esc(label)}</div>
     <div class="kpi-value">${esc(n1(value))}${unit && value !== null ? `<span class="unit">${esc(unit)}</span>` : ""}</div>
-    ${pending ? `<div class="pending-note">Available after survey extension</div>` : `<div class="kpi-context">${esc(context || "")}</div>`}
+    ${pending ? `<div class="pending-note">${esc(pendingNote || "Available after survey extension")}</div>` : `<div class="kpi-context">${esc(context || "")}</div>`}
   </div>`;
 }
 
@@ -249,8 +249,8 @@ async function load() {
   $("hero").innerHTML = [
     kpi("Community Wellbeing Index", s.wellbeingIndex10, "/10", "Mean of post-session wellbeing scales"),
     kpi("Positive sessions", posPct, "%", "Share of responses read as positive"),
-    kpi("Net Promoter Score", null, "", "", true),
-    kpi("3-month engagement", null, "", "", true),
+    kpi("Net Promoter Score", s.nps !== null ? Math.round(s.nps) : null, "", s.nps !== null ? `Promoters minus detractors · n=${s.npsCount}` : "", s.nps === null, "Needs 3+ would-recommend answers"),
+    kpi("Program effectiveness", s.effectiveness, "/5", s.effectiveness !== null ? `Mean rating · n=${s.effectivenessCount}` : "", s.effectiveness === null, "Needs 3+ effectiveness ratings"),
   ].join("");
 
   // Shift card
@@ -262,19 +262,31 @@ async function load() {
       <div class="muted" style="font-size:11.5px;margin-top:12px">Matched single-session pre/post scores. Self-reported.</div>`
     : `<div class="muted">No responses yet.</div>`;
 
-  // Landing card: sentiment split + booth experience (A best → E)
+  // Landing card: experience rating (A best → E) + effectiveness (1–5) + sentiment
   const booth = s.booth || {};
   const boothOrder = ["A", "B", "C", "D", "E"];
   const boothMax = Math.max(1, ...boothOrder.map((k) => booth[k] || 0));
   const boothLabels = { A: "Love it", B: "Enjoyed", C: "Okay", D: "Not much", E: "Didn't enjoy" };
+  const eff = s.effectivenessDist || {};
+  const effOrder = [5, 4, 3, 2, 1];
+  const effLabels = { 5: "Extremely", 4: "Very", 3: "Moderately", 2: "Slightly", 1: "Not effective" };
+  const effMax = Math.max(1, ...effOrder.map((k) => eff[k] || 0));
   $("landing").innerHTML = `
     <div class="bars">
       ${boothOrder.filter((k) => booth[k]).map((k) => `
         <div class="bar-row"><div class="tier" style="width:72px">${boothLabels[k]}</div>
         <div class="bar-track"><div class="bar-fill after" style="width:${Math.round((booth[k]/boothMax)*100)}%">${booth[k]}</div></div></div>
-      `).join("") || '<div class="muted">No booth feedback yet.</div>'}
+      `).join("") || '<div class="muted">No experience ratings yet.</div>'}
     </div>
-    <div class="muted" style="font-size:11.5px;margin-top:12px">Booth experience rating · ${sent.positive || 0} positive / ${sent.mixed || 0} mixed / ${sent.negative || 0} negative (AI-read)</div>`;
+    ${effOrder.some((k) => eff[k]) ? `
+    <div class="bar-group-label" style="margin-top:14px">Programme effectiveness (1–5)</div>
+    <div class="bars">
+      ${effOrder.filter((k) => eff[k]).map((k) => `
+        <div class="bar-row"><div class="tier" style="width:72px">${effLabels[k]}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round((eff[k]/effMax)*100)}%">${eff[k]}</div></div></div>
+      `).join("")}
+    </div>` : ""}
+    <div class="muted" style="font-size:11.5px;margin-top:12px">Experience &amp; effectiveness ratings · ${sent.positive || 0} positive / ${sent.mixed || 0} mixed / ${sent.negative || 0} negative (AI-read)</div>`;
 
   // Word cloud
   const words = s.words || [];

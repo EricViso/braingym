@@ -134,6 +134,20 @@ function distribution(datas, field) {
   return counts;
 }
 
+// Booth-style experience rating: the current questionnaire stores it as
+// booth_experience, the imported historical rows as program_experience. Same
+// A-E answer either way.
+function boothDistribution(datas) {
+  const counts = {};
+  for (const d of datas) {
+    const v = d.booth_experience || d.program_experience;
+    if (v === null || v === undefined || v === "") continue;
+    const key = String(v);
+    counts[key] = (counts[key] || 0) + 1;
+  }
+  return counts;
+}
+
 function sentimentSplit(responses) {
   const s = { positive: 0, mixed: 0, negative: 0 };
   for (const r of responses) {
@@ -223,6 +237,27 @@ function communityStats(responses) {
 
   const understanding = avg(scaleVals(datas, "mental_health_understanding"));
 
+  // Program effectiveness (1-5) and NPS (0-10) exist on the imported
+  // historical rows (program_effectiveness / would_recommend). Stored 0s mean
+  // "not collected", so they are skipped, and a metric only reports from
+  // 3+ real answers — below that it stays an honest "pending".
+  const effVals = scaleVals(datas, "program_effectiveness");
+  const effectiveness = avg(effVals);
+  const effectivenessCount = effVals.length;
+  const effectivenessDist = {};
+  for (const v of effVals) effectivenessDist[v] = (effectivenessDist[v] || 0) + 1;
+
+  const npsScores = datas
+    .map((d) => Number(d.would_recommend))
+    .filter((n) => Number.isFinite(n) && n >= 1 && n <= 10);
+  const nps = npsScores.length >= 3
+    ? round2(
+        (npsScores.filter((n) => n >= 9).length / npsScores.length -
+          npsScores.filter((n) => n <= 6).length / npsScores.length) *
+          100
+      )
+    : null;
+
   // Theme word cloud: AI themes + short pre-session mood words.
   const wordCounts = {};
   for (const r of responses) {
@@ -253,12 +288,16 @@ function communityStats(responses) {
     preWorth,
     postWorth,
     understanding,
+    effectiveness,
+    effectivenessCount,
+    effectivenessDist,
+    nps,
+    npsCount: npsScores.length,
     sentiment: sentimentSplit(responses),
-    booth: distribution(datas, "booth_experience"),
+    booth: boothDistribution(datas),
     words,
     testimonials: approvedTestimonials(responses),
     // Phase 2 — not yet collected by the survey:
-    nps: null,
     engagementRate: null,
   };
 }
@@ -308,7 +347,7 @@ function corporateStats(responses, filters = {}) {
     pairs,
     afterWellbeing: after,
     afterWellbeing10: after !== null ? round2(after * 2) : null,
-    booth: distribution(datas, "booth_experience"),
+    booth: boothDistribution(datas),
     sentiment: sentimentSplit(rs),
     testimonials: approvedTestimonials(rs),
     hasCompanyField: datas.some((d) => d.company),
