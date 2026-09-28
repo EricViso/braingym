@@ -35,7 +35,9 @@ const NAV_CSS = `<style>
 @media (min-width:1025px){
 .wp-block-kadence-header .kb-header-container:has(.wip-nav-item),
 .wp-block-kadence-header-row .kadence-header-row-inner:has(.wip-nav-item){max-width:1180px}}
-@media (min-width:1025px) and (max-width:1279px){.wp-block-kadence-header-row .kadence-header-row-inner:has(.wip-nav-item) .kb-nav-link-content{font-size:15px;--kb-nav-link-padding-left:.3em;--kb-nav-link-padding-right:.3em}}
+@media (min-width:1025px){.wp-block-kadence-header-row .kadence-header-row-inner:has(.wip-nav-item) .menu-container > .menu > .wp-block-kadence-navigation-link{margin:0 .3em}}
+@media (min-width:1025px) and (max-width:1279px){.wp-block-kadence-header-row .kadence-header-row-inner:has(.wip-nav-item) .kb-nav-link-content{font-size:15px;--kb-nav-link-padding-left:.3em;--kb-nav-link-padding-right:.3em}
+.wp-block-kadence-header-row .kadence-header-row-inner:has(.wip-nav-item) .menu-container > .menu > .wp-block-kadence-navigation-link{margin:0 .4em}}
 </style>`;
 
 const wrap = (name, html) => `<!--wip:add:${name}-->${html}<!--/wip:add:${name}-->`;
@@ -73,6 +75,13 @@ function navItems() {
 function addToPage(html, { home }) {
   const missed = [];
   html = strip(html);
+
+  // Header "Resources" dropdown holds only Peer Stories: make it a plain link.
+  // Rewrites WordPress's markup in place (not marker-wrapped), so re-runs find
+  // nothing to do.
+  const resDrop = /<li class="wp-block-kadence-navigation-link[^"]*menu-item-has-children[^"]*"><div class="kb-link-wrap"><a class="kb-nav-link-content" role="button">Resources<\/a>[\s\S]*?<\/ul><\/li>/g;
+  html = html.replace(resDrop,
+    `<li class="wp-block-kadence-navigation-link menu-item"><div class="kb-link-wrap"><a class="kb-nav-link-content" href="/ships-peer-stories/">Peer Stories</a></div></li>`);
 
   // Header menus (desktop + mobile drawer share the markup): before "About".
   const about = /<li class="wp-block-kadence-navigation-link[^"]*"><div class="kb-link-wrap"><a class="kb-nav-link-content" href="\/about-us\/">/g;
