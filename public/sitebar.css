@@ -1,0 +1,24 @@
+/* Slim top bar linking the app pages (survey, community dashboard) back into
+   the main myWIPhealing site. Markup: see the <nav class="sitebar"> in
+   bot/index.html and community.html. */
+.sitebar {
+  position: relative; z-index: 20;
+  width: 100%; height: 52px; flex: 0 0 52px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 0 20px; box-sizing: border-box;
+  background: rgba(255, 255, 255, .9);
+  border-bottom: 1px solid rgba(29, 29, 31, .08);
+  font-family: "Inter", system-ui, sans-serif; font-size: 14px;
+}
+.sitebar a { color: #1d1d1f; text-decoration: none; font-weight: 500; white-space: nowrap; }
+.sitebar .sb-home { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.sitebar .sb-home img { height: 28px; width: auto; display: block; }
+.sitebar .sb-links { display: flex; align-items: center; gap: 6px; }
+.sitebar .sb-links a { padding: 8px 12px; border-radius: 100px; }
+.sitebar .sb-links a:hover { background: rgba(29, 29, 31, .06); }
+.sitebar .sb-links a[aria-current="page"] { background: #1d1d1f; color: #fff; }
+@media (max-width: 480px) {
+  .sitebar { padding: 0 12px; }
+  .sitebar .sb-home span { display: none; }
+  .sitebar .sb-links a { padding: 8px 10px; font-size: 13px; }
+}

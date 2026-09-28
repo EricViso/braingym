@@ -45,6 +45,14 @@ edited in WordPress, run `node scripts/mirror-wordpress.js` (optionally pass an 
 WordPress moves off the main domain) and commit the result. It only writes WordPress paths, so
 the survey and dashboards are never overwritten.
 
+WordPress knows nothing about this repo's own pages, so `scripts/site-additions.js` (run
+automatically at the end of a mirror) adds them to every mirrored page: "Our Impact"
+(`/community.html`) and "Impact Survey" (`/bot/`) in the header menu and footer, footer links to
+the privacy policy, SHIPS terms and team login, and the homepage sections in
+`scripts/home-sections.html`. Edit those there, then run `node scripts/site-additions.js`; never
+edit the mirrored HTML by hand, as the next mirror overwrites it. The survey and community
+pages link back to the site through the bar at their top (`public/sitebar.css`).
+
 ## Brand & design
 
 All pages share `public/brand.css`, which encodes the **myWIPhealing Color System v1.0**

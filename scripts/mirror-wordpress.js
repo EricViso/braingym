@@ -149,8 +149,8 @@ async function main() {
   console.log(`\n${done.size - failed.length} files mirrored, ${failed.length} failed`);
   for (const f of failed) console.log("  failed:", f);
 
-  // Re-add the sections that exist only in this repo, not in WordPress.
-  require("./inject-home-sections")();
+  // Re-add the links and sections that exist only in this repo, not in WordPress.
+  require("./site-additions")();
 }
 
 main().catch((e) => {
