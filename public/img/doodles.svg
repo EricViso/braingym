@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <!-- Doodle stickers in the style of mywiphealing.com. Use as <svg><use href="/img/doodles.svg#d-sparkle"/></svg> -->
+  <symbol id="d-sparkle" viewBox="0 0 100 100">
+    <path d="M50 4 L56 34 L78 12 L66 40 L96 36 L70 52 L94 70 L64 64 L72 94 L52 70 L40 96 L38 66 L10 80 L30 56 L4 44 L34 40 L20 12 L44 32 Z"
+          fill="#F7A6C8" stroke="#1d1d1f" stroke-width="2.5" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="d-smiley" viewBox="0 0 100 100">
+    <path d="M50 8 C74 8 92 25 92 48 C92 71 74 86 50 86 C44 86 38 85 33 83 L16 93 L21 76 C12 69 8 59 8 48 C8 25 26 8 50 8 Z"
+          fill="#BFE6EE" stroke="#1d1d1f" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="38" cy="40" rx="4.5" ry="7" fill="#1d1d1f"/>
+    <ellipse cx="62" cy="40" rx="4.5" ry="7" fill="#1d1d1f"/>
+    <path d="M31 55 Q50 74 69 55" fill="none" stroke="#1d1d1f" stroke-width="5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="d-star" viewBox="0 0 100 100">
+    <path d="M50 4 C54 38 62 46 96 50 C62 54 54 62 50 96 C46 62 38 54 4 50 C38 46 46 38 50 4 Z"
+          fill="#8ed462" stroke="#1d1d1f" stroke-width="3" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="d-gold" viewBox="0 0 100 100">
+    <path d="M50 4 C54 38 62 46 96 50 C62 54 54 62 50 96 C46 62 38 54 4 50 C38 46 46 38 50 4 Z" fill="#f5c11f"/>
+  </symbol>
+  <symbol id="d-squiggle" viewBox="0 0 100 60">
+    <path d="M8 44 C18 8 34 8 34 30 C34 50 52 52 56 30 C60 8 80 6 92 22"
+          fill="none" stroke="#8ed462" stroke-width="11" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="d-cross" viewBox="0 0 100 100">
+    <path d="M18 18 L82 82 M82 18 L18 82" stroke="#ef6442" stroke-width="16" stroke-linecap="round"/>
+  </symbol>
+</svg>

@@ -10,146 +10,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/brand.css">
-<style>
-  /* Page-local tokens, shared with the survey page (index.html) and admin hub */
-  :root {
-    --font-display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
-    --ink: #1d1d1f;
-    --forest: #2a6f2b;
-    --leaf: #8ed462;
-    --coral-site: #ef6442;
-    --pink: #FFDEE6;
-    --mint: #C8E6C2;
-    --lavender: #DFCFFF;
-    --sky: #C8DEFF;
-    --accent: var(--coral-site);      /* community section accent */
-    --accent-soft: var(--pink);
-    --line: rgba(29,29,31,.14);
-  }
-  body {
-    background:
-      radial-gradient(1100px 520px at 105% -8%, rgba(213,252,75,.26), transparent 60%),
-      radial-gradient(900px 480px at -8% 108%, rgba(255,222,230,.5), transparent 60%),
-      var(--stone);
-    background-attachment: fixed;
-  }
-  .wrap { max-width: 1120px; padding: 28px 24px 16px; }
-
-  /* ── Sticker-style surfaces ── */
-  .card, .kpi, .quote {
-    border: 1.5px solid var(--ink); box-shadow: none;
-  }
-  .card { border-radius: 24px; padding: 22px 24px; }
-  .card h3 {
-    font-family: var(--font-display); font-size: 1.05rem; text-transform: none;
-    letter-spacing: -0.01em; color: var(--ink); font-weight: 700; margin-bottom: 16px;
-  }
-  .card h3 .dot { width: 12px; height: 12px; border: 1.5px solid var(--ink); background: var(--banana-bright); }
-
-  /* ── App bar: near-black "dark section" with a banana swash ── */
-  .appbar {
-    background: var(--ink); border-radius: 28px; padding: 22px 26px; overflow: visible;
-  }
-  .appbar::after { display: none; }
-  .appbar .brand-mark { align-items: center; gap: 14px; }
-  .appbar .logo-badge {
-    width: 50px; height: 50px; border-radius: 50%; background: var(--banana-bright);
-    display: grid; place-items: center; flex-shrink: 0;
-  }
-  .appbar .logo-badge img { height: 34px; }
-  .appbar h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em; }
-  .swash { position: relative; white-space: nowrap; z-index: 0; color: var(--ink); padding: 0 .12em; }
-  .swash::before {
-    content: ''; position: absolute; inset: .12em -.05em .02em; z-index: -1;
-    background: var(--banana-bright); border-radius: 10px 14px 8px 16px; transform: rotate(-1.5deg);
-  }
-  .appbar .subtitle { font-size: .82rem; color: rgba(255,255,255,.7); margin-top: 4px; }
-  .appbar .sticker { position: absolute; pointer-events: none; }
-  .appbar .sticker.a { width: 46px; top: -20px; right: 26%; transform: rotate(12deg); }
-  .appbar .sticker.b { width: 34px; bottom: -14px; right: 12%; left: auto; transform: rotate(-8deg); }
-
-  /* ── KPIs: pill labels on pastel rotation, no accent stripe ── */
-  .kpi { border-radius: 22px; padding: 18px 20px; }
-  .kpi::before { display: none; }
-  .kpi .kpi-label {
-    display: inline-block; font-size: 11px; letter-spacing: .4px; color: var(--ink);
-    border: 1.2px solid var(--ink); border-radius: var(--radius-pill); padding: 3px 10px;
-  }
-  #hero .kpi:nth-child(1) .kpi-label { background: var(--banana-pastel); }
-  #hero .kpi:nth-child(2) .kpi-label { background: var(--pink); }
-  #hero .kpi:nth-child(3) .kpi-label { background: var(--mint); }
-  #hero .kpi:nth-child(4) .kpi-label { background: var(--lavender); }
-  #totals .kpi:nth-child(1) { background: var(--mint); }
-  #totals .kpi:nth-child(2) { background: var(--sky); }
-  #totals .kpi:nth-child(3) { background: var(--lavender); }
-  #totals .kpi:nth-child(4) { background: var(--banana-pastel); }
-  .kpi .kpi-value { font-size: 46px; font-weight: 800; letter-spacing: -0.03em; margin-top: 12px; }
-  .kpi.pending { background: var(--white); }
-
-  /* ── Bars: pill tracks; before = soft pink, after = coral ── */
-  .bar-group + .bar-group { margin-top: 14px; }
-  .bar-group-label { font-size: .82rem; font-weight: 600; color: var(--muted-strong); margin-bottom: 6px; }
-  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; font-size: .82rem; }
-  .bar-row .tier { width: 56px; flex-shrink: 0; font-size: 11px; color: var(--muted); }
-  .bar-track {
-    flex: 1; background: var(--stone); border: 1.2px solid var(--ink);
-    border-radius: var(--radius-pill); height: 18px; overflow: hidden;
-  }
-  .bar-fill {
-    height: 100%; background: var(--pink); border-right: 1.2px solid var(--ink);
-    border-radius: var(--radius-pill); display: flex; align-items: center; padding-left: 10px;
-    font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--ink);
-  }
-  .bar-fill.after { background: var(--coral-site); color: var(--white); }
-
-  /* ── Testimonials: sticker cards with a pink hard shadow ── */
-  .quote { border-radius: 24px; transition: transform .15s ease, box-shadow .15s ease; }
-  .quote:hover { transform: translateY(-3px) rotate(-.4deg); box-shadow: 5px 5px 0 var(--pink); }
-  .quote .mark { color: var(--coral-site); opacity: .5; }
-  .quote .quote-author { font-weight: 700; color: var(--muted-strong); }
-
-  .foot .brand { font-family: var(--font-display); }
-  .btn:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
-
-  @media (max-width: 560px) {
-    .appbar h1 { font-size: 1.35rem; }
-    .appbar .sticker { display: none; }
-    .kpi { padding: 14px 16px; }
-    .kpi .kpi-value { font-size: 36px; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { transition: none !important; animation: none !important; }
-  }
-</style>
+<link rel="stylesheet" href="/wip.css">
 </head>
 <body class="theme-community">
-
-<!-- Doodle library, same stickers as the survey and admin pages -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="d-sparkle" viewBox="0 0 100 100">
-      <path d="M50 4 L56 34 L78 12 L66 40 L96 36 L70 52 L94 70 L64 64 L72 94 L52 70 L40 96 L38 66 L10 80 L30 56 L4 44 L34 40 L20 12 L44 32 Z"
-            fill="#F7A6C8" stroke="#1d1d1f" stroke-width="2.5" stroke-linejoin="round"/>
-    </symbol>
-    <symbol id="d-smiley" viewBox="0 0 100 100">
-      <path d="M50 8 C74 8 92 25 92 48 C92 71 74 86 50 86 C44 86 38 85 33 83 L16 93 L21 76 C12 69 8 59 8 48 C8 25 26 8 50 8 Z"
-            fill="#BFE6EE" stroke="#1d1d1f" stroke-width="4" stroke-linejoin="round"/>
-      <ellipse cx="38" cy="40" rx="4.5" ry="7" fill="#1d1d1f"/>
-      <ellipse cx="62" cy="40" rx="4.5" ry="7" fill="#1d1d1f"/>
-      <path d="M31 55 Q50 74 69 55" fill="none" stroke="#1d1d1f" stroke-width="5" stroke-linecap="round"/>
-    </symbol>
-    <symbol id="d-star" viewBox="0 0 100 100">
-      <path d="M50 4 C54 38 62 46 96 50 C62 54 54 62 50 96 C46 62 38 54 4 50 C38 46 46 38 50 4 Z"
-            fill="#8ed462" stroke="#1d1d1f" stroke-width="3" stroke-linejoin="round"/>
-    </symbol>
-  </defs>
-</svg>
-
 <div class="wrap stack">
 
   <div class="appbar">
-    <svg class="sticker a" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-sparkle"/></svg>
-    <svg class="sticker b" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-smiley"/></svg>
+    <svg class="sticker a" viewBox="0 0 100 100" aria-hidden="true"><use href="/img/doodles.svg#d-sparkle"/></svg>
+    <svg class="sticker b" viewBox="0 0 100 100" aria-hidden="true"><use href="/img/doodles.svg#d-smiley"/></svg>
     <div class="brand-mark">
       <span class="logo-badge"><img src="/img/wip-logo.png" alt=""></span>
       <div>
@@ -202,11 +70,11 @@ const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const n1 = (v) => (v === null || v === undefined ? "—" : v);
 
-function kpi(label, value, unit, context, pending, pendingNote) {
+function kpi(label, value, unit, context, pending) {
   return `<div class="kpi ${pending ? "pending" : ""}">
     <div class="kpi-label">${esc(label)}</div>
     <div class="kpi-value">${esc(n1(value))}${unit && value !== null ? `<span class="unit">${esc(unit)}</span>` : ""}</div>
-    ${pending ? `<div class="pending-note">${esc(pendingNote || "Available after survey extension")}</div>` : `<div class="kpi-context">${esc(context || "")}</div>`}
+    ${pending ? `<div class="pending-note">Available after survey extension</div>` : `<div class="kpi-context">${esc(context || "")}</div>`}
   </div>`;
 }
 
@@ -249,8 +117,8 @@ async function load() {
   $("hero").innerHTML = [
     kpi("Community Wellbeing Index", s.wellbeingIndex10, "/10", "Mean of post-session wellbeing scales"),
     kpi("Positive sessions", posPct, "%", "Share of responses read as positive"),
-    kpi("Net Promoter Score", s.nps !== null ? Math.round(s.nps) : null, "", s.nps !== null ? `Promoters minus detractors · n=${s.npsCount}` : "", s.nps === null, "Needs 3+ would-recommend answers"),
-    kpi("Program effectiveness", s.effectiveness, "/5", s.effectiveness !== null ? `Mean rating · n=${s.effectivenessCount}` : "", s.effectiveness === null, "Needs 3+ effectiveness ratings"),
+    kpi("Net Promoter Score", null, "", "", true),
+    kpi("3-month engagement", null, "", "", true),
   ].join("");
 
   // Shift card
@@ -262,31 +130,19 @@ async function load() {
       <div class="muted" style="font-size:11.5px;margin-top:12px">Matched single-session pre/post scores. Self-reported.</div>`
     : `<div class="muted">No responses yet.</div>`;
 
-  // Landing card: experience rating (A best → E) + effectiveness (1–5) + sentiment
+  // Landing card: sentiment split + booth experience (A best → E)
   const booth = s.booth || {};
   const boothOrder = ["A", "B", "C", "D", "E"];
   const boothMax = Math.max(1, ...boothOrder.map((k) => booth[k] || 0));
   const boothLabels = { A: "Love it", B: "Enjoyed", C: "Okay", D: "Not much", E: "Didn't enjoy" };
-  const eff = s.effectivenessDist || {};
-  const effOrder = [5, 4, 3, 2, 1];
-  const effLabels = { 5: "Extremely", 4: "Very", 3: "Moderately", 2: "Slightly", 1: "Not effective" };
-  const effMax = Math.max(1, ...effOrder.map((k) => eff[k] || 0));
   $("landing").innerHTML = `
     <div class="bars">
       ${boothOrder.filter((k) => booth[k]).map((k) => `
         <div class="bar-row"><div class="tier" style="width:72px">${boothLabels[k]}</div>
         <div class="bar-track"><div class="bar-fill after" style="width:${Math.round((booth[k]/boothMax)*100)}%">${booth[k]}</div></div></div>
-      `).join("") || '<div class="muted">No experience ratings yet.</div>'}
+      `).join("") || '<div class="muted">No booth feedback yet.</div>'}
     </div>
-    ${effOrder.some((k) => eff[k]) ? `
-    <div class="bar-group-label" style="margin-top:14px">Programme effectiveness (1–5)</div>
-    <div class="bars">
-      ${effOrder.filter((k) => eff[k]).map((k) => `
-        <div class="bar-row"><div class="tier" style="width:72px">${effLabels[k]}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${Math.round((eff[k]/effMax)*100)}%">${eff[k]}</div></div></div>
-      `).join("")}
-    </div>` : ""}
-    <div class="muted" style="font-size:11.5px;margin-top:12px">Experience &amp; effectiveness ratings · ${sent.positive || 0} positive / ${sent.mixed || 0} mixed / ${sent.negative || 0} negative (AI-read)</div>`;
+    <div class="muted" style="font-size:11.5px;margin-top:12px">Booth experience rating · ${sent.positive || 0} positive / ${sent.mixed || 0} mixed / ${sent.negative || 0} negative (AI-read)</div>`;
 
   // Word cloud
   const words = s.words || [];

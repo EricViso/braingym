@@ -219,14 +219,27 @@
     font-family: inherit; cursor: pointer; text-align: left;
     transition: transform .15s ease, box-shadow .15s ease, background .12s, color .12s;
   }
-  .chip:nth-child(4n+1) { background: var(--pink); }
-  .chip:nth-child(4n+2) { background: var(--banana-pastel); }
-  .chip:nth-child(4n+3) { background: var(--mint); }
-  .chip:nth-child(4n+4) { background: var(--lavender); }
+  .chip:nth-of-type(4n+1) { background: var(--pink); }
+  .chip:nth-of-type(4n+2) { background: var(--banana-pastel); }
+  .chip:nth-of-type(4n+3) { background: var(--mint); }
+  .chip:nth-of-type(4n+4) { background: var(--lavender); }
   .chip:hover { transform: translateY(-2px) rotate(-1deg); box-shadow: 3px 3px 0 var(--ink); }
-  .chip:nth-child(even):hover { transform: translateY(-2px) rotate(1deg); }
-  .chip:active { background: var(--coral-site); border-color: var(--coral-site); color: var(--white); transform: none; box-shadow: none; }
-  .chip:focus-visible, #send:focus-visible, .done-card a:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
+  .chip:nth-of-type(even):hover { transform: translateY(-2px) rotate(1deg); }
+  .chips:not(.multi) .chip:active { background: var(--coral-site); border-color: var(--coral-site); color: var(--white); transform: none; box-shadow: none; }
+  .chips-hint { flex-basis: 100%; font-size: .78rem; font-weight: 600; color: var(--muted-strong); margin-bottom: -2px; }
+  .chips.multi .chip::before { content: ""; display: inline-block; width: 13px; height: 13px; margin: 0 7px -2px 0; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--white); }
+  .chips.multi .chip[aria-pressed="true"] { background: var(--ink); color: var(--white); }
+  .chips.multi .chip[aria-pressed="true"]::before { background: var(--banana-bright); border-color: var(--banana-bright); box-shadow: inset 0 0 0 2px var(--ink); }
+  .chip-next {
+    flex-basis: 100%; max-width: 220px; margin-top: 4px;
+    border: 1.5px solid var(--ink); border-radius: var(--radius-pill); padding: 10px 18px;
+    background: var(--ink); color: var(--white); font: 700 .9rem var(--font-body); cursor: pointer;
+    transition: background .15s, color .15s, opacity .15s;
+  }
+  .chip-next:hover:not(:disabled) { background: var(--coral-site); border-color: var(--coral-site); }
+  .chip-next:disabled { opacity: .35; cursor: default; }
+  .msg strong { font-weight: 700; }
+  .chip:focus-visible, .chip-next:focus-visible, #send:focus-visible, .done-card a:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
 
   /* ── Composer ── */
   form {
@@ -395,6 +408,17 @@ function addRow(cls) {
   return { row, msg };
 }
 
+// Seni writes light Markdown. Escape first, then turn **bold** and *italic*
+// (or __bold__ / _italic_) into tags; nothing else is interpreted.
+function formatInline(text) {
+  return String(text)
+    .replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]))
+    .replace(/\*\*(?=\S)([\s\S]*?\S)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^\w])__(?=\S)([\s\S]*?\S)__(?!\w)/g, "$1<strong>$2</strong>")
+    .replace(/(^|[^*\w])\*(?=\S)([^*\n]*?\S)\*(?!\w)/g, "$1<em>$2</em>")
+    .replace(/(^|[^\w])_(?=\S)([^_\n]*?\S)_(?!\w)/g, "$1<em>$2</em>");
+}
+
 function addBubble(text, cls) {
   if (cls === "error") {
     const div = document.createElement("div");
@@ -405,7 +429,8 @@ function addBubble(text, cls) {
     return div;
   }
   const { row, msg } = addRow(cls);
-  msg.appendChild(document.createTextNode(text));
+  if (cls === "ai") msg.insertAdjacentHTML("beforeend", formatInline(text));
+  else msg.appendChild(document.createTextNode(text));
   lastRole = cls;
   scrollDown();
   return row;
@@ -423,17 +448,45 @@ function clearChips() {
   if (chipRow) { chipRow.remove(); chipRow = null; }
 }
 
-function showChips(options) {
+// Single-choice chips send on tap. Multi-select chips toggle, and a Next
+// button sends everything ticked as one comma-separated answer.
+function showChips(options, multi) {
   clearChips();
   chipRow = document.createElement("div");
-  chipRow.className = "chips";
+  chipRow.className = "chips" + (multi ? " multi" : "");
+  const picked = new Set();
+  let next = null;
   for (const opt of options) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "chip";
     b.textContent = opt;
-    b.onclick = () => sendAnswer(opt);
+    if (multi) {
+      b.setAttribute("aria-pressed", "false");
+      b.onclick = () => {
+        if (picked.has(opt)) picked.delete(opt); else picked.add(opt);
+        b.setAttribute("aria-pressed", String(picked.has(opt)));
+        next.disabled = !picked.size;
+        next.textContent = picked.size ? `Next (${picked.size}) →` : "Next →";
+      };
+    } else {
+      b.onclick = () => sendAnswer(opt);
+    }
     chipRow.appendChild(b);
+  }
+  if (multi) {
+    const hint = document.createElement("p");
+    hint.className = "chips-hint";
+    hint.textContent = "Choose all that apply / Pilih semua yang berkenaan";
+    chipRow.prepend(hint);
+    next = document.createElement("button");
+    next.type = "button";
+    next.className = "chip-next";
+    next.textContent = "Next →";
+    next.disabled = true;
+    // Keep the participant's tap order out of it: send in the listed order.
+    next.onclick = () => sendAnswer(options.filter((o) => picked.has(o)).join(", "));
+    chipRow.appendChild(next);
   }
   chat.appendChild(chipRow);
   scrollDown();
@@ -496,7 +549,7 @@ async function callAI() {
     if (data.done) {
       showDone();
     } else if (Array.isArray(data.options) && data.options.length) {
-      showChips(data.options);
+      showChips(data.options, data.multi);
     }
   } catch (e) {
     typing.remove();

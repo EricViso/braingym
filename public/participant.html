@@ -4,41 +4,72 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>myWIPhealing — Participant Journeys</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#F5EFE6">
+<link rel="icon" href="/img/favicon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/brand.css">
+<link rel="stylesheet" href="/wip.css">
 <style>
-  #gate { max-width: 340px; margin: 16vh auto; }
-  #gate input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 12px; }
-  #gateErr { color: var(--warn); font-size: .85rem; min-height: 1em; }
-  #search { width: 100%; max-width: 340px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius-pill); font: inherit; font-size: 14px; }
-  details.journey { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); padding: 14px 18px; box-shadow: var(--shadow); }
+  #search {
+    width: 100%; max-width: 340px; padding: 10px 16px; border: 1.5px solid var(--ink);
+    border-radius: var(--radius-pill); font: inherit; font-size: 14px; outline: none;
+  }
+  #search:focus { box-shadow: 3px 3px 0 var(--banana-bright); }
+  details.journey {
+    border: 1.5px solid rgba(29,29,31,.22); border-radius: 20px; background: var(--card);
+    padding: 14px 18px; transition: border-color .15s, box-shadow .15s;
+  }
+  details.journey:hover, details.journey[open] { border-color: var(--ink); }
+  details.journey[open] { box-shadow: 4px 4px 0 var(--accent-soft); }
   details.journey + details.journey { margin-top: 12px; }
   details.journey summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-weight: 600; list-style: none; }
   details.journey summary::-webkit-details-marker { display: none; }
-  details.journey summary .who { font-family: var(--font-display); font-size: 15px; }
-  .session { border-top: 1px solid var(--line-soft); margin-top: 12px; padding-top: 12px; }
-  .session .when { font-size: 11.5px; color: var(--muted); }
+  details.journey summary::after { content: "+"; margin-left: auto; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; }
+  details.journey[open] summary::after { content: "−"; }
+  details.journey summary .who { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+  .session { border-top: 1.5px dashed var(--line); margin-top: 12px; padding-top: 12px; }
+  .session .when {
+    display: inline-block; font-size: 11.5px; font-weight: 600; color: var(--ink);
+    background: var(--stone); border-radius: var(--radius-pill); padding: 2px 10px;
+  }
   .kv { font-size: 13px; color: var(--ink); margin-top: 6px; }
   .kv .lbl { color: var(--muted); }
-  .ai-summary { font-size: 13px; color: var(--muted-strong); background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
-  .concern { background: #FCE3D4; color: var(--warn); border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 13px; font-weight: 600; }
+  .ai-summary {
+    font-size: 13px; color: var(--ink); background: var(--accent-soft);
+    border-radius: 14px; padding: 10px 14px; margin-top: 10px;
+  }
+  .concern {
+    background: #FFF6F2; color: #B3361A; border: 1.5px solid var(--coral-site);
+    border-radius: 14px; padding: 10px 14px; margin-top: 8px; font-size: 13px; font-weight: 600;
+  }
 </style>
 </head>
 <body class="theme-individual">
 
-<div id="gate" class="card" style="display:none">
-  <h3 style="color:var(--ink)">🔐 Admin access</h3>
-  <input type="password" id="pw" placeholder="Password" autofocus>
-  <button class="btn btn-primary" style="width:100%" onclick="login()">Enter</button>
-  <div id="gateErr"></div>
-  <div style="margin-top:12px"><a href="/admin.html" class="muted" style="font-size:13px">← Admin hub</a></div>
+<div id="gate" class="card gate-card" style="display:none">
+  <svg class="sticker" viewBox="0 0 100 100" aria-hidden="true"><use href="/img/doodles.svg#d-smiley"/></svg>
+  <svg class="sticker two" viewBox="0 0 100 100" aria-hidden="true"><use href="/img/doodles.svg#d-star"/></svg>
+  <img class="logo" src="/img/wip-logo.png" alt="myWIPhealing">
+  <h2>Participant Journeys</h2>
+  <p class="hint">myWIPhealing team only</p>
+  <input type="password" id="pw" placeholder="Password" aria-label="Password" autofocus>
+  <button class="btn btn-primary" onclick="login()">Enter</button>
+  <div id="gateErr" class="err"></div>
+  <a href="/admin.html" class="back">← Admin hub</a>
 </div>
 
 <div id="app" class="wrap stack" style="display:none">
   <div class="appbar">
-    <div>
-      <div class="brand-mark"><h1>myWIPhealing <span class="accent">Participant Journeys</span></h1></div>
-      <div class="subtitle">Internal · individual pre → post journeys &amp; follow-up flags · powered by Gym Brain</div>
+    <svg class="sticker a" viewBox="0 0 100 100" aria-hidden="true"><use href="/img/doodles.svg#d-smiley"/></svg>
+    <svg class="sticker b" viewBox="0 0 100 100" aria-hidden="true"><use href="/img/doodles.svg#d-gold"/></svg>
+    <div class="brand-mark">
+      <span class="logo-badge"><img src="/img/wip-logo.png" alt=""></span>
+      <div>
+        <h1>myWIPhealing <span class="swash">Participant Journeys</span></h1>
+        <div class="subtitle">Internal · individual pre → post journeys &amp; follow-up flags · powered by Gym Brain</div>
+      </div>
     </div>
     <div class="bar-actions">
       <span class="badge on-dark">Internal only</span>
