@@ -1,5 +1,8 @@
 {
-  "redirects": [{ "source": "/peer-stories/?", "destination": "/", "permanent": true }],
+  "redirects": [
+    { "source": "/peer-stories", "destination": "/", "permanent": true },
+    { "source": "/peer-stories/", "destination": "/", "permanent": true }
+  ],
   "rewrites": [{ "source": "/api/(.*)", "destination": "/api" }],
   "functions": {
     "api/index.js": {
