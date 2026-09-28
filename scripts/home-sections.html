@@ -1,0 +1,110 @@
+<!-- Community dashboard + impact survey promos. Injected after the homepage hero by
+     scripts/inject-home-sections.js; edit here, not in public/index.html. -->
+<style>
+.wip-promo{padding:88px 24px;font-family:var(--global-body-font-family,sans-serif);color:#1d1d1f}
+.wip-promo *{box-sizing:border-box}
+.wip-promo__inner{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:center}
+.wip-promo__eyebrow{display:inline-block;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin:0 0 20px}
+.wip-promo h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:44px;line-height:1.05;letter-spacing:-1px;margin:0 0 18px;color:inherit}
+.wip-promo p{font-size:18px;line-height:1.6;margin:0 0 28px;max-width:34em}
+.wip-promo__btn{display:inline-block;font-size:16px;font-weight:500;line-height:1;padding:15px 28px;border-radius:100px;border:1px solid #1d1d1f;text-decoration:none;transition:background .2s,color .2s,border-color .2s}
+.wip-promo__card{border-radius:24px;padding:32px}
+.wip-promo__list{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.wip-promo__list li{display:flex;gap:14px;align-items:flex-start;font-size:16px;line-height:1.5}
+.wip-promo__list strong{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:600}
+.wip-promo__dot{flex:0 0 36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:18px}
+
+/* Community: light sage section, white card */
+.wip-promo--community{background:#eef2e3}
+.wip-promo--community .wip-promo__eyebrow{background:#fff;color:#204825}
+.wip-promo--community .wip-promo__btn{background:#1d1d1f;color:#fff}
+.wip-promo--community .wip-promo__btn:hover,.wip-promo--community .wip-promo__btn:focus{background:#ef6442;border-color:#ef6442;color:#fff}
+.wip-promo--community .wip-promo__card{background:#fff;box-shadow:0 20px 50px rgba(32,72,37,.08)}
+.wip-promo--community .wip-promo__dot{background:#eef2e3}
+.wip-promo__stats{display:none;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 24px;padding:0 0 24px;border-bottom:1px solid #e4e8d8}
+.wip-promo__stats.is-live{display:grid}
+.wip-promo__stat b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:34px;font-weight:700;line-height:1;color:#204825}
+.wip-promo__stat span{display:block;font-size:13px;line-height:1.35;color:#4a5568;margin-top:6px}
+
+/* Survey: deep forest section, lime CTA */
+.wip-promo--survey{background:#204825;color:#fff}
+.wip-promo--survey .wip-promo__eyebrow{background:#d5dd64;color:#1d1d1f}
+.wip-promo--survey p{color:rgba(255,255,255,.86)}
+.wip-promo--survey .wip-promo__btn{background:#d5dd64;border-color:#d5dd64;color:#1d1d1f}
+.wip-promo--survey .wip-promo__btn:hover,.wip-promo--survey .wip-promo__btn:focus{background:#fff;border-color:#fff}
+.wip-promo--survey .wip-promo__card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16)}
+.wip-promo--survey .wip-promo__dot{background:#d5dd64;color:#1d1d1f}
+.wip-promo--survey .wip-promo__list li{color:rgba(255,255,255,.86)}
+.wip-promo--survey .wip-promo__list strong{color:#fff}
+
+@media (max-width:900px){
+  .wip-promo{padding:64px 16px}
+  .wip-promo__inner{grid-template-columns:1fr;gap:36px}
+  .wip-promo h2{font-size:36px}
+  .wip-promo p{font-size:17px}
+  .wip-promo__card{padding:24px}
+}
+</style>
+
+<section class="wip-promo wip-promo--community" aria-labelledby="wip-community-title">
+  <div class="wip-promo__inner">
+    <div>
+      <span class="wip-promo__eyebrow">Community Health Dashboard</span>
+      <h2 id="wip-community-title">See our impact in 2026</h2>
+      <p>Follow the live, anonymised picture of how people feel before and after our sessions: shifts in wellbeing, what participants value most, and testimonials shared with their consent.</p>
+      <a class="wip-promo__btn" href="/community.html">Explore the community dashboard</a>
+    </div>
+    <div class="wip-promo__card">
+      <div class="wip-promo__stats" id="wip-community-stats">
+        <div class="wip-promo__stat"><b data-stat="total">&ndash;</b><span>survey responses</span></div>
+        <div class="wip-promo__stat"><b data-stat="wellbeing">&ndash;</b><span>wellbeing index (out of 10)</span></div>
+        <div class="wip-promo__stat"><b data-stat="positive">&ndash;</b><span>positive experiences</span></div>
+      </div>
+      <ul class="wip-promo__list">
+        <li><span class="wip-promo__dot" aria-hidden="true">&#127793;</span><div><strong>Before &amp; after</strong>How people feel as they arrive, and as they leave.</div></li>
+        <li><span class="wip-promo__dot" aria-hidden="true">&#128172;</span><div><strong>In their own words</strong>Themes and testimonials from participants.</div></li>
+        <li><span class="wip-promo__dot" aria-hidden="true">&#128274;</span><div><strong>Private by design</strong>Only aggregate numbers, never names or contact details.</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="wip-promo wip-promo--survey" aria-labelledby="wip-survey-title">
+  <div class="wip-promo__inner">
+    <div>
+      <span class="wip-promo__eyebrow">Impact Survey</span>
+      <h2 id="wip-survey-title">Add your voice to the data.</h2>
+      <p>Joined a myWIPhealing session? Tell us how it felt in a short chat with Seni, our friendly survey guide. Every answer helps show what creative healing really does, and shapes what we build next.</p>
+      <a class="wip-promo__btn" href="/bot/">Take the impact survey</a>
+    </div>
+    <div class="wip-promo__card">
+      <ul class="wip-promo__list">
+        <li><span class="wip-promo__dot" aria-hidden="true">&#128075;</span><div><strong>A conversation, not a form</strong>Answer at your own pace, with quick-tap replies.</div></li>
+        <li><span class="wip-promo__dot" aria-hidden="true">&#128483;&#65039;</span><div><strong>English or Bahasa Melayu</strong>Reply in whichever feels more natural.</div></li>
+        <li><span class="wip-promo__dot" aria-hidden="true">&#129293;</span><div><strong>Your story ripples outward</strong>Results are only shared publicly as anonymised totals.</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+// Fill in live figures from the public (anonymised) endpoint. The stats row stays
+// hidden until there is real data, so the section never shows invented numbers.
+(function () {
+  fetch("/api/public/community")
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      var s = d && d.stats;
+      if (!s || !s.total) return;
+      var box = document.getElementById("wip-community-stats");
+      var sent = s.sentiment || {};
+      var rated = (sent.positive || 0) + (sent.mixed || 0) + (sent.negative || 0);
+      var set = function (k, v) { box.querySelector('[data-stat="' + k + '"]').textContent = v; };
+      set("total", s.total.toLocaleString());
+      if (s.wellbeingIndex10 != null) set("wellbeing", s.wellbeingIndex10.toFixed(1));
+      if (rated) set("positive", Math.round((sent.positive / rated) * 100) + "%");
+      box.classList.add("is-live");
+    })
+    .catch(function () {});
+})();
+</script>

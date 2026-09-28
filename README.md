@@ -29,11 +29,21 @@ Two halves:
 
 | Page | Path | Access |
 |------|------|--------|
-| Survey (share with participants) | `/` | Public |
+| myWIPhealing website (static copy of the WordPress site) | `/`, `/about-us/`, `/corporate/`, … | Public |
+| Survey (share with participants) | `/bot` | Public |
 | Community Health dashboard | `/community.html` | Public (anonymised, shareable social proof) |
 | Corporate Impact dashboard | `/corporate.html` | Admin password |
 | Participant Journeys | `/participant.html` | Admin password (internal) |
 | Admin Hub | `/admin.html` | Admin password |
+
+## The website (WordPress snapshot)
+
+The public site that used to run on WordPress (Hostinger) is served from this repo as static
+files: every page keeps its original path (`public/<slug>/index.html`), with its theme, plugin
+and upload assets under `public/wp-content/` and `public/wp-includes/`. To pull in content
+edited in WordPress, run `node scripts/mirror-wordpress.js` (optionally pass an origin URL if
+WordPress moves off the main domain) and commit the result. It only writes WordPress paths, so
+the survey and dashboards are never overwritten.
 
 ## Brand & design
 

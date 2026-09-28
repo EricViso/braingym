@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>myWIPhealing — Impact Survey</title>
+<meta name="theme-color" content="#F5EFE6">
+<link rel="icon" href="/img/favicon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/brand.css">
+<style>
+  /* Page-local tokens, taken from mywiphealing.com */
+  :root {
+    --font-display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+    --ink: #1d1d1f;
+    --forest: #2a6f2b;
+    --leaf: #8ed462;
+    --coral-site: #ef6442;
+    --pink: #FFDEE6;
+    --pink-doodle: #F7A6C8;
+    --mint: #C8E6C2;
+    --lavender: #DFCFFF;
+    --sky: #BFE6EE;
+    --sunny: #f5c11f;
+  }
+
+  html, body { height: 100%; }
+  body {
+    display: flex; justify-content: center;
+    height: 100dvh; overflow: hidden;
+    background:
+      radial-gradient(1200px 600px at 110% -10%, rgba(213,252,75,.28), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(255,222,230,.55), transparent 60%),
+      var(--stone);
+  }
+
+  /* ── Background doodles ── */
+  .doodles { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .doodle { position: absolute; aspect-ratio: 1; animation: drift 9s ease-in-out infinite alternate; }
+  .doodle.d2 { aspect-ratio: 5 / 3; }
+  .doodle svg { width: 100%; height: 100%; display: block; }
+  .d1 { width: 58px; top: 7%;  left: 4%;   --r: -8deg; }
+  .d2 { width: 70px; top: 62%; left: 2%;   --r: 10deg; animation-delay: -3s; }
+  .d3 { width: 44px; top: 14%; right: 5%;  --r: 12deg; animation-delay: -5s; }
+  .d4 { width: 64px; bottom: 9%; right: 4%; --r: -6deg; animation-delay: -2s; }
+  .d5 { width: 36px; top: 42%; right: 9%;  --r: 20deg; animation-delay: -6s; }
+  /* Phones: keep doodles in the margins, away from the headline and bubbles */
+  @media (max-width: 899px) {
+    .doodle { opacity: .5; }
+    .d1 { width: 30px; top: auto; bottom: 22%; left: -8px; }
+    .d4 { width: 44px; bottom: 13%; right: -10px; }
+    .d3, .d5 { display: none; }
+  }
+  @keyframes drift {
+    from { transform: translateY(0) rotate(var(--r)); }
+    to   { transform: translateY(-14px) rotate(calc(var(--r) * -1)); }
+  }
+
+  /* ── Desktop photo rails (the site's collages) ── */
+  .rail { display: none; }
+  @media (min-width: 1180px) {
+    .rail {
+      display: block; position: fixed; top: 50%; width: 250px; z-index: 0;
+      filter: drop-shadow(0 18px 30px rgba(29,29,31,.14));
+    }
+    .rail img { width: 100%; height: auto; display: block; }
+    .rail.left  { left: calc(50% - 340px - 290px); transform: translateY(-58%) rotate(-4deg); }
+    .rail.right { right: calc(50% - 340px - 290px); transform: translateY(-40%) rotate(3deg); }
+  }
+
+  /* ── The one column ── */
+  .stage {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 680px; height: 100%;
+    display: flex; flex-direction: column;
+  }
+  @media (min-width: 900px) {
+    .stage {
+      height: calc(100dvh - 48px); margin: 24px 0;
+      background: rgba(255,255,255,.72);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      border: 1.5px solid var(--ink); border-radius: 32px;
+      box-shadow: 8px 8px 0 var(--ink);
+      overflow: hidden;
+    }
+  }
+
+  /* ── Header ── */
+  header.hero {
+    flex-shrink: 0; text-align: center;
+    padding: max(18px, env(safe-area-inset-top)) 20px 14px;
+    border-bottom: 1.5px dashed transparent;
+    transition: padding .25s ease, border-color .25s ease, background .25s ease;
+  }
+  .hero .logo { height: 44px; width: auto; transition: height .25s ease; }
+  .hero h1 {
+    font-size: clamp(1.55rem, 5.6vw, 2.15rem); font-weight: 800;
+    letter-spacing: -0.03em; margin-top: 6px; color: var(--ink);
+    transition: font-size .25s ease;
+  }
+  .swash { position: relative; white-space: nowrap; z-index: 0; }
+  .swash svg { position: absolute; left: -4%; bottom: -0.08em; width: 108%; height: .5em; z-index: -1; }
+  .hero .sub { font-size: .92rem; color: var(--muted-strong); margin-top: 4px; font-weight: 500; }
+  .hero .meta {
+    display: inline-flex; gap: 6px; align-items: center; margin-top: 10px;
+    background: var(--ink); color: var(--white); border-radius: var(--radius-pill);
+    padding: 5px 13px; font-size: .74rem; font-weight: 600; letter-spacing: .01em;
+  }
+  .hero .meta i { width: 7px; height: 7px; border-radius: 50%; background: var(--banana-bright); display: inline-block; }
+  .hero .slim-title { display: none; }
+
+  header.hero.slim {
+    display: flex; align-items: center; gap: 10px; text-align: left;
+    padding-top: max(10px, env(safe-area-inset-top)); padding-bottom: 10px;
+    border-bottom-color: rgba(29,29,31,.18); background: rgba(245,239,230,.85);
+  }
+  @media (min-width: 900px) { header.hero.slim { background: rgba(255,255,255,.8); } }
+  .hero.slim .logo { height: 30px; }
+  .hero.slim h1, .hero.slim .sub, .hero.slim .meta { display: none; }
+  .hero.slim .slim-title {
+    display: block; font-family: var(--font-display); font-weight: 700; font-size: 1.02rem;
+  }
+  .hero.slim .slim-title small { display: block; font-family: var(--font-body); font-weight: 500; font-size: .74rem; color: var(--muted); }
+
+  /* ── Chat ── */
+  #chat {
+    flex: 1; overflow-y: auto; padding: 8px 14px 18px;
+    display: flex; flex-direction: column; gap: 10px;
+    -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
+  }
+
+  .intro {
+    position: relative; align-self: center; width: 100%; max-width: 520px;
+    background: var(--white); border: 1.5px solid var(--ink); border-radius: 24px;
+    padding: 18px 20px 16px; margin: 22px 0 12px;
+    box-shadow: 4px 4px 0 var(--banana-bright);
+    animation: settle .5s cubic-bezier(.2,.9,.3,1.3) both;
+  }
+  .intro h2 { font-size: 1.22rem; font-weight: 800; letter-spacing: -0.02em; }
+  .intro p { font-size: .9rem; color: var(--muted-strong); margin-top: 6px; line-height: 1.55; }
+  .intro p.bm { font-style: italic; color: var(--muted); margin-top: 4px; }
+  .intro .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .intro .tags span {
+    font-size: .76rem; font-weight: 600; padding: 4px 11px; border-radius: var(--radius-pill);
+    border: 1.2px solid var(--ink);
+  }
+  .intro .tags span:nth-child(1) { background: var(--pink); transform: rotate(-2deg); }
+  .intro .tags span:nth-child(2) { background: var(--banana-pastel); transform: rotate(1.5deg); }
+  .intro .tags span:nth-child(3) { background: var(--coral-site); color: var(--white); border-color: var(--coral-site); transform: rotate(-1deg); }
+  .intro .sticker { position: absolute; width: 46px; top: -20px; right: -12px; transform: rotate(14deg); }
+
+  .row { display: flex; align-items: flex-end; gap: 8px; max-width: 88%; animation: settle .38s cubic-bezier(.2,.9,.3,1.25) both; }
+  .row.ai { align-self: flex-start; }
+  .row.user { align-self: flex-end; flex-direction: row-reverse; }
+  @keyframes settle {
+    from { opacity: 0; transform: translateY(8px) rotate(-1.2deg) scale(.97); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    background: var(--banana-bright); border: 1.5px solid var(--ink);
+    display: grid; place-items: center;
+  }
+  .avatar svg { width: 20px; height: 20px; }
+  .row.ai.cont .avatar { visibility: hidden; }
+
+  .msg {
+    padding: 11px 15px; font-size: .96rem; line-height: 1.5;
+    white-space: pre-wrap; word-wrap: break-word; position: relative;
+  }
+  .msg .who {
+    display: block; font-family: var(--font-display); font-weight: 700;
+    font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--forest);
+    margin-bottom: 2px;
+  }
+  .row.ai .msg {
+    background: var(--white); color: var(--ink);
+    border-radius: 20px 22px 22px 6px;
+    border: 1px solid rgba(29,29,31,.08);
+    box-shadow: 0 1px 2px rgba(29,29,31,.06), 0 8px 22px rgba(29,29,31,.06);
+  }
+  .row.user .msg {
+    background: var(--ink); color: var(--white);
+    border-radius: 22px 20px 6px 22px;
+  }
+  .row.user .msg::after {
+    content: ''; position: absolute; right: -3px; bottom: -3px; width: 10px; height: 10px;
+    background: var(--banana-bright); border-radius: 50%; border: 2px solid var(--stone);
+  }
+  @media (min-width: 900px) { .row.user .msg::after { border-color: #fbf9f5; } }
+
+  /* typing dots */
+  .dots { display: inline-flex; gap: 5px; padding: 4px 2px; }
+  .dots i { width: 8px; height: 8px; border-radius: 50%; animation: hop 1s ease-in-out infinite; }
+  .dots i:nth-child(1) { background: var(--banana); }
+  .dots i:nth-child(2) { background: var(--leaf); animation-delay: .15s; }
+  .dots i:nth-child(3) { background: var(--coral-site); animation-delay: .3s; }
+  @keyframes hop { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .msg.error {
+    align-self: center; background: #FFE9E2; color: #B3361A; font-size: .86rem;
+    border: 1.5px dashed #EF9A7F; border-radius: 16px; text-align: center; max-width: 92%;
+    animation: settle .3s ease both;
+  }
+
+  /* ── Quick-reply chips ── */
+  .chips {
+    display: flex; flex-wrap: wrap; gap: 8px; max-width: 94%;
+    align-self: flex-start; padding-left: 38px;
+    animation: settle .38s cubic-bezier(.2,.9,.3,1.25) both;
+  }
+  .chip {
+    color: var(--ink); border: 1.5px solid var(--ink);
+    border-radius: var(--radius-pill); padding: 9px 16px; font-size: .9rem; font-weight: 500;
+    font-family: inherit; cursor: pointer; text-align: left;
+    transition: transform .15s ease, box-shadow .15s ease, background .12s, color .12s;
+  }
+  .chip:nth-of-type(4n+1) { background: var(--pink); }
+  .chip:nth-of-type(4n+2) { background: var(--banana-pastel); }
+  .chip:nth-of-type(4n+3) { background: var(--mint); }
+  .chip:nth-of-type(4n+4) { background: var(--lavender); }
+  .chip:hover { transform: translateY(-2px) rotate(-1deg); box-shadow: 3px 3px 0 var(--ink); }
+  .chip:nth-of-type(even):hover { transform: translateY(-2px) rotate(1deg); }
+  .chips:not(.multi) .chip:active { background: var(--coral-site); border-color: var(--coral-site); color: var(--white); transform: none; box-shadow: none; }
+  .chips-hint { flex-basis: 100%; font-size: .78rem; font-weight: 600; color: var(--muted-strong); margin-bottom: -2px; }
+  .chips.multi .chip::before { content: ""; display: inline-block; width: 13px; height: 13px; margin: 0 7px -2px 0; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--white); }
+  .chips.multi .chip[aria-pressed="true"] { background: var(--ink); color: var(--white); }
+  .chips.multi .chip[aria-pressed="true"]::before { background: var(--banana-bright); border-color: var(--banana-bright); box-shadow: inset 0 0 0 2px var(--ink); }
+  .chip-next {
+    flex-basis: 100%; max-width: 220px; margin-top: 4px;
+    border: 1.5px solid var(--ink); border-radius: var(--radius-pill); padding: 10px 18px;
+    background: var(--ink); color: var(--white); font: 700 .9rem var(--font-body); cursor: pointer;
+    transition: background .15s, color .15s, opacity .15s;
+  }
+  .chip-next:hover:not(:disabled) { background: var(--coral-site); border-color: var(--coral-site); }
+  .chip-next:disabled { opacity: .35; cursor: default; }
+  .msg strong { font-weight: 700; }
+  .chip:focus-visible, .chip-next:focus-visible, #send:focus-visible, .done-card a:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
+
+  /* ── Composer ── */
+  form {
+    flex-shrink: 0; display: flex; align-items: flex-end; gap: 8px;
+    margin: 0 12px max(12px, env(safe-area-inset-bottom));
+    background: var(--white); border: 1.5px solid var(--ink); border-radius: 28px;
+    padding: 6px 6px 6px 8px; box-shadow: 0 10px 28px rgba(29,29,31,.10);
+    transition: box-shadow .15s ease;
+  }
+  form:focus-within { box-shadow: 4px 4px 0 var(--banana-bright), 0 10px 28px rgba(29,29,31,.10); }
+  #input {
+    flex: 1; border: none; background: transparent; padding: 10px 10px;
+    font-size: 16px; outline: none; resize: none; font-family: inherit;
+    max-height: 120px; color: var(--ink); line-height: 1.4;
+  }
+  #input::placeholder { color: rgba(29,29,31,.45); }
+  #send {
+    width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--ink); flex-shrink: 0;
+    background: var(--banana-bright); color: var(--ink); cursor: pointer;
+    display: grid; place-items: center; transition: background .15s, color .15s, transform .15s;
+  }
+  #send svg { width: 20px; height: 20px; }
+  #send:hover { background: var(--coral-site); border-color: var(--coral-site); color: var(--white); transform: rotate(-12deg); }
+  #send:disabled { opacity: .45; cursor: default; transform: none; }
+
+  /* ── Completion ── */
+  .done-card {
+    position: relative; align-self: center; width: 100%; max-width: 520px; text-align: center;
+    background: var(--banana-bright); border: 1.5px solid var(--ink); border-radius: 26px;
+    padding: 26px 22px 22px; margin-top: 8px; box-shadow: 6px 6px 0 var(--ink);
+    animation: settle .55s cubic-bezier(.2,.9,.3,1.3) both;
+  }
+  .done-card h2 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; }
+  .done-card p { font-size: .93rem; margin-top: 8px; line-height: 1.55; color: rgba(29,29,31,.82); }
+  .done-card .links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 16px; }
+  .done-card a {
+    text-decoration: none; font-weight: 700; font-size: .88rem; border-radius: var(--radius-pill);
+    padding: 10px 18px; border: 1.5px solid var(--ink); transition: background .15s, color .15s;
+  }
+  .done-card a.fill { background: var(--ink); color: var(--white); }
+  .done-card a.line { background: var(--white); color: var(--ink); }
+  .done-card a:hover { background: var(--coral-site); border-color: var(--coral-site); color: var(--white); }
+  .burst { position: absolute; width: 42px; height: 42px; pointer-events: none; animation: pop-in .7s cubic-bezier(.2,.9,.3,1.5) both; }
+  @keyframes pop-in {
+    from { opacity: 0; transform: scale(.1) rotate(0); }
+    to   { opacity: 1; transform: scale(1) rotate(var(--rot)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    #chat { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Doodle library, drawn in the style of mywiphealing.com's stickers -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="d-sparkle" viewBox="0 0 100 100">
+      <path d="M50 4 L56 34 L78 12 L66 40 L96 36 L70 52 L94 70 L64 64 L72 94 L52 70 L40 96 L38 66 L10 80 L30 56 L4 44 L34 40 L20 12 L44 32 Z"
+            fill="#F7A6C8" stroke="#1d1d1f" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="d-smiley" viewBox="0 0 100 100">
+      <path d="M50 8 C74 8 92 25 92 48 C92 71 74 86 50 86 C44 86 38 85 33 83 L16 93 L21 76 C12 69 8 59 8 48 C8 25 26 8 50 8 Z"
+            fill="#BFE6EE" stroke="#1d1d1f" stroke-width="4" stroke-linejoin="round"/>
+      <ellipse cx="38" cy="40" rx="4.5" ry="7" fill="#1d1d1f"/>
+      <ellipse cx="62" cy="40" rx="4.5" ry="7" fill="#1d1d1f"/>
+      <path d="M31 55 Q50 74 69 55" fill="none" stroke="#1d1d1f" stroke-width="5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="d-squiggle" viewBox="0 0 100 60">
+      <path d="M8 44 C18 8 34 8 34 30 C34 50 52 52 56 30 C60 8 80 6 92 22"
+            fill="none" stroke="#8ed462" stroke-width="11" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="d-star" viewBox="0 0 100 100">
+      <path d="M50 4 C54 38 62 46 96 50 C62 54 54 62 50 96 C46 62 38 54 4 50 C38 46 46 38 50 4 Z"
+            fill="#8ed462" stroke="#1d1d1f" stroke-width="3" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="d-gold" viewBox="0 0 100 100">
+      <path d="M50 4 C54 38 62 46 96 50 C62 54 54 62 50 96 C46 62 38 54 4 50 C38 46 46 38 50 4 Z" fill="#f5c11f"/>
+    </symbol>
+    <symbol id="d-cross" viewBox="0 0 100 100">
+      <path d="M18 18 L82 82 M82 18 L18 82" stroke="#ef6442" stroke-width="16" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="d-face" viewBox="0 0 40 40">
+      <ellipse cx="14" cy="15" rx="2.6" ry="4" fill="#1d1d1f"/>
+      <ellipse cx="26" cy="15" rx="2.6" ry="4" fill="#1d1d1f"/>
+      <path d="M11 24 Q20 33 29 24" fill="none" stroke="#1d1d1f" stroke-width="3" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="doodles" aria-hidden="true">
+  <div class="doodle d1"><svg><use href="#d-sparkle"/></svg></div>
+  <div class="doodle d2"><svg viewBox="0 0 100 60"><use href="#d-squiggle"/></svg></div>
+  <div class="doodle d3"><svg><use href="#d-star"/></svg></div>
+  <div class="doodle d4"><svg><use href="#d-smiley"/></svg></div>
+  <div class="doodle d5"><svg><use href="#d-cross"/></svg></div>
+</div>
+
+<div class="rail left" aria-hidden="true"><img src="/img/photo-4.webp" alt=""></div>
+<div class="rail right" aria-hidden="true"><img src="/img/photo-5.webp" alt=""></div>
+
+<main class="stage">
+  <header class="hero" id="hero">
+    <img class="logo" src="/img/wip-logo.png" alt="myWIPhealing">
+    <div class="slim-title">Chat with Seni<small>myWIPhealing impact survey</small></div>
+    <h1>my work-in-progress
+      <span class="swash">healing<svg viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden="true"><path d="M4 16 C50 6 120 4 196 12 L194 22 C120 14 60 16 6 24 Z" fill="#D5FC4C"/></svg></span></h1>
+    <p class="sub">Your voice matters &#129293; Suara anda bermakna</p>
+    <span class="meta"><i></i>Impact survey · ~5 min · anonymous if you like</span>
+  </header>
+
+  <div id="chat" aria-live="polite">
+    <section class="intro">
+      <svg class="sticker" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-sparkle"/></svg>
+      <h2>No right answers. Just your story.</h2>
+      <p>Like our workshops, no artistic skill is required. Short, long or messy, in English or Bahasa: it all counts.</p>
+      <p class="bm">Tiada jawapan salah. Kongsi cerita anda.</p>
+      <div class="tags"><span>Honest</span><span>Anonymous-friendly</span><span>EN / BM</span></div>
+    </section>
+  </div>
+
+  <form id="form">
+    <textarea id="input" rows="1" placeholder="Type here… / Taip di sini…" autocomplete="off" aria-label="Your answer"></textarea>
+    <button id="send" type="submit" aria-label="Send">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </form>
+</main>
+
+<script>
+const chat = document.getElementById("chat");
+const form = document.getElementById("form");
+const input = document.getElementById("input");
+const send = document.getElementById("send");
+const hero = document.getElementById("hero");
+
+let messages = [];
+let busy = false;
+let chipRow = null;
+let lastRole = null;
+
+function scrollDown() { chat.scrollTop = chat.scrollHeight; }
+
+function addRow(cls) {
+  const row = document.createElement("div");
+  row.className = "row " + cls;
+  if (cls === "ai") {
+    if (lastRole === "ai") row.classList.add("cont");
+    const av = document.createElement("div");
+    av.className = "avatar";
+    av.innerHTML = '<svg viewBox="0 0 40 40" aria-hidden="true"><use href="#d-face"/></svg>';
+    row.appendChild(av);
+  }
+  const msg = document.createElement("div");
+  msg.className = "msg";
+  if (cls === "ai" && lastRole !== "ai") {
+    const who = document.createElement("span");
+    who.className = "who";
+    who.textContent = "Seni";
+    msg.appendChild(who);
+  }
+  row.appendChild(msg);
+  chat.appendChild(row);
+  return { row, msg };
+}
+
+// Seni writes light Markdown. Escape first, then turn **bold** and *italic*
+// (or __bold__ / _italic_) into tags; nothing else is interpreted.
+function formatInline(text) {
+  return String(text)
+    .replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]))
+    .replace(/\*\*(?=\S)([\s\S]*?\S)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^\w])__(?=\S)([\s\S]*?\S)__(?!\w)/g, "$1<strong>$2</strong>")
+    .replace(/(^|[^*\w])\*(?=\S)([^*\n]*?\S)\*(?!\w)/g, "$1<em>$2</em>")
+    .replace(/(^|[^\w])_(?=\S)([^_\n]*?\S)_(?!\w)/g, "$1<em>$2</em>");
+}
+
+function addBubble(text, cls) {
+  if (cls === "error") {
+    const div = document.createElement("div");
+    div.className = "msg error";
+    div.textContent = text;
+    chat.appendChild(div);
+    scrollDown();
+    return div;
+  }
+  const { row, msg } = addRow(cls);
+  if (cls === "ai") msg.insertAdjacentHTML("beforeend", formatInline(text));
+  else msg.appendChild(document.createTextNode(text));
+  lastRole = cls;
+  scrollDown();
+  return row;
+}
+
+function addTyping() {
+  const { row, msg } = addRow("ai");
+  msg.insertAdjacentHTML("beforeend",
+    '<span class="dots"><i></i><i></i><i></i></span><span class="sr">typing... / menaip...</span>');
+  scrollDown();
+  return row;
+}
+
+function clearChips() {
+  if (chipRow) { chipRow.remove(); chipRow = null; }
+}
+
+// Single-choice chips send on tap. Multi-select chips toggle, and a Next
+// button sends everything ticked as one comma-separated answer.
+function showChips(options, multi) {
+  clearChips();
+  chipRow = document.createElement("div");
+  chipRow.className = "chips" + (multi ? " multi" : "");
+  const picked = new Set();
+  let next = null;
+  for (const opt of options) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip";
+    b.textContent = opt;
+    if (multi) {
+      b.setAttribute("aria-pressed", "false");
+      b.onclick = () => {
+        if (picked.has(opt)) picked.delete(opt); else picked.add(opt);
+        b.setAttribute("aria-pressed", String(picked.has(opt)));
+        next.disabled = !picked.size;
+        next.textContent = picked.size ? `Next (${picked.size}) →` : "Next →";
+      };
+    } else {
+      b.onclick = () => sendAnswer(opt);
+    }
+    chipRow.appendChild(b);
+  }
+  if (multi) {
+    const hint = document.createElement("p");
+    hint.className = "chips-hint";
+    hint.textContent = "Choose all that apply / Pilih semua yang berkenaan";
+    chipRow.prepend(hint);
+    next = document.createElement("button");
+    next.type = "button";
+    next.className = "chip-next";
+    next.textContent = "Next →";
+    next.disabled = true;
+    // Keep the participant's tap order out of it: send in the listed order.
+    next.onclick = () => sendAnswer(options.filter((o) => picked.has(o)).join(", "));
+    chipRow.appendChild(next);
+  }
+  chat.appendChild(chipRow);
+  scrollDown();
+}
+
+function showDone() {
+  form.style.display = "none";
+  const card = document.createElement("section");
+  card.className = "done-card";
+  card.innerHTML = `
+    <h2>Thank you, your story ripples outward. &#129293;</h2>
+    <p>Terima kasih. Healing isn't one-size-fits-all, and what you shared helps shape what we build next.</p>
+    <div class="links">
+      <a class="fill" href="https://discord.com/invite/5RRKHNEsKw" target="_blank" rel="noopener">Join our Discord hangout</a>
+      <a class="line" href="/">Explore myWIPhealing</a>
+    </div>`;
+  // Stickers pop onto the card's corners, clear of the text
+  const bursts = [
+    ["d-sparkle", "top:-20px;left:-16px", "-18deg", 0],
+    ["d-star", "top:-18px;right:-14px", "20deg", .12],
+    ["d-smiley", "bottom:-18px;right:-12px", "-10deg", .24],
+    ["d-gold", "bottom:-14px;left:-10px", "30deg", .36],
+  ];
+  for (const [id, pos, rot, delay] of bursts) {
+    const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    s.setAttribute("viewBox", "0 0 100 100");
+    s.setAttribute("class", "burst");
+    s.setAttribute("aria-hidden", "true");
+    s.style.cssText = `${pos};--rot:${rot};animation-delay:${delay}s`;
+    s.innerHTML = `<use href="#${id}"/>`;
+    card.appendChild(s);
+  }
+  chat.appendChild(card);
+  scrollDown();
+}
+
+async function sendAnswer(text) {
+  if (!text || busy) return;
+  clearChips();
+  messages.push({ role: "user", content: text });
+  addBubble(text, "user");
+  await callAI();
+}
+
+async function callAI() {
+  busy = true;
+  send.disabled = true;
+  const typing = addTyping();
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages }),
+    });
+    const data = await res.json();
+    typing.remove();
+    if (!res.ok) throw new Error(data.error || "Server error");
+    messages.push({ role: "assistant", content: data.raw || data.reply });
+    addBubble(data.reply, "ai");
+    if (data.done) {
+      showDone();
+    } else if (Array.isArray(data.options) && data.options.length) {
+      showChips(data.options, data.multi);
+    }
+  } catch (e) {
+    typing.remove();
+    addBubble("⚠️ " + e.message + " - please try again / sila cuba lagi", "error");
+  } finally {
+    busy = false;
+    send.disabled = false;
+  }
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const text = input.value.trim();
+  if (!text || busy) return;
+  input.value = "";
+  input.style.height = "auto";
+  await sendAnswer(text);
+});
+
+input.addEventListener("input", () => {
+  input.style.height = "auto";
+  input.style.height = Math.min(input.scrollHeight, 120) + "px";
+});
+
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    form.requestSubmit();
+  }
+});
+
+// Big header while the intro is in view, slim strip once the chat gets going
+chat.addEventListener("scroll", () => {
+  // Collapsing the header grows the chat, which can pull scrollTop back to 0.
+  // Only expand again if the chat would still overflow with the big header.
+  if (chat.scrollTop > 30) hero.classList.add("slim");
+  else if (chat.scrollTop < 8 && chat.scrollHeight > chat.clientHeight + 160) hero.classList.remove("slim");
+}, { passive: true });
+
+// kick off: ask the AI for its greeting + first question
+callAI();
+</script>
+</body>
+</html>
