@@ -346,39 +346,41 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
   --wip-ink:#2C2C2A;--wip-myrtle:#174509;--wip-banana:#C9EE21;--wip-lime-btn:#D5FC4C;
   --wip-pastel-lime:#DEFFA9;--wip-coral:#E8794A;
   --wip-head:var(--global-heading-font-family,'Bricolage Grotesque',sans-serif);
-  padding:88px 24px;font-family:var(--global-body-font-family,sans-serif);color:var(--wip-ink)}
+  padding:80px 24px;font-family:var(--global-body-font-family,sans-serif);color:var(--wip-ink)}
 .wip-promo *{box-sizing:border-box}
-.wip-promo__inner{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:center}
-.wip-promo__eyebrow{display:inline-block;font-family:var(--wip-head);font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin:0 0 20px}
-.wip-promo h2{font-family:var(--wip-head);font-weight:500;font-size:44px;line-height:1;letter-spacing:-1px;margin:0 0 18px;color:inherit}
-.wip-promo p{font-size:17px;line-height:1.55;margin:0 0 28px;max-width:34em;color:inherit}
-.wip-promo__btn{display:inline-block;font-family:var(--wip-head);font-size:16px;font-weight:500;line-height:1;padding:15px 28px;border-radius:100px;border:1.5px solid var(--wip-ink);text-decoration:none;transition:background .2s,color .2s,border-color .2s}
-.wip-promo__card{border-radius:24px;padding:32px}
+.wip-promo__inner{max-width:1152px;margin:0 auto;display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:center}
+/* Section label, as "Our approach": plain uppercase text, no pill */
+.wip-promo__eyebrow{display:block;font-family:var(--wip-head);font-size:16px;font-weight:700;line-height:1.1;letter-spacing:1px;text-transform:uppercase;margin:0 0 16px}
+.wip-promo h2{font-family:var(--wip-head);font-weight:500;font-size:44px;line-height:1;letter-spacing:-1px;margin:0 0 24px;color:inherit}
+.wip-promo p{font-size:16px;line-height:1.4;margin:0 0 32px;max-width:34em;color:inherit}
+.wip-promo__btn{display:inline-block;font-family:var(--wip-head);font-size:16px;font-weight:500;line-height:1;padding:9px 23px;border-radius:100px;border:1px solid var(--wip-ink);text-decoration:none;transition:background .2s,color .2s,border-color .2s}
+/* Cards as in "Our approach": 10px corners, thin border, no shadow */
+.wip-promo__card{border-radius:10px;padding:24px}
 .wip-promo__list{list-style:none;margin:0;padding:0;display:grid;gap:18px}
 .wip-promo__list li{display:flex;gap:14px;align-items:flex-start;font-size:16px;line-height:1.5}
-.wip-promo__list strong{display:block;font-family:var(--wip-head);font-size:19px;font-weight:500;line-height:1.25;margin-bottom:2px}
+.wip-promo__list strong{display:block;font-family:var(--wip-head);font-size:20px;font-weight:500;line-height:1.2;margin-bottom:2px}
 .wip-promo__dot{flex:0 0 38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:18px}
 
 /* Community: white section like the rest of the landing page, white card,
-   pastel lime label and icon circles, lime pill CTA that turns coral on hover */
+   pastel lime icon circles, lime pill CTA that turns coral on hover */
 .wip-promo--community{background:#fff}
-.wip-promo--community .wip-promo__eyebrow{background:var(--wip-pastel-lime);color:var(--wip-ink)}
+.wip-promo--community .wip-promo__eyebrow{color:var(--wip-myrtle)}
 .wip-promo--community .wip-promo__btn{background:var(--wip-lime-btn);color:var(--wip-ink)}
 .wip-promo--community .wip-promo__btn:hover,.wip-promo--community .wip-promo__btn:focus-visible{background:var(--wip-coral);border-color:var(--wip-coral);color:#fff}
-.wip-promo--community .wip-promo__card{background:#fff;border:1px solid #ecebe6;box-shadow:0 20px 50px rgba(44,44,42,.08)}
+.wip-promo--community .wip-promo__card{background:#FAFBFD;border:1px solid var(--wip-ink)}
 .wip-promo--community .wip-promo__dot{background:var(--wip-pastel-lime)}
-.wip-promo__stats{display:none;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 24px;padding:0 0 24px;border-bottom:1px solid #ecebe6}
+.wip-promo__stats{display:none;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 24px;padding:0 0 24px;border-bottom:1px solid #e4e4e0}
 .wip-promo__stats.is-live{display:grid}
 .wip-promo__stat b{display:block;font-family:var(--wip-head);font-size:36px;font-weight:500;line-height:1;letter-spacing:-1px;color:var(--wip-myrtle)}
 .wip-promo__stat span{display:block;font-size:13px;line-height:1.35;color:#5f5f5b;margin-top:6px}
 
 /* Survey: myrtle green dark section, white text, lime CTA */
-.wip-promo--survey{background:var(--wip-myrtle);color:#fff}
-.wip-promo--survey .wip-promo__eyebrow{background:var(--wip-banana);color:var(--wip-ink)}
+.wip-promo--survey{background:var(--wip-myrtle);color:#fff;padding-top:96px;padding-bottom:104px}
+.wip-promo--survey .wip-promo__eyebrow{color:var(--wip-banana)}
 .wip-promo--survey p{color:rgba(255,255,255,.88)}
 .wip-promo--survey .wip-promo__btn{background:var(--wip-lime-btn);border-color:var(--wip-lime-btn);color:var(--wip-ink)}
 .wip-promo--survey .wip-promo__btn:hover,.wip-promo--survey .wip-promo__btn:focus-visible{background:transparent;color:var(--wip-lime-btn)}
-.wip-promo--survey .wip-promo__card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16)}
+.wip-promo--survey .wip-promo__card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.4)}
 .wip-promo--survey .wip-promo__dot{background:#fff;color:var(--wip-ink)}
 .wip-promo--survey .wip-promo__list li{color:rgba(255,255,255,.88)}
 .wip-promo--survey .wip-promo__list strong{color:#fff}
@@ -392,10 +394,10 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 .wip-promo__sep--bottom{bottom:-1px}
 
 @media (max-width:900px){
-  .wip-promo{padding:64px 16px}
+  .wip-promo{padding:64px 24px}
+  .wip-promo--survey{padding-top:80px;padding-bottom:88px}
   .wip-promo__inner{grid-template-columns:1fr;gap:36px}
   .wip-promo h2{font-size:36px}
-  .wip-promo p{font-size:16px}
   .wip-promo__card{padding:24px}
   .wip-promo__stat b{font-size:30px}
 }
