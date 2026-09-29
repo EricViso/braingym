@@ -227,9 +227,51 @@
   .status.rejected, .status.cancelled { background: var(--pink); }
   .status.maybe, .status.waitlist { background: var(--stone); }
   .emptyline { color: var(--muted); font-size: .9rem; padding: 6px 2px; }
-  .profile { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
-  @media (max-width: 560px) { .profile { grid-template-columns: 1fr; } }
-  .profile .who { font-size: .86rem; color: var(--muted-strong); margin-top: 10px; }
+
+  /* ── Avatars with photos ── */
+  .ph { overflow: hidden; padding: 0 !important; }
+  .ph img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+
+  /* ── Profile ── */
+  .photoq { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .bigav { width: 104px; height: 104px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--banana-pastel); display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 2.2rem; flex-shrink: 0; overflow: hidden; box-shadow: 4px 4px 0 var(--ink); }
+  .bigav img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photoq .acts { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+  .photoq label.btn { cursor: pointer; }
+  .photoq label.btn:focus-within { outline: 3px solid var(--forest); outline-offset: 2px; }
+  .roles { display: grid; gap: 10px; }
+  .roles button {
+    display: flex; gap: 12px; align-items: flex-start; text-align: left; width: 100%;
+    font: inherit; color: inherit; background: var(--white); cursor: pointer;
+    border: 1.5px solid var(--field); border-radius: 16px; padding: 12px 14px; transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .roles button:hover { border-color: var(--ink); }
+  .roles button[aria-pressed="true"] { border-color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+  .roles button:nth-child(1)[aria-pressed="true"] { background: var(--pink); }
+  .roles button:nth-child(2)[aria-pressed="true"] { background: var(--mint); }
+  .roles button:nth-child(3)[aria-pressed="true"] { background: var(--sky); }
+  .roles .tick { width: 24px; height: 24px; flex-shrink: 0; border-radius: 7px; border: 1.5px solid var(--ink); background: var(--white); display: grid; place-items: center; font-weight: 800; font-size: 14px; margin-top: 1px; }
+  .roles button[aria-pressed="true"] .tick::after { content: '✓'; }
+  .roles b { display: block; font-family: var(--font-display); font-size: 1.05rem; }
+  .roles small { display: block; color: var(--muted-strong); font-size: .86rem; margin-top: 2px; line-height: 1.45; }
+  .locrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 560px) { .locrow { grid-template-columns: 1fr; } }
+  .locrow label { font-size: .82rem; font-weight: 600; color: var(--muted-strong); }
+  .locrow label select, .locrow label input { margin-top: 4px; }
+  .privacy { font-size: .88rem; color: var(--muted-strong); background: var(--white); border: 1.5px dashed rgba(29,29,31,.25); border-radius: 14px; padding: 10px 14px; margin: 4px 0 8px; line-height: 1.5; }
+  #profErr { margin: 8px 0; }
+  .nudge { display: flex; align-items: center; gap: 14px; justify-content: space-between; flex-wrap: wrap; background: var(--banana-pastel); border: 1.5px solid var(--ink); border-radius: 20px; padding: 14px 18px; margin: 4px 0 8px; box-shadow: 4px 4px 0 var(--ink); }
+  .nudge p { font-weight: 600; margin: 0; }
+  .nudge small { display: block; font-weight: 500; color: var(--muted-strong); }
+  .profsum { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+  .profsum .bigav { width: 84px; height: 84px; font-size: 1.8rem; box-shadow: 3px 3px 0 var(--ink); }
+  .profsum h3 { font-size: 1.3rem; font-weight: 800; }
+  .profsum .rtags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .profsum .rtags span { font-size: .78rem; font-weight: 700; border: 1.3px solid var(--ink); border-radius: var(--radius-pill); padding: 3px 10px; background: var(--lavender); }
+  .profsum .loc { font-size: .9rem; color: var(--muted-strong); margin-top: 6px; }
+  .profsum .missing { font-size: .86rem; color: #B3361A; font-weight: 600; margin-top: 6px; }
+  .profcard-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .profcard .who { font-size: .86rem; color: var(--muted-strong); margin-top: 14px; }
 
   /* ── RSVP state ── */
   .youre { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--mint); border: 1.5px solid var(--ink); border-radius: 16px; padding: 10px 14px; margin: 12px 0 4px; font-weight: 600; font-size: .92rem; }
@@ -412,6 +454,7 @@
   .cmt { padding: 12px 0; border-top: 1.5px dashed var(--line); font-size: .92rem; }
   .cmt:first-child { border-top: 0; padding-top: 0; }
   .cmt .who { font-weight: 700; }
+  .cmt .cav { width: 26px; height: 26px; border-radius: 50%; border: 1.3px solid var(--ink); background: var(--banana-bright); display: inline-grid; place-items: center; font-size: 10px; font-weight: 700; vertical-align: middle; margin-right: 8px; }
   .cmt .when { color: var(--muted); font-size: .78rem; margin-left: 6px; }
   .cmtform { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 14px; }
   @media (max-width: 640px) { .cmtform { grid-template-columns: 1fr; } }
@@ -723,6 +766,7 @@
     </div>
   </section>
 
+  <div id="profileNudge"></div>
   <div class="sechead">
     <div>
       <h2><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#d-gold"/></svg> Upcoming Circles</h2>
@@ -760,14 +804,32 @@
   <div class="mylist" id="mePast"></div>
 
   <div class="sechead"><div><h2>Your profile</h2></div></div>
-  <div class="panel">
-    <div class="profile">
-      <div class="fld" style="margin:0"><label for="p_name">Name shown to other members</label><input id="p_name" maxlength="80"></div>
-      <button class="btn btn-ink" onclick="saveName()">Save</button>
-    </div>
+  <div class="panel profcard">
+    <div id="meProfile"></div>
     <div class="who" id="meWho"></div>
-    <div id="profileMsg" class="who" role="status"></div>
-    <div style="margin-top:16px"><button class="btn btn-line btn-sm" onclick="signOut()">Log out</button></div>
+    <div class="profcard-actions">
+      <button class="btn btn-ink btn-sm" onclick="showProfile(false)">Edit profile</button>
+      <button class="btn btn-line btn-sm" onclick="signOut()">Log out</button>
+    </div>
+  </div>
+</div>
+
+<!-- Profile: set up right after joining, edit any time from My Circles -->
+<div id="profile" class="view wrap">
+  <div class="wiz">
+    <div class="wiz-head">
+      <span class="eyebrow"><i></i> <span id="profEyebrow">Welcome to the Circle</span></span>
+      <h1 id="profH" tabindex="-1" style="margin-top:12px">Set up your <span class="swash">profile<svg viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden="true"><use href="#d-swash"/></svg></span></h1>
+      <p id="profIntro"></p>
+    </div>
+    <div id="profBody"></div>
+    <p class="privacy">🔒 Other members see your <strong>name and photo</strong>. Your <strong>community role and location</strong> are only seen by you and the WIP team.</p>
+    <div id="profErr" class="qerr" role="alert"></div>
+    <div class="wiz-nav">
+      <button type="button" class="btn btn-line" id="profBack" onclick="profileBack()">← Back</button>
+      <button type="button" class="linkbtn" id="profSkip" onclick="skipProfile()">I'll do this later</button>
+      <button type="button" class="btn btn-lime btn-pop" id="profSave" onclick="saveProfile()">Save profile</button>
+    </div>
   </div>
 </div>
 
@@ -930,7 +992,9 @@ async function enter() {
     }
     return setMode("signin", e.message);
   }
-  $("navInitials").textContent = initials(ME.member.name) || "·";
+  updateNavChip();
+  // New members set up their profile first (unless they chose "later").
+  if (profileDueNow() && !location.hash) return showProfile(true);
   await showHub();
   // Deep links from the main site: /circle/#propose and /circle/#me
   if (location.hash === "#propose") showForm();
@@ -1037,19 +1101,223 @@ function renderMe() {
     ? past.slice().reverse().map((j) => myRow(j, "Attended", "attended")).join("")
     : `<div class="emptyline">Your past Circles will show up here.</div>`;
 
-  $("p_name").value = member.name;
+  $("meProfile").innerHTML = profileSummaryHTML(member);
   $("meWho").textContent = `Signed in as ${member.email} with ${member.provider === "google" ? "Google" : "email and password"}.`;
-  $("profileMsg").textContent = "";
 }
 
-async function saveName() {
+// ---------- profile ----------
+//
+// Shown once right after joining (skippable), and from My Circles any time.
+// Name + at least one community role + location make it "complete"; the photo
+// is optional. Roles and location are only seen by the member and admins.
+
+const ROLE_HELP = {
+  fighter: "You live with, or are finding your way through, your own mental health journey.",
+  caregiver: "You support someone you love through their mental health journey.",
+  practitioner: "You work in mental health, therapy, counselling or wellbeing.",
+};
+
+let P = null;               // profile answers in progress
+let profileOnboarding = false;
+const laterKey = () => "harmoniProfileLater:" + (ME ? ME.member.id : "");
+
+// A face or initials, for any avatar on the page.
+function avatarInner(name, photo) {
+  return photo ? `<img src="${esc(photo)}" alt="">` : esc(initials(name || "") || "·");
+}
+
+function showProfile(onboarding) {
+  profileOnboarding = onboarding;
+  const m = ME.member;
+  P = { name: m.name || "", roles: [...m.roles], state: m.state || "", city: m.city || "", photo: undefined, preview: m.photo };
+  $("profEyebrow").textContent = onboarding ? "Welcome to the Circle" : "Your profile";
+  $("profIntro").textContent = onboarding
+    ? "A few quick things so the circle can get to know you. It takes about a minute, and you can change it any time."
+    : "Update your details any time.";
+  $("profSkip").style.visibility = onboarding ? "visible" : "hidden";
+  $("profBack").style.visibility = onboarding ? "hidden" : "visible";
+  $("profErr").textContent = "";
+  renderProfile();
+  show("profile");
+  $("profH").focus({ preventScroll: true });
+}
+
+function renderProfile() {
+  const opts = ME.profileOptions || { roles: {}, states: [] };
+  $("profBody").innerHTML = `
+    <div class="q" id="pq_photo">
+      <span class="qlabel">Your photo <span class="optl">Optional</span></span>
+      <p class="qhelp">A friendly face helps people recognise you at Circles. Any photo you're comfortable with.</p>
+      <div class="photoq">
+        <div class="bigav">${avatarInner(P.name, P.preview)}</div>
+        <div class="acts">
+          <label class="btn btn-line btn-sm"><input type="file" class="sr" id="p_photo" accept="image/png,image/jpeg,image/webp">${P.preview ? "Change photo" : "Choose a photo"}</label>
+          ${P.preview ? `<button type="button" class="linkbtn" onclick="removePhoto()">Remove photo</button>` : ""}
+        </div>
+      </div>
+      <div class="qerr" id="perr_photo" role="alert"></div>
+    </div>
+
+    <div class="q" id="pq_name">
+      <label class="qlabel" for="p_name">Your name <span class="need">Required</span></label>
+      <p class="qhelp">How you'd like to appear to other members.</p>
+      <input id="p_name" maxlength="80" autocomplete="name" value="${esc(P.name)}">
+      <div class="qerr" id="perr_name" role="alert"></div>
+    </div>
+
+    <div class="q" id="pq_roles">
+      <span class="qlabel">How are you part of our community? <span class="need">Required</span></span>
+      <p class="qhelp">Pick any that fit. Many people are more than one.</p>
+      <div class="roles" role="group" aria-label="Community role">
+        ${Object.entries(opts.roles).map(([key, label]) => `<button type="button" data-role="${esc(key)}" aria-pressed="${P.roles.includes(key)}">
+          <span class="tick" aria-hidden="true"></span>
+          <span><b>${esc(label)}</b><small>${esc(ROLE_HELP[key] || "")}</small></span>
+        </button>`).join("")}
+      </div>
+      <div class="qerr" id="perr_roles" role="alert"></div>
+    </div>
+
+    <div class="q" id="pq_loc">
+      <span class="qlabel">Where are you based? <span class="need">Required</span></span>
+      <p class="qhelp">Helps us plan Circles near you.</p>
+      <div class="locrow">
+        <label>State
+          <select id="p_state"><option value="">Choose your state…</option>${opts.states.map((st) => `<option ${st === P.state ? "selected" : ""}>${esc(st)}</option>`).join("")}</select>
+        </label>
+        <label>Town or area <span class="opt">(optional)</span>
+          <input id="p_city" maxlength="80" placeholder="e.g. Petaling Jaya" value="${esc(P.city)}">
+        </label>
+      </div>
+      <div class="qerr" id="perr_loc" role="alert"></div>
+    </div>`;
+
+  $("p_name").addEventListener("input", (e) => { P.name = e.target.value; clearProfErr("name"); });
+  $("p_state").addEventListener("change", (e) => { P.state = e.target.value; clearProfErr("loc"); });
+  $("p_city").addEventListener("input", (e) => { P.city = e.target.value; });
+  $("p_photo").addEventListener("change", (e) => pickPhoto(e.target.files[0]));
+  $("profBody").querySelectorAll("[data-role]").forEach((b) => b.addEventListener("click", () => {
+    const k = b.dataset.role;
+    P.roles = P.roles.includes(k) ? P.roles.filter((r) => r !== k) : [...P.roles, k];
+    b.setAttribute("aria-pressed", String(P.roles.includes(k)));
+    clearProfErr("roles");
+  }));
+}
+
+function clearProfErr(k) {
+  const e = $("perr_" + k);
+  if (e) e.textContent = "";
+  const q = $("pq_" + k);
+  if (q) q.classList.remove("bad");
+}
+
+// Square-crop and shrink to 400px so a phone photo becomes ~40KB.
+async function squarePhoto(file) {
+  const url = await readAsDataURL(file);
+  const img = await new Promise((ok, fail) => {
+    const i = new Image();
+    i.onload = () => ok(i);
+    i.onerror = () => fail(new Error("That doesn't look like a photo we can open. Try a JPG or PNG."));
+    i.src = url;
+  });
+  const side = Math.min(img.naturalWidth, img.naturalHeight);
+  const c = document.createElement("canvas");
+  c.width = c.height = Math.min(400, side);
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, c.width, c.height);
+  ctx.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, c.width, c.height);
+  return { name: "photo.jpg", type: "image/jpeg", data: c.toDataURL("image/jpeg", 0.85) };
+}
+
+async function pickPhoto(file) {
+  if (!file) return;
   try {
-    const d = await api("/api/member/me", { method: "POST", body: JSON.stringify({ name: $("p_name").value }) });
+    P.photo = await squarePhoto(file);
+    P.preview = P.photo.data;
+    renderProfile();
+  } catch (e) {
+    $("perr_photo").textContent = e.message;
+  }
+}
+
+function removePhoto() {
+  P.photo = null;
+  P.preview = null;
+  renderProfile();
+}
+
+async function saveProfile() {
+  const problems = [];
+  if (P.name.trim().length < 2) problems.push(["name", "Please add your name (at least 2 letters)."]);
+  if (!P.roles.length) problems.push(["roles", "Please pick at least one."]);
+  if (!P.state) problems.push(["loc", "Please choose your state (or Outside Malaysia)."]);
+  ["name", "roles", "loc"].forEach(clearProfErr);
+  if (problems.length) {
+    problems.forEach(([k, msg]) => { $("perr_" + k).textContent = msg; $("pq_" + k).classList.add("bad"); });
+    $("pq_" + problems[0][0]).scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+  const body = { name: P.name, roles: P.roles, state: P.state, city: P.city };
+  if (P.photo !== undefined) body.photo = P.photo;
+  $("profSave").disabled = true;
+  $("profSave").textContent = "Saving…";
+  try {
+    const d = await api("/api/member/me", { method: "POST", body: JSON.stringify(body) });
     ME.member = d.member;
-    $("navInitials").textContent = initials(d.member.name);
-    renderMe();
-    $("profileMsg").textContent = "Saved ✓";
-  } catch (e) { $("profileMsg").textContent = "⚠ " + e.message; }
+    updateNavChip();
+    try { localStorage.removeItem(laterKey()); } catch {}
+    if (profileOnboarding) await showHub(); else await showMe();
+  } catch (e) {
+    $("profErr").textContent = e.message;
+  } finally {
+    $("profSave").disabled = false;
+    $("profSave").textContent = "Save profile";
+  }
+}
+
+// "Later" is remembered on this device for a week, so it doesn't nag.
+function skipProfile() {
+  try { localStorage.setItem(laterKey(), String(Date.now())); } catch {}
+  showHub();
+}
+
+function profileBack() { showMe(); }
+
+function profileDueNow() {
+  if (ME.member.profileComplete) return false;
+  try {
+    const later = Number(localStorage.getItem(laterKey()) || 0);
+    return Date.now() - later > 7 * 864e5;
+  } catch { return true; }
+}
+
+function updateNavChip() {
+  const chip = $("navInitials");
+  chip.innerHTML = avatarInner(ME.member.name, ME.member.photo);
+  chip.classList.toggle("ph", Boolean(ME.member.photo));
+}
+
+function renderProfileNudge() {
+  const el = $("profileNudge");
+  if (!el) return;
+  el.innerHTML = ME && !ME.member.profileComplete
+    ? `<div class="nudge"><p>Finish setting up your profile<small>Add your community role and where you're based. It takes a minute.</small></p>
+        <button class="btn btn-ink btn-sm" onclick="showProfile(false)">Set up profile →</button></div>`
+    : "";
+}
+
+function profileSummaryHTML(m) {
+  const labels = (ME.profileOptions || {}).roles || {};
+  const where = [m.city, m.state].filter(Boolean).join(", ");
+  return `<div class="profsum">
+      <div class="bigav ${m.photo ? "" : ""}">${avatarInner(m.name, m.photo)}</div>
+      <div>
+        <h3>${esc(m.name)}</h3>
+        ${m.roles.length ? `<div class="rtags">${m.roles.map((r) => `<span>${esc(labels[r] || r)}</span>`).join("")}</div>` : ""}
+        ${where ? `<div class="loc">📍 ${esc(where)}</div>` : ""}
+        ${m.profileComplete ? "" : `<div class="missing">Your profile isn't finished yet.</div>`}
+      </div>
+    </div>`;
 }
 
 // ---------- hub ----------
@@ -1058,6 +1326,7 @@ async function showHub() {
   show("hub");
   const d = await api("/api/harmoni/events");
   EVENTS = d.events; CONFIG = d.config;
+  renderProfileNudge();
   renderList();
   renderPast();
 }
@@ -1108,7 +1377,7 @@ function whenParts(dt) {
 function avatarStack(ev, n = 4) {
   const going = ev.rsvps.filter((r) => r.status === "going" && !r.waitlisted);
   if (!going.length) return "";
-  const shown = going.slice(0, n).map((r) => `<span class="av" title="${esc(r.name)}">${esc(initials(r.name))}</span>`).join("");
+  const shown = going.slice(0, n).map((r) => `<span class="av ${r.photo ? "ph" : ""}" title="${esc(r.name)}">${avatarInner(r.name, r.photo)}</span>`).join("");
   const extra = going.length > n ? `<span class="av more">+${going.length - n}</span>` : "";
   return `<span class="avatars">${shown}${extra}</span>`;
 }
@@ -1179,7 +1448,7 @@ function openEvent(id) {
   const going = ev.rsvps.filter((r) => r.status === "going" && !r.waitlisted);
   const wait = ev.rsvps.filter((r) => r.waitlisted);
   const maybe = ev.rsvps.filter((r) => r.status === "maybe");
-  const guestChip = (r) => `<span class="guest"><span class="gav">${esc(initials(r.name))}</span>${esc(r.name)}${r.pax > 1 ? ` · ${r.pax} pax` : ""}${r.waitlisted ? ' <span class="wl">waitlist</span>' : ""}</span>`;
+  const guestChip = (r) => `<span class="guest"><span class="gav ${r.photo ? "ph" : ""}">${avatarInner(r.name, r.photo)}</span>${esc(r.name)}${r.pax > 1 ? ` · ${r.pax} pax` : ""}${r.waitlisted ? ' <span class="wl">waitlist</span>' : ""}</span>`;
 
   const heroInfo = `<div class="info">
       <h1>${esc(ev.title)}</h1>
@@ -1238,7 +1507,7 @@ function openEvent(id) {
       <div class="panel">
         <h2><svg class="ic" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-smiley"/></svg> Conversation</h2>
         <div id="comments">${ev.comments.length ? ev.comments.map((c) =>
-          `<div class="cmt"><span class="who">${esc(c.name)}</span><span class="when">${esc(new Date(c.at).toLocaleDateString("en-MY", { day: "numeric", month: "short" }))}</span><br>${esc(c.text)}</div>`
+          `<div class="cmt"><span class="gav cav ${c.photo ? "ph" : ""}">${avatarInner(c.name, c.photo)}</span><span class="who">${esc(c.name)}</span><span class="when">${esc(new Date(c.at).toLocaleDateString("en-MY", { day: "numeric", month: "short" }))}</span><br>${esc(c.text)}</div>`
         ).join("") : '<div class="muted" style="font-size:.9rem">No comments yet. Start one!</div>'}</div>
         <div class="cmtform">
           <input id="c_text" maxlength="280" placeholder="Say something kind…" aria-label="Comment" onkeydown="if(event.key==='Enter')postComment()">

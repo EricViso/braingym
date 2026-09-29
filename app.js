@@ -623,7 +623,7 @@ const byMember = (memberId) => (r) => Boolean(memberId) && r.memberId === member
 // intention, costs, attachments, notes) stays between the host and the WIP
 // team - it is never sent to members. Member ids aren't sent either; `mine`
 // tells the viewer where they stand instead.
-function eventView(ev, memberId) {
+function eventView(ev, memberId, photos = new Map()) {
   const d = ev.data || {};
   const rsvps = Array.isArray(d.rsvps) ? d.rsvps : [];
   const active = rsvps.filter((r) => r.status === "going" && !r.waitlisted);
@@ -658,6 +658,7 @@ function eventView(ev, memberId) {
     spotsLeft: Math.max(0, d.capacity - goingCount),
     rsvps: rsvps.map((r) => ({
       name: r.name,
+      photo: photos.get(r.memberId) || null,
       status: r.status,
       pax: r.pax,
       waitlisted: Boolean(r.waitlisted),
@@ -665,6 +666,7 @@ function eventView(ev, memberId) {
     })),
     comments: (Array.isArray(d.comments) ? d.comments : []).map((c) => ({
       name: c.name,
+      photo: photos.get(c.memberId) || null,
       text: c.text,
       at: c.at,
     })),
@@ -760,13 +762,46 @@ function memberActivity(events, memberId) {
   };
 }
 
-const memberProfile = (m) => ({
-  id: m.id,
-  name: m.name,
-  email: m.email,
-  provider: m.provider,
-  joinedAt: m.joinedAt,
-});
+// Profile choices. Keys are stored; labels are what people see.
+const MEMBER_ROLES = {
+  fighter: "Mental health fighter",
+  caregiver: "Caregiver",
+  practitioner: "Practitioner",
+};
+const MY_STATES = [
+  "Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan", "Pahang", "Perak", "Perlis",
+  "Pulau Pinang", "Sabah", "Sarawak", "Selangor", "Terengganu",
+  "W.P. Kuala Lumpur", "W.P. Labuan", "W.P. Putrajaya", "Outside Malaysia",
+];
+const PHOTO_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+// Profile photos are served by an unguessable key of their own, not the
+// member id, so a photo URL shown to other members reveals nothing else.
+const photoUrl = (m) => {
+  const p = m && m.data && m.data.photo;
+  return p ? `/api/harmoni/photos/${p.key}?v=${p.data.length.toString(36)}` : null;
+};
+
+// memberId -> photo URL, for avatars on RSVPs and comments.
+const photoMap = (members) => new Map(members.filter((m) => m.data && m.data.photo).map((m) => [m.id, photoUrl(m)]));
+
+const memberProfile = (m) => {
+  const d = m.data || {};
+  const roles = Array.isArray(d.roles) ? d.roles.filter((r) => MEMBER_ROLES[r]) : [];
+  return {
+    id: m.id,
+    name: m.name,
+    email: m.email,
+    provider: m.provider,
+    joinedAt: m.joinedAt,
+    roles,
+    state: d.state || "",
+    city: d.city || "",
+    photo: photoUrl(m),
+    // Name, at least one role and a location. The photo stays optional.
+    profileComplete: Boolean(m.name && roles.length && d.state),
+  };
+};
 
 // Public: tells the page whether logins are on and how to reach Supabase.
 // The anon key is meant for browsers; it grants nothing the RLS policies
@@ -831,31 +866,75 @@ app.post("/api/member/join", requireUser, async (req, res) => {
 app.get("/api/member/me", requireMember, async (req, res) => {
   try {
     const events = await storage.loadEvents();
-    res.json({ member: memberProfile(req.member), activity: memberActivity(events, req.member.id) });
+    res.json({
+      member: memberProfile(req.member),
+      activity: memberActivity(events, req.member.id),
+      profileOptions: { roles: MEMBER_ROLES, states: MY_STATES },
+    });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-// Display name is the only editable field; email and sign-in method belong
-// to Supabase Auth.
+// Profile editing: any of { name, roles, state, city, photo } (photo null
+// removes it). Email and sign-in method belong to Supabase Auth. Roles and
+// location are only ever shown to the member and admins; name and photo are
+// what other members see.
 app.post("/api/member/me", requireMember, async (req, res) => {
   try {
-    const name = textField(req.body && req.body.name, "Your name", 2, 80);
-    req.member.name = name;
-    await storage.updateMember(req.memberIndex, req.member);
-    res.json({ ok: true, member: memberProfile(req.member) });
+    const b = req.body || {};
+    const m = req.member;
+    const d = (m.data = m.data || {});
+    if (b.name !== undefined) m.name = textField(b.name, "Your name", 2, 80);
+    if (b.roles !== undefined) {
+      if (!Array.isArray(b.roles) || b.roles.some((r) => !MEMBER_ROLES[r])) throw new Error("Pick your community role from the list");
+      d.roles = [...new Set(b.roles)];
+    }
+    if (b.state !== undefined) {
+      if (b.state && !MY_STATES.includes(b.state)) throw new Error("Pick your state from the list");
+      d.state = b.state || "";
+    }
+    if (b.city !== undefined) d.city = optText(b.city, "Town or area", 80);
+    if (b.photo !== undefined) {
+      if (b.photo === null) {
+        delete d.photo;
+      } else {
+        const f = fileField(b.photo, "Profile photo", PHOTO_TYPES);
+        if (f.data.length > 400_000) throw new Error("That photo is too large. Try another one.");
+        d.photo = { key: crypto.randomUUID(), type: f.type, data: f.data };
+      }
+    }
+    d.profileUpdatedAt = new Date().toISOString();
+    await storage.updateMember(req.memberIndex, m);
+    res.json({ ok: true, member: memberProfile(m) });
   } catch (e) {
     res.status(400).json({ error: e.message });
   }
 });
 
+// A member's profile photo, by its own key (see photoUrl). No auth, because
+// <img> tags can't send the token; the key is random and changes with every
+// new upload.
+app.get("/api/harmoni/photos/:key", async (req, res) => {
+  try {
+    const members = await storage.loadMembers();
+    const m = members.find((x) => x.data && x.data.photo && x.data.photo.key === req.params.key);
+    if (!m || !PHOTO_TYPES.has(m.data.photo.type)) return res.status(404).end();
+    const p = m.data.photo;
+    res.set({ "Content-Type": p.type, "Cache-Control": "public, max-age=86400", "X-Content-Type-Options": "nosniff" });
+    res.send(Buffer.from(p.data.slice(p.data.indexOf(",") + 1), "base64"));
+  } catch (e) {
+    res.status(500).end();
+  }
+});
+
 app.get("/api/harmoni/events", requireMember, async (req, res) => {
   try {
-    const events = await storage.loadEvents();
+    const [events, members] = await Promise.all([storage.loadEvents(), storage.loadMembers()]);
+    const photos = photoMap(members);
     const list = events
       .filter((ev) => ev.status === "approved")
-      .map((ev) => eventView(ev, req.member.id))
+      .map((ev) => eventView(ev, req.member.id, photos))
       .sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
     res.json({
       events: list,

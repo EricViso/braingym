@@ -16,6 +16,7 @@
   .memtable th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); padding: 6px 10px 6px 0; }
   .memtable td { padding: 8px 10px 8px 0; border-top: 1px solid var(--line-soft); }
   .memtable td.n { text-align: right; font-family: var(--font-mono); }
+  .mav { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; display: inline-grid; place-items: center; background: var(--accent-soft); font-weight: 700; font-size: 12px; border: 1px solid var(--line); }
   .memtable th.n { text-align: right; }
   .tablewrap { overflow-x: auto; }
   .prop .cov.img { overflow: hidden; border: 1px solid var(--line); }
@@ -330,13 +331,20 @@ async function rsvpAction(id, key, action) {
   } catch (e) { alert(e.message); }
 }
 
+const ROLE_LABEL = { fighter: "Mental health fighter", caregiver: "Caregiver", practitioner: "Practitioner" };
+
 async function loadMembers() {
   try {
     const { members } = await api("/api/admin/harmoni/members");
     $("memCount").textContent = members.length;
     $("memList").innerHTML = members.length
-      ? `<table class="memtable"><tr><th>Name</th><th>Email</th><th>Sign-in</th><th>Joined</th><th class="n">Circles joined</th><th class="n">Proposed</th><th class="n">Hosted</th></tr>` +
-        members.map((m) => `<tr><td><strong>${esc(m.name)}</strong></td><td>${esc(m.email || "")}</td><td>${m.provider === "google" ? "Google" : "Email"}</td>
+      ? `<table class="memtable"><tr><th></th><th>Name</th><th>Community role</th><th>Location</th><th>Email</th><th>Sign-in</th><th>Joined</th><th class="n">Circles joined</th><th class="n">Proposed</th><th class="n">Hosted</th></tr>` +
+        members.map((m) => `<tr>
+          <td>${m.photo ? `<img class="mav" src="${esc(m.photo)}" alt="">` : `<span class="mav">${esc((m.name || "?").trim().charAt(0).toUpperCase())}</span>`}</td>
+          <td><strong>${esc(m.name)}</strong>${m.profileComplete ? "" : ' <span class="muted" style="font-size:11px">profile unfinished</span>'}</td>
+          <td>${(m.roles || []).map((r) => esc(ROLE_LABEL[r] || r)).join(", ") || '<span class="muted">—</span>'}</td>
+          <td>${esc([m.city, m.state].filter(Boolean).join(", ")) || '<span class="muted">—</span>'}</td>
+          <td>${esc(m.email || "")}</td><td>${m.provider === "google" ? "Google" : "Email"}</td>
           <td>${esc(new Date(m.joinedAt).toLocaleDateString("en-MY", { day: "numeric", month: "short", year: "numeric" }))}</td>
           <td class="n">${m.counts.joined}</td><td class="n">${m.counts.proposed}</td><td class="n">${m.counts.hosted}</td></tr>`).join("") + `</table>`
       : '<div class="muted" style="font-size:13px">No members yet. They appear here after signing in and entering the invite code.</div>';

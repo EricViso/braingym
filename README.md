@@ -113,7 +113,14 @@ cached 60s).
   `upcoming`, `proposed`, `hosted`) and the `joined` / `proposals` lists behind them.
   Joined = RSVP'd going with a seat (not waitlisted) on a live or completed Circle; hosted =
   their own proposal that went live and has taken place.
-- `POST /api/member/me` — member auth. `{ name }` changes the display name.
+- `POST /api/member/me` — member auth. Profile: any of `{ name, roles, state, city, photo }`.
+  `roles` ⊂ fighter / caregiver / practitioner (Mental health fighter, Caregiver, Practitioner);
+  `state` is a Malaysian state/FT or "Outside Malaysia"; `photo` is a JPG/PNG/WebP data URL
+  (the page square-crops it to 400px) or `null` to remove. Name + a role + a state make the
+  profile complete; the page asks new members to fill it in right after joining (skippable).
+  Other members only ever see name and photo; role and location are for the member and admins.
+- `GET /api/harmoni/photos/:key` — **no auth**. A profile photo, by a random key that changes
+  with every upload (never the member id).
 - `GET /api/harmoni/events` — member auth. Approved events only, as an **attendee view**: when,
   where, price, what you'll do, what you'll leave with, what to bring (Participant-provided
   items), accessibility notes, host first name, RSVP counts, the payment link, and a per-viewer
