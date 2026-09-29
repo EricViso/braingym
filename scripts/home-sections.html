@@ -46,14 +46,16 @@
 .wip-promo--survey .wip-promo__dot{background:#fff;color:var(--wip-ink)}
 .wip-promo--survey .wip-promo__list li{color:rgba(255,255,255,.88)}
 .wip-promo--survey .wip-promo__list strong{color:#fff}
-/* Curved top and bottom edges, the same shapes and 30px height as the
-   "Our approach" (WIP Nusantara Initiatives) section further down */
+/* Curved top and bottom edges, copied from Kadence's separators on the
+   "Our approach" (WIP Nusantara Initiatives) section: 30px high, the SVG drawn
+   at 150% of the section width, centred and cropped, so the arc is as gentle */
 .wip-promo--survey{position:relative}
-.wip-promo__sep{position:absolute;left:0;width:100%;height:30px;line-height:0;pointer-events:none}
-.wip-promo__sep svg{display:block;width:100%;height:100%;fill:#fff}
+.wip-promo__sep{position:absolute;left:0;right:0;height:30px;overflow:hidden;z-index:1;pointer-events:none}
+.wip-promo__sep svg{position:absolute;left:50%;width:150%;height:100%;display:block;fill:#fff}
 .wip-promo__sep--top{top:-1px}
-.wip-promo__sep--top svg{transform:rotate(180deg)}
+.wip-promo__sep--top svg{top:0;transform:translateX(-50%) rotate(180deg)}
 .wip-promo__sep--bottom{bottom:-1px}
+.wip-promo__sep--bottom svg{bottom:0;transform:translateX(-50%)}
 
 @media (max-width:900px){
   .wip-promo{padding:64px 24px}
