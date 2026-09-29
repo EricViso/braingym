@@ -382,6 +382,14 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 .wip-promo--survey .wip-promo__dot{background:#fff;color:var(--wip-ink)}
 .wip-promo--survey .wip-promo__list li{color:rgba(255,255,255,.88)}
 .wip-promo--survey .wip-promo__list strong{color:#fff}
+/* Curved top and bottom edges, the same shapes and 30px height as the
+   "Our approach" (WIP Nusantara Initiatives) section further down */
+.wip-promo--survey{position:relative}
+.wip-promo__sep{position:absolute;left:0;width:100%;height:30px;line-height:0;pointer-events:none}
+.wip-promo__sep svg{display:block;width:100%;height:100%;fill:#fff}
+.wip-promo__sep--top{top:-1px}
+.wip-promo__sep--top svg{transform:rotate(180deg)}
+.wip-promo__sep--bottom{bottom:-1px}
 
 @media (max-width:900px){
   .wip-promo{padding:64px 16px}
@@ -417,6 +425,7 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 </section>
 
 <section class="wip-promo wip-promo--survey" aria-labelledby="wip-survey-title">
+  <div class="wip-promo__sep wip-promo__sep--top" aria-hidden="true"><svg viewBox="0 0 1000 100" preserveAspectRatio="none"><path d="M1000,0c0,0 -270.987,98 -500,98c-229.013,0 -500,-98 -500,-98l0,100l1000,0l0,-100Z"/></svg></div>
   <div class="wip-promo__inner">
     <div>
       <span class="wip-promo__eyebrow">Impact Survey</span>
@@ -432,6 +441,7 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
       </ul>
     </div>
   </div>
+  <div class="wip-promo__sep wip-promo__sep--bottom" aria-hidden="true"><svg viewBox="0 0 1000 100" preserveAspectRatio="none"><path d="M1000,100c0,0 -270.987,-98 -500,-98c-229.013,0 -500,98 -500,98l1000,0Z"/></svg></div>
 </section>
 
 <script>
