@@ -31,6 +31,11 @@ const ADMIN_TOKEN = crypto
 // default.
 const MEMBER_INVITE_CODE =
   process.env.MEMBER_INVITE_CODE || process.env.MEMBER_PASSWORD || "changeme123";
+// The default is for local development only. In production an unset code
+// would let anyone who knows the default join, so joining stays closed
+// until a real code is configured.
+const INVITE_CODE_MISSING =
+  Boolean(process.env.VERCEL) && !process.env.MEMBER_INVITE_CODE && !process.env.MEMBER_PASSWORD;
 
 // Fixed org profit split: the facilitator's share of projected profit, in
 // percent. The remainder goes to WIP. Shown read-only in the proposal form.
@@ -839,6 +844,10 @@ function inviteCodeMatches(code) {
 
 // First sign-in: turn a Supabase account into a member with the invite code.
 app.post("/api/member/join", requireUser, async (req, res) => {
+  if (INVITE_CODE_MISSING) {
+    console.error("Member join refused: MEMBER_INVITE_CODE is not set.");
+    return res.status(503).json({ error: "Joining is paused while the WIP team sets up invite codes. Please try again soon." });
+  }
   if (!storage.ready) return res.status(500).json({ error: storage.reason });
   try {
     const members = await storage.loadMembers();
