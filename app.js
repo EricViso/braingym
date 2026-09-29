@@ -816,7 +816,12 @@ app.get("/api/member/config", async (req, res) => {
   const ready = await supabase.auth.ready();
   res.json(
     ready
-      ? { auth: true, supabaseUrl: supabase.auth.url, supabaseAnonKey: supabase.auth.anonKey }
+      ? {
+          auth: true,
+          supabaseUrl: supabase.auth.url,
+          supabaseAnonKey: supabase.auth.anonKey,
+          google: await supabase.auth.googleEnabled(),
+        }
       : { auth: false, reason: supabase.auth.reason() }
   );
 });

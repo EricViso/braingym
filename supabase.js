@@ -330,6 +330,24 @@ async function getUser(accessToken) {
   return user;
 }
 
+// Whether Google sign-in is switched on in the Supabase dashboard, so the
+// page only offers "Continue with Google" when it will work. Cached for five
+// minutes; any error reads as "off".
+let googleCache = { at: 0, on: false };
+async function googleEnabled() {
+  if (!URL_BASE || !ANON_KEY) return false;
+  if (Date.now() - googleCache.at < 5 * 60_000) return googleCache.on;
+  let on = false;
+  try {
+    const res = await fetch(`${URL_BASE}/auth/v1/settings`, { headers: { apikey: ANON_KEY } });
+    if (res.ok) on = Boolean(((await res.json()).external || {}).google);
+  } catch (e) {
+    console.error("Supabase auth settings check failed:", e.message);
+  }
+  googleCache = { at: Date.now(), on };
+  return on;
+}
+
 module.exports = {
   enabled,
   ref,
@@ -345,6 +363,7 @@ module.exports = {
     ready: authReady,
     reason: authReason,
     getUser,
+    googleEnabled,
   },
   SCHEMA_VERSION,
 };

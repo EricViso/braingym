@@ -105,8 +105,10 @@ Harmoni Circle:
 joined with the invite code. The server verifies tokens against Supabase (`/auth/v1/user`,
 cached 60s).
 
-- `GET /api/member/config` — public. Whether logins are on, plus the Supabase URL and anon
-  key the page needs to sign in.
+- `GET /api/member/config` — public. Whether logins are on, the Supabase URL and anon key the
+  page needs to sign in, and `google`: whether Google sign-in is switched on in Supabase (read
+  from `/auth/v1/settings`, cached 5 min). "Continue with Google" only shows when it is, so
+  turning Google on in the dashboard is all it takes to bring the button back.
 - `POST /api/member/join` — signed-in user. `{ inviteCode, name }` turns the account into a
   member. Wrong codes are throttled (8 tries / 15 min per account).
 - `GET /api/member/me` — member auth. Profile plus activity: `counts` (`joined`, `attended`,
