@@ -699,6 +699,10 @@ function coverImageUrl(ev) {
   return img ? `/api/harmoni/events/${ev.id}/cover?v=${img.data.length.toString(36)}` : null;
 }
 
+// The admin's note on a proposal. Approving without a note used to store the
+// text "undefined"; records saved before that fix still carry it.
+const adminNote = (ev) => (ev.adminNote && ev.adminNote !== "undefined" ? ev.adminNote : null);
+
 // A member's own track record, for their "My Circles" page.
 //   joined   - Circles they RSVP'd "going" to and got a seat (not waitlisted)
 //   proposed - every proposal they submitted, whatever its status
@@ -727,7 +731,7 @@ function memberActivity(events, memberId) {
       const going = (Array.isArray(d.rsvps) ? d.rsvps : [])
         .filter((r) => r.status === "going" && !r.waitlisted)
         .reduce((s, r) => s + r.pax, 0);
-      proposals.push({ ...card, submittedAt: ev.submittedAt, goingCount: going, adminNote: ev.adminNote || null });
+      proposals.push({ ...card, submittedAt: ev.submittedAt, goingCount: going, adminNote: adminNote(ev) });
     }
 
     const r = live && (Array.isArray(d.rsvps) ? d.rsvps : []).find(byMember(memberId));
@@ -806,6 +810,8 @@ const memberProfile = (m) => {
 // Public: tells the page whether logins are on and how to reach Supabase.
 // The anon key is meant for browsers; it grants nothing the RLS policies
 // don't (and every table here has RLS on with no policies).
+app.get("/harmoni-circle.html", (req, res) => res.redirect(301, "/circle/"));
+
 app.get("/api/member/config", async (req, res) => {
   const ready = await supabase.auth.ready();
   res.json(
@@ -1178,7 +1184,7 @@ app.get("/api/admin/harmoni/events", requireAdmin, async (req, res) => {
           id: ev.id,
           status: ev.status,
           submittedAt: ev.submittedAt,
-          adminNote: ev.adminNote || null,
+          adminNote: adminNote(ev),
           decidedAt: ev.decidedAt || null,
           decidedBy: ev.decidedBy || null,
           data: ev.data,
@@ -1259,8 +1265,9 @@ app.post("/api/admin/harmoni/events/:id/status", requireAdmin, async (req, res) 
     record.status = target;
     record.decidedAt = new Date().toISOString();
     record.decidedBy = "admin";
-    if (typeof (req.body.note || "") === "string") {
-      record.adminNote = String(req.body.note).trim().slice(0, 300) || null;
+    // No note sent (e.g. a plain Approve) leaves any earlier note alone.
+    if (typeof req.body.note === "string") {
+      record.adminNote = req.body.note.trim().slice(0, 300) || null;
     }
 
     await storage.updateEvent(index, record);
