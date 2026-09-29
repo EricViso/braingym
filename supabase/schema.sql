@@ -52,8 +52,64 @@ create trigger responses_set_updated_at
   before update on public.responses
   for each row execute function public.set_updated_at();
 
+-- WIP Harmoni Circle event proposals. Members submit proposals (status
+-- 'under_review'); admin approves them into the members-only event listing.
+-- The proposal itself — concept, venue, costs, financial snapshot, RSVPs and
+-- comments — lives in `data` jsonb, same philosophy as the responses table.
+create table if not exists public.events (
+  seq          bigint generated always as identity,
+  id           uuid primary key,
+  submitted_at timestamptz not null default now(),
+  updated_at   timestamptz not null default now(),
+  status       text not null default 'under_review',
+  data         jsonb not null default '{}'::jsonb,
+  admin_note   text,
+  decided_at   timestamptz,
+  decided_by   text
+);
+
+create unique index if not exists events_seq_key on public.events (seq);
+create index if not exists events_status_idx on public.events (status);
+create index if not exists events_data_gin_idx on public.events using gin (data);
+
+drop trigger if exists events_set_updated_at on public.events;
+create trigger events_set_updated_at
+  before update on public.events
+  for each row execute function public.set_updated_at();
+
+-- Same posture as `responses`: RLS on with NO policies means only the
+-- service_role key (used server-side by the Express app) can reach it.
+alter table public.events enable row level security;
+
 -- This table holds names, emails, phone numbers and free-text about personal
 -- distress. RLS on with NO policies means the anon and authenticated keys can
 -- read nothing at all; only the service_role key (used server-side by the
 -- Express app) reaches it. Do not add a permissive policy without a reason.
 alter table public.responses enable row level security;
+
+-- WIP Harmoni Circle member accounts. Sign-in itself (passwords, Google) is
+-- Supabase Auth; a row here means that auth user has also entered the
+-- memberSHIPS invite code. `id` is the auth user's id. The app also uses this
+-- table's existence as proof it is talking to the survey project before it
+-- turns logins on (see supabase.js authReady).
+create table if not exists public.members (
+  seq        bigint generated always as identity,
+  id         uuid primary key,
+  email      text,
+  name       text not null default '',
+  provider   text,
+  joined_at  timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  data       jsonb not null default '{}'::jsonb
+);
+
+create unique index if not exists members_seq_key on public.members (seq);
+create index if not exists members_email_idx on public.members (lower(email));
+
+drop trigger if exists members_set_updated_at on public.members;
+create trigger members_set_updated_at
+  before update on public.members
+  for each row execute function public.set_updated_at();
+
+-- Emails and names: service_role only, same as the other tables.
+alter table public.members enable row level security;

@@ -1,0 +1,46 @@
+/* Member login: a round icon beside "Request Proposal" in the desktop header
+   (the header row has no room for a second pill), a full-width button in the
+   mobile menu, and
+   links from the WIP Harmoni Circle page into the member hub at /circle/.
+   The exported pages have no shared stylesheet of their own, so each one
+   links this file. */
+.wip-member-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 16px; border-radius: 100px; /* spacing comes from the Kadence button row gap */
+  border: 1.5px solid #1d1d1f; background: #fff; color: #1d1d1f !important;
+  font-weight: 600; font-size: 14px; line-height: 1.2; text-decoration: none !important;
+  white-space: nowrap; transition: background .15s, color .15s, border-color .15s;
+}
+.wip-member-btn:hover, .wip-member-btn:focus-visible { background: #ef6442; border-color: #ef6442; color: #fff !important; }
+.wip-member-btn.wide { display: flex; width: 100%; margin: 10px 0 0; padding: 12px 16px; font-size: 16px; }
+.wip-member-btn .dot { width: 8px; height: 8px; border-radius: 50%; background: #d5fc4c; border: 1px solid #1d1d1f; }
+
+/* Member hub band on /wip-harmoni-circle/ */
+/* Same 1200px / 24px column as the Kadence rows around it. */
+.wip-hub-band { max-width: 1200px; margin: 28px auto; padding: 0 24px; box-sizing: border-box; }
+.wip-hub-card {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+.wip-hub-card a {
+  display: block; text-decoration: none !important; color: #1d1d1f !important;
+  border: 1.5px solid #1d1d1f; border-radius: 24px; padding: 22px 22px 20px;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.wip-hub-card a:hover { transform: translateY(-3px) rotate(-.4deg); box-shadow: 5px 5px 0 #1d1d1f; }
+.wip-hub-card a:nth-child(1) { background: #deffa9; }
+.wip-hub-card a:nth-child(2) { background: #ffdee6; }
+.wip-hub-card strong { display: block; font-size: 1.25rem; line-height: 1.25; margin-bottom: 6px; }
+.wip-hub-card span { display: block; font-size: .95rem; line-height: 1.5; opacity: .82; }
+.wip-hub-card em { display: inline-block; margin-top: 12px; font-style: normal; font-weight: 700; font-size: .9rem; background: #1d1d1f; color: #fff; border-radius: 100px; padding: 6px 14px; }
+@media (max-width: 720px) { .wip-hub-card { grid-template-columns: 1fr; } }
+
+.wip-member-icon {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 38px; height: 38px; margin-left: 8px; border-radius: 50%;
+  border: 1.5px solid #1d1d1f; background: #fff; color: #1d1d1f;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.wip-member-icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.wip-member-icon:hover, .wip-member-icon:focus-visible { background: #ef6442; border-color: #ef6442; color: #fff; }
+/* Keep the icon on the same line as Request Proposal. */
+.kb-buttons-wrap:has(> .wip-member-icon) { flex-wrap: nowrap; align-items: center; }

@@ -46,6 +46,7 @@
 .theme-corporate  { --accent: #1159AF;        --accent-soft: #DCE8F8; }  /* WP blue */
 .theme-community  { --accent: #EF583D;        --accent-soft: #FBDCD5; }  /* WP coral / soft peach */
 .theme-caregiver  { --accent: #9769F0;        --accent-soft: #EADFFA; }  /* lavender */
+.theme-harmoni    { --accent: #B11B3B;        --accent-soft: #FBDCE3; }  /* crimson / soft rose, white text AA */
 
 /* ── Reset & base ── */
 * { margin: 0; padding: 0; box-sizing: border-box; }

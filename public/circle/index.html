@@ -1,0 +1,2127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>myWIPhealing — WIP Harmoni Circle</title>
+<meta name="theme-color" content="#F5EFE6">
+<link rel="icon" href="/img/favicon.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/brand.css">
+<style>
+  /* WIP Harmoni Circle member hub, in the mywiphealing.com look (same
+     page-local tokens as the survey page, index.html). */
+  :root {
+    --font-display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+    --ink: #1d1d1f;
+    --forest: #2a6f2b;
+    --leaf: #8ed462;
+    --coral-site: #ef6442;
+    --pink: #FFDEE6;
+    --pink-doodle: #F7A6C8;
+    --mint: #C8E6C2;
+    --lavender: #DFCFFF;
+    --sky: #BFE6EE;
+    --sunny: #f5c11f;
+    --muted: rgba(29,29,31,.6);
+    --muted-strong: rgba(29,29,31,.78);
+    --line: rgba(29,29,31,.14);
+    --line-soft: rgba(29,29,31,.08);
+    --field: rgba(29,29,31,.28);
+  }
+
+  body {
+    background:
+      radial-gradient(1200px 600px at 110% -10%, rgba(213,252,75,.28), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(255,222,230,.55), transparent 60%),
+      var(--stone);
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4 { color: var(--ink); }
+  a { color: var(--forest); font-weight: 600; }
+  .muted { color: var(--muted); }
+  :focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
+
+  /* ── Background doodles ── */
+  .doodles { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .doodle { position: absolute; aspect-ratio: 1; animation: drift 9s ease-in-out infinite alternate; }
+  .doodle.d2 { aspect-ratio: 5 / 3; }
+  .doodle svg { width: 100%; height: 100%; display: block; }
+  .d1 { width: 54px; top: 16%; left: 2%;  --r: -8deg; }
+  .d2 { width: 66px; top: 70%; left: 1%;  --r: 10deg; animation-delay: -3s; }
+  .d3 { width: 42px; top: 22%; right: 2%; --r: 12deg; animation-delay: -5s; }
+  .d4 { width: 60px; bottom: 8%; right: 2%; --r: -6deg; animation-delay: -2s; }
+  .d5 { width: 32px; top: 50%; right: 4%; --r: 20deg; animation-delay: -6s; }
+  @media (max-width: 1179px) { .doodles { display: none; } }
+  @keyframes drift {
+    from { transform: translateY(0) rotate(var(--r)); }
+    to   { transform: translateY(-14px) rotate(calc(var(--r) * -1)); }
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1080px; padding: 0 20px 32px; }
+  .view { display: none; }
+  .view.on { display: block; }
+
+  /* ── Buttons (site style: ink outline pills) ── */
+  .btn { border: 1.5px solid var(--ink); font-family: var(--font-body); transition: background .15s, color .15s, transform .15s, box-shadow .15s; }
+  .btn-lime { background: var(--banana-bright); color: var(--ink); }
+  .btn-ink  { background: var(--ink); color: var(--white); }
+  .btn-line { background: var(--white); color: var(--ink); }
+  .btn-lime:hover, .btn-ink:hover, .btn-line:hover {
+    background: var(--coral-site); border-color: var(--coral-site); color: var(--white);
+  }
+  .btn-pop { box-shadow: 4px 4px 0 var(--ink); }
+  .btn-pop:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 var(--ink); }
+  .btn-pop:active { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--ink); }
+  .btn-lg { padding: 14px 26px; font-size: 15.5px; }
+
+  /* ── Top bar ── */
+  .topnav {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(245,239,230,.86); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1.5px dashed rgba(29,29,31,.18);
+  }
+  body:not([data-view]) .topnav, body[data-view=""] .topnav { display: none; }
+  .topnav .in {
+    max-width: 1080px; margin: 0 auto; padding: max(10px, env(safe-area-inset-top)) 20px 10px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .topnav .home { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); cursor: pointer; background: none; border: 0; padding: 0; font: inherit; }
+  .topnav .home img { height: 32px; width: auto; }
+  .topnav .home span { font-family: var(--font-display); font-weight: 700; font-size: 1.02rem; line-height: 1.1; text-align: left; }
+  .topnav .home small { display: block; font-family: var(--font-body); font-weight: 500; font-size: .72rem; color: var(--muted); }
+  .topnav .acts { display: flex; gap: 8px; }
+  body[data-view="formview"] .nav-propose { display: none; }
+  .nav-propose .short { display: none; }
+  @media (max-width: 560px) {
+    .topnav .home small { display: none; }
+    .nav-propose .long { display: none; }
+    .nav-propose .short { display: inline; }
+  }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ── Headline + swash (as on the survey page) ── */
+  .swash { position: relative; white-space: nowrap; z-index: 0; }
+  .swash svg { position: absolute; left: -4%; bottom: -0.06em; width: 108%; height: .5em; z-index: -1; }
+  .eyebrow {
+    display: inline-flex; gap: 7px; align-items: center;
+    background: var(--ink); color: var(--white); border-radius: var(--radius-pill);
+    padding: 5px 13px; font-size: .74rem; font-weight: 600; letter-spacing: .01em;
+  }
+  .eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: var(--banana-bright); display: inline-block; }
+  .tags { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
+  .tags span {
+    font-size: .8rem; font-weight: 600; padding: 5px 12px; border-radius: var(--radius-pill);
+    border: 1.3px solid var(--ink); background: var(--white);
+  }
+  .tags span:nth-child(1) { background: var(--pink); transform: rotate(-2deg); }
+  .tags span:nth-child(2) { background: var(--banana-pastel); transform: rotate(1.5deg); }
+  .tags span:nth-child(3) { background: var(--coral-site); color: var(--ink); transform: rotate(-1deg); }
+
+  /* ── Hub hero ── */
+  .hub-hero { position: relative; text-align: center; padding: 44px 0 38px; }
+  .hub-hero .copy { max-width: 620px; margin: 0 auto; position: relative; z-index: 1; }
+  .hub-hero h1 { font-size: clamp(2.3rem, 7vw, 3.7rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.02; margin-top: 14px; }
+  .hub-hero .sub { font-size: 1.04rem; color: var(--muted-strong); margin: 14px auto 0; max-width: 520px; line-height: 1.55; }
+  .hub-hero .tags { margin-top: 16px; }
+  .hub-hero .cta { margin-top: 24px; }
+  .hub-hero .photo { display: none; }
+  @media (min-width: 1040px) {
+    .hub-hero .photo {
+      display: block; position: absolute; top: 34px; width: 200px;
+      filter: drop-shadow(0 16px 26px rgba(29,29,31,.16));
+    }
+    .hub-hero .photo img { width: 100%; height: auto; display: block; }
+    .hub-hero .photo.left  { left: 0;  transform: rotate(-5deg); }
+    .hub-hero .photo.right { right: 0; transform: rotate(4deg); top: 60px; }
+  }
+
+  /* ── Section headings ── */
+  .sechead { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 30px 0 16px; }
+  .sechead h2 { font-size: clamp(1.45rem, 3.6vw, 1.9rem); font-weight: 800; letter-spacing: -0.025em; display: flex; align-items: center; gap: 10px; }
+  .sechead h2 svg { width: 30px; height: 30px; flex-shrink: 0; }
+  .sechead p { font-size: .92rem; color: var(--muted-strong); max-width: 560px; margin-top: 4px; }
+
+  /* ── Sticker panel (the site's card) ── */
+  .panel {
+    background: var(--white); border: 1.5px solid var(--ink); border-radius: 26px;
+    padding: 22px 22px; position: relative;
+  }
+  .panel.pop { box-shadow: 6px 6px 0 var(--ink); }
+  .panel.lime { box-shadow: 6px 6px 0 var(--banana-bright); }
+  .panel h2 { font-size: 1.22rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .panel h2 .ic { width: 26px; height: 26px; }
+  .sticker { position: absolute; pointer-events: none; }
+
+  /* ── Passcode gate ── */
+  #gate { position: relative; z-index: 1; max-width: 430px; margin: max(8vh, 40px) auto 40px; padding: 0 18px; text-align: center; }
+  #gate .panel { padding: 30px 26px 24px; }
+  #gate .logo { height: 46px; width: auto; }
+  #gate h1 { font-size: clamp(2rem, 8vw, 2.5rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; margin-top: 12px; }
+  #gate .lede { font-size: .95rem; color: var(--muted-strong); margin: 10px 0 18px; line-height: 1.55; }
+  #gate .tags { margin: 0 0 20px; }
+  #gate input { text-align: center; margin-bottom: 12px; }
+  #gate .btn { width: 100%; justify-content: center; }
+  #gateError { color: #B3361A; font-size: .86rem; min-height: 1.2em; margin-top: 10px; font-weight: 600; }
+  .gate-note { font-size: .82rem; color: var(--muted); margin-top: 6px; }
+  #gate .s1 { width: 58px; top: -26px; right: -18px; transform: rotate(14deg); }
+  #gate .s2 { width: 50px; bottom: -22px; left: -20px; transform: rotate(-10deg); }
+  #gate form { display: flex; flex-direction: column; gap: 10px; }
+  #gate form input { margin-bottom: 0; }
+  #gate .tags { margin: 18px 0 0; }
+  #gate .m { display: none; }
+  #gate[data-mode="loading"] .m-loading, #gate[data-mode="signin"] .m-signin, #gate[data-mode="signup"] .m-signup,
+  #gate[data-mode="forgot"] .m-forgot, #gate[data-mode="reset"] .m-reset, #gate[data-mode="invite"] .m-invite,
+  #gate[data-mode="sent"] .m-sent, #gate[data-mode="off"] .m-off { display: block; }
+  #gate[data-mode="signin"] .tags.m-signin, #gate[data-mode="signup"] .tags.m-signup { display: flex; }
+  .gbtn { gap: 10px; }
+  .gbtn svg { width: 20px; height: 20px; }
+  .or { display: flex; align-items: center; gap: 10px; margin: 16px 0 12px; font-size: .78rem; color: var(--muted); font-weight: 600; }
+  .or::before, .or::after { content: ''; flex: 1; border-top: 1.5px dashed var(--line); }
+  .gate-links { font-size: .84rem; color: var(--muted-strong); margin-top: 14px; line-height: 1.6; }
+  #gateError:empty { display: none; }
+  #gateError.ok { color: var(--forest); }
+
+  /* ── Signed-in chip in the top bar ── */
+  .mechip { display: inline-flex; align-items: center; gap: 7px; padding: 4px 12px 4px 4px; }
+  .mechip .gav { width: 24px; height: 24px; border-radius: 50%; background: var(--banana-bright); border: 1.3px solid var(--ink); font-size: 10px; font-weight: 800; display: grid; place-items: center; }
+  body[data-view="me"] .mechip { background: var(--ink); color: var(--white); }
+  @media (max-width: 560px) { .mechip .lbl { display: none; } .mechip { padding: 4px; } }
+
+  /* ── My Circles ── */
+  .me-hero { padding: 36px 0 8px; text-align: center; }
+  .me-hero h1 { font-size: clamp(2rem, 6vw, 3rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; margin-top: 12px; }
+  .me-hero p { color: var(--muted-strong); margin-top: 10px; }
+  .statgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 28px; }
+  @media (max-width: 480px) { .statgrid { grid-template-columns: 1fr; gap: 14px; } }
+  @media (max-width: 700px) { .stat { padding: 14px 14px; } .stat .num { font-size: 2.5rem; } }
+  .stat { border: 1.5px solid var(--ink); border-radius: 24px; padding: 18px 20px; box-shadow: 5px 5px 0 var(--ink); }
+  .stat:nth-child(1) { background: var(--pink); transform: rotate(-1deg); }
+  .stat:nth-child(2) { background: var(--banana-pastel); transform: rotate(.8deg); }
+  .stat:nth-child(3) { background: var(--sky); transform: rotate(-.6deg); }
+  .stat .num { font-family: var(--font-display); font-size: 3.2rem; font-weight: 800; line-height: 1; letter-spacing: -0.04em; }
+  .stat .lbl { font-weight: 700; font-size: 1rem; margin-top: 6px; }
+  .stat .sub { font-size: .82rem; color: var(--muted-strong); margin-top: 2px; }
+  .mylist { display: flex; flex-direction: column; gap: 10px; }
+  .myrow {
+    display: flex; align-items: center; gap: 14px; background: var(--white); border: 1.5px solid var(--ink);
+    border-radius: 18px; padding: 10px 14px 10px 10px; text-align: left; font: inherit; color: inherit; width: 100%;
+  }
+  .myrow.open { transition: transform .15s, box-shadow .15s; position: relative; }
+  .myrow.open:hover { transform: translate(-1px,-2px); box-shadow: 4px 4px 0 var(--ink); }
+  .rowlink { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+  /* The title button covers the whole row; the pay link sits above it. */
+  .myrow.open .rowlink::after { content: ''; position: absolute; inset: 0; border-radius: 18px; }
+  .myrow .note a { position: relative; z-index: 1; }
+  .myrow .sw { width: 52px; height: 52px; border-radius: 14px; border: 1.3px solid var(--ink); display: grid; place-items: center; font-size: 24px; flex-shrink: 0; position: relative; overflow: hidden; }
+  .myrow .t { flex: 1; min-width: 0; }
+  .myrow .t b { display: block; font-family: var(--font-display); font-size: 1.02rem; }
+  .myrow .t small { color: var(--muted); font-size: .8rem; }
+  .myrow .note { display: block; font-size: .8rem; color: var(--muted-strong); font-style: italic; margin-top: 2px; }
+  .status { font-size: .74rem; font-weight: 700; border: 1.3px solid var(--ink); border-radius: var(--radius-pill); padding: 3px 10px; white-space: nowrap; background: var(--white); }
+  .status.under_review { background: #FFF1C2; }
+  .status.approved, .status.going { background: var(--mint); }
+  .status.completed, .status.attended { background: var(--lavender); }
+  .status.rejected, .status.cancelled { background: var(--pink); }
+  .status.maybe, .status.waitlist { background: var(--stone); }
+  .emptyline { color: var(--muted); font-size: .9rem; padding: 6px 2px; }
+  .profile { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+  @media (max-width: 560px) { .profile { grid-template-columns: 1fr; } }
+  .profile .who { font-size: .86rem; color: var(--muted-strong); margin-top: 10px; }
+
+  /* ── RSVP state ── */
+  .youre { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--mint); border: 1.5px solid var(--ink); border-radius: 16px; padding: 10px 14px; margin: 12px 0 4px; font-weight: 600; font-size: .92rem; }
+  .youre.wait { background: #FFF1C2; }
+  .youre.maybe { background: var(--stone); }
+  .linkbtn { background: none; border: 0; padding: 0; font: inherit; font-size: .84rem; font-weight: 600; color: var(--forest); text-decoration: underline; cursor: pointer; }
+  .hostnote { background: var(--banana-pastel); border: 1.5px solid var(--ink); border-radius: 16px; padding: 10px 14px; font-weight: 600; font-size: .9rem; margin-bottom: 12px; }
+
+  /* ── Fields ── */
+  input:not([type=checkbox]):not([type=file]), textarea, select {
+    width: 100%; padding: 12px 14px; font: inherit; font-size: 15px; color: var(--ink);
+    border: 1.5px solid var(--field); border-radius: 14px; background: var(--white);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input:not([type=checkbox]):not([type=file]):focus, textarea:focus, select:focus {
+    outline: none; border-color: var(--ink); box-shadow: 3px 3px 0 var(--banana-bright);
+  }
+  ::placeholder { color: rgba(29,29,31,.42); }
+  input[type=file] { font-size: 13.5px; color: var(--muted-strong); }
+  input[type=file]::file-selector-button {
+    font: inherit; font-weight: 700; font-size: 13px; margin-right: 10px; cursor: pointer;
+    background: var(--banana-pastel); color: var(--ink); border: 1.5px solid var(--ink);
+    border-radius: var(--radius-pill); padding: 8px 16px;
+  }
+  input[type=checkbox] { accent-color: var(--forest); width: 18px; height: 18px; flex-shrink: 0; }
+  .fld { margin-bottom: 16px; }
+  .fld label { display: block; font-size: .9rem; font-weight: 700; margin-bottom: 6px; }
+  .fld label .opt, .opt { color: var(--muted); font-weight: 500; }
+  .fld textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
+  .fld .hint { font-size: .8rem; color: var(--muted); margin-top: 5px; line-height: 1.45; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+
+  /* ── Pastel chips (same rhythm as the survey quick replies) ── */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .chip {
+    color: var(--ink); border: 1.5px solid var(--ink); border-radius: var(--radius-pill);
+    padding: 7px 15px; font: inherit; font-size: .86rem; font-weight: 600; cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, background .12s, color .12s;
+  }
+  .chip:nth-child(4n+1) { background: var(--pink); }
+  .chip:nth-child(4n+2) { background: var(--banana-pastel); }
+  .chip:nth-child(4n+3) { background: var(--mint); }
+  .chip:nth-child(4n+4) { background: var(--lavender); }
+  .chip:hover { transform: translateY(-2px) rotate(-1deg); box-shadow: 3px 3px 0 var(--ink); }
+  .chip:nth-child(even):hover { transform: translateY(-2px) rotate(1deg); }
+  .chip:active { background: var(--coral-site); border-color: var(--coral-site); color: var(--white); transform: none; box-shadow: none; }
+
+  /* ── Event cards ── */
+  .events { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; }
+  .evcard {
+    background: var(--white); border: 1.5px solid var(--ink); border-radius: 24px; overflow: hidden;
+    cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; text-align: left;
+    font: inherit; color: inherit; padding: 0; width: 100%;
+    display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch;
+  }
+  .evcard:hover { transform: translate(-2px,-3px) rotate(-.4deg); box-shadow: 6px 6px 0 var(--ink); }
+  .evcard:nth-child(even):hover { transform: translate(-2px,-3px) rotate(.4deg); }
+  .evcard .cover { height: 170px; flex-shrink: 0; position: relative; border-bottom: 1.5px solid var(--ink); }
+  .evcard .cover.img { background: var(--stone); }
+  .evcard .cover img, .myrow .sw img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+  .evcard .emo {
+    position: absolute; right: 16px; bottom: -24px; width: 52px; height: 52px; border-radius: 50%;
+    background: var(--white); border: 1.5px solid var(--ink); display: grid; place-items: center;
+    font-size: 26px; transform: rotate(8deg);
+  }
+  .datechip {
+    position: absolute; left: 14px; top: 14px; background: var(--white); border: 1.5px solid var(--ink);
+    border-radius: 14px; padding: 4px 10px 5px; text-align: center; transform: rotate(-4deg); line-height: 1;
+  }
+  .datechip b { display: block; font-family: var(--font-display); font-size: 1.45rem; font-weight: 800; }
+  .datechip small { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .evcard .body { padding: 18px 18px 16px; flex: 1; display: flex; flex-direction: column; }
+  .evcard .evfoot { margin-top: auto; }
+  .evcard .evrow:last-of-type { margin-bottom: 14px; }
+  .evcard h3 { font-size: 1.18rem; font-weight: 800; letter-spacing: -0.02em; padding-right: 50px; }
+  .evcard .host { font-size: .8rem; color: var(--muted); margin: 3px 0 10px; }
+  .evrow { display: flex; gap: 8px; font-size: .87rem; align-items: baseline; margin-top: 4px; }
+  .evrow .ic { flex: 0 0 18px; }
+  .evfoot { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1.5px dashed var(--line); font-size: .82rem; color: var(--muted-strong); }
+  .evfoot .who { display: inline-flex; align-items: center; gap: 8px; }
+  .price { background: var(--banana-pastel); border: 1.3px solid var(--ink); border-radius: var(--radius-pill); padding: 3px 11px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .full { color: #B3361A; font-weight: 700; }
+
+  .avatars { display: flex; }
+  .avatars .av { width: 26px; height: 26px; border-radius: 50%; background: var(--banana-bright); color: var(--ink); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--ink); margin-left: -8px; }
+  .avatars .av:nth-child(4n+2) { background: var(--pink); }
+  .avatars .av:nth-child(4n+3) { background: var(--sky); }
+  .avatars .av:nth-child(4n+4) { background: var(--lavender); }
+  .avatars .av:first-child { margin-left: 0; }
+  .avatars .more { background: var(--white) !important; }
+
+  /* ── Empty state ── */
+  .empty { text-align: center; padding: 38px 24px 32px; max-width: 620px; margin: 0 auto; }
+  .empty .face { width: 70px; margin: 0 auto 10px; display: block; transform: rotate(-6deg); }
+  .empty h2 { justify-content: center; font-size: 1.55rem; margin-bottom: 6px; }
+  .empty p { color: var(--muted-strong); margin: 0 auto 20px; max-width: 420px; }
+
+  /* ── Past Circles (tilted polaroids) ── */
+  .past { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px 18px; padding: 4px 4px 0; }
+  @media (min-width: 600px) { .past { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 1000px) { .past { grid-template-columns: repeat(6, 1fr); } }
+  .pastcard {
+    display: block; text-decoration: none; color: var(--ink); background: var(--white);
+    border: 1.5px solid var(--ink); border-radius: 18px; padding: 8px 8px 0;
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .pastcard:nth-child(3n+1) { transform: rotate(-2deg); }
+  .pastcard:nth-child(3n+2) { transform: rotate(1.5deg); }
+  .pastcard:nth-child(3n+3) { transform: rotate(-.8deg); }
+  .pastcard:hover { transform: rotate(0) translateY(-4px); box-shadow: 5px 5px 0 var(--ink); }
+  .pastcard img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; border-radius: 11px; background: var(--stone); }
+  .pastcard .nm { padding: 9px 4px 11px; font-size: .82rem; font-weight: 700; line-height: 1.3; }
+  .igcta {
+    display: flex; align-items: center; gap: 14px; margin-top: 28px;
+    background: var(--pink); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 24px;
+    padding: 16px 18px; text-decoration: none; box-shadow: 5px 5px 0 var(--ink);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .igcta:hover { transform: translate(-1px,-1px); box-shadow: 6px 6px 0 var(--ink); }
+  .igcta .em { width: 46px; height: 46px; flex-shrink: 0; border-radius: 50%; background: var(--white); border: 1.5px solid var(--ink); display: grid; place-items: center; font-size: 22px; }
+  .igcta strong { font-family: var(--font-display); font-size: 1.05rem; display: block; }
+  .igcta small { display: block; color: var(--muted-strong); font-weight: 500; font-size: .85rem; }
+  .igcta .go { margin-left: auto; width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; background: var(--ink); color: var(--white); display: grid; place-items: center; font-size: 18px; }
+
+  /* ── Event detail (attendee view: when, where, what, price) ── */
+  .backbar { padding: 20px 0 14px; }
+  .dhero { background: var(--white); border: 1.5px solid var(--ink); border-radius: 28px; overflow: hidden; box-shadow: 6px 6px 0 var(--ink); margin-bottom: 22px; }
+  .dhero.hasimg { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+  @media (max-width: 760px) { .dhero.hasimg { grid-template-columns: 1fr; } }
+  .dhero .poster { background: var(--stone); border-right: 1.5px solid var(--ink); display: grid; place-items: center; }
+  .dhero .poster img { width: 100%; max-height: 520px; object-fit: contain; display: block; }
+  @media (max-width: 760px) { .dhero .poster { border-right: 0; border-bottom: 1.5px solid var(--ink); } .dhero .poster img { max-height: 420px; } }
+  .dhero .cover { height: 150px; position: relative; border-bottom: 1.5px solid var(--ink); }
+  .dhero .emo {
+    position: absolute; left: 24px; bottom: -32px; width: 72px; height: 72px; border-radius: 50%;
+    background: var(--white); border: 1.5px solid var(--ink); display: grid; place-items: center; font-size: 36px; transform: rotate(-8deg);
+  }
+  .dhero .info { padding: 44px 24px 24px; display: flex; flex-direction: column; justify-content: center; }
+  .dhero.hasimg .info { padding: 26px 26px; }
+  .dhero h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
+  .dhero .hostline { color: var(--muted-strong); font-size: .95rem; margin-top: 8px; }
+  .dhero .tags { justify-content: flex-start; margin-top: 14px; }
+  .dhero .quick { margin-top: 18px; display: grid; gap: 8px; font-size: .95rem; }
+  .dhero .quick div { display: flex; gap: 10px; align-items: baseline; }
+  .detail-grid { display: grid; grid-template-columns: 1.45fr 1fr; gap: 20px; align-items: start; }
+  .detail-grid > .stack { gap: 20px; }
+  @media (min-width: 821px) { .detail-grid > .stack:last-child { position: sticky; top: 76px; } }
+  @media (max-width: 820px) { .detail-grid { grid-template-columns: 1fr; } }
+  .bigdate { display: flex; gap: 14px; align-items: center; background: var(--banana-pastel); border: 1.5px solid var(--ink); border-radius: 18px; padding: 12px 16px; margin-bottom: 12px; }
+  .bigdate .cal { background: var(--white); border: 1.5px solid var(--ink); border-radius: 12px; text-align: center; padding: 4px 10px 6px; transform: rotate(-3deg); flex-shrink: 0; }
+  .bigdate .d { font-family: var(--font-display); font-weight: 800; font-size: 1.9rem; line-height: 1; }
+  .bigdate .m { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--coral-site); }
+  .infoline { display: flex; gap: 10px; padding: 8px 0; font-size: .93rem; align-items: baseline; border-top: 1.5px dashed var(--line-soft); }
+  .infoline .ic { flex: 0 0 22px; text-align: center; }
+  .about { font-size: .98rem; line-height: 1.65; white-space: pre-wrap; }
+  .about + h2 { margin-top: 20px; }
+  .bring { display: flex; flex-wrap: wrap; gap: 8px; }
+  .bring span { background: var(--banana-pastel); border: 1.3px solid var(--ink); border-radius: var(--radius-pill); padding: 5px 13px; font-size: .88rem; font-weight: 600; }
+  .pill { display: inline-block; background: var(--lavender); border: 1.3px solid var(--ink); border-radius: var(--radius-pill); padding: 4px 13px; font-size: .82rem; font-weight: 700; }
+  .meter { height: 14px; border-radius: 999px; background: var(--stone); border: 1.5px solid var(--ink); overflow: hidden; margin: 10px 0 6px; }
+  .meter > div { height: 100%; background: linear-gradient(90deg, var(--leaf), var(--banana-bright)); border-right: 1.5px solid var(--ink); }
+  .meter > div[style="width:0%"] { border-right: 0; }
+  .seats { font-size: .86rem; color: var(--muted-strong); }
+  .price-big { font-family: var(--font-display); font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; }
+  .price-big small { font-family: var(--font-body); font-size: .85rem; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+  .rsvp-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .rsvp-btns .btn { flex: 1; justify-content: center; }
+  .paynote { font-size: .8rem; color: var(--muted-strong); margin-top: 10px; line-height: 1.5; }
+  #rsvpMsg { font-size: .86rem; min-height: 1.2em; margin-top: 10px; font-weight: 600; }
+  .glabel { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 12px; }
+  .glabel:first-of-type { margin-top: 0; }
+  .guests { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .guest { display: inline-flex; align-items: center; gap: 6px; background: var(--white); border: 1.3px solid var(--ink); border-radius: var(--radius-pill); padding: 3px 12px 3px 3px; font-size: .84rem; font-weight: 600; }
+  .guest .gav { width: 24px; height: 24px; border-radius: 50%; background: var(--banana-bright); border: 1.3px solid var(--ink); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .guest:nth-child(4n+2) .gav { background: var(--pink); }
+  .guest:nth-child(4n+3) .gav { background: var(--sky); }
+  .guest:nth-child(4n+4) .gav { background: var(--lavender); }
+  .guest .wl { color: #B3361A; font-size: .74rem; }
+  .cmt { padding: 12px 0; border-top: 1.5px dashed var(--line); font-size: .92rem; }
+  .cmt:first-child { border-top: 0; padding-top: 0; }
+  .cmt .who { font-weight: 700; }
+  .cmt .when { color: var(--muted); font-size: .78rem; margin-left: 6px; }
+  .cmtform { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 14px; }
+  @media (max-width: 640px) { .cmtform { grid-template-columns: 1fr; } }
+
+  /* ── Proposal form: one step at a time ── */
+  .wiz { max-width: 760px; margin: 0 auto; padding-top: 22px; }
+  .wiz-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: .86rem; font-weight: 600; color: var(--muted-strong); }
+  .saved { font-size: .8rem; color: var(--forest); font-weight: 600; }
+  .wiz-bar { height: 12px; border-radius: 999px; background: var(--white); border: 1.5px solid var(--ink); overflow: hidden; margin: 8px 0 18px; }
+  .wiz-bar > div { height: 100%; background: linear-gradient(90deg, var(--leaf), var(--banana-bright)); transition: width .3s ease; }
+  .wiz-head { margin: 8px 0 18px; }
+  .wiz-head h1 { font-size: clamp(1.8rem, 5.5vw, 2.5rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08; outline: none; }
+  .wiz-head p { color: var(--muted-strong); margin-top: 8px; font-size: 1rem; line-height: 1.55; max-width: 600px; }
+  .wiz-nav {
+    position: sticky; bottom: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    margin: 20px -20px 0; padding: 12px 20px max(12px, env(safe-area-inset-bottom));
+    background: rgba(245,239,230,.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border-top: 1.5px dashed rgba(29,29,31,.2);
+  }
+  .wiz-nav .btn:disabled { visibility: hidden; }
+  @media (max-width: 560px) { .wiz-nav { margin: 20px -14px 0; padding-left: 14px; padding-right: 14px; } .wiz-nav .linkbtn { font-size: .78rem; } }
+
+  .q { background: var(--white); border: 1.5px solid var(--ink); border-radius: 22px; padding: 20px 20px 18px; margin-bottom: 16px; }
+  .q.bad { border-color: #B3361A; box-shadow: 4px 4px 0 #F7A6A6; }
+  .qlabel { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-family: var(--font-display); font-size: 1.14rem; font-weight: 700; line-height: 1.3; margin-bottom: 4px; }
+  .need, .optl { font-family: var(--font-body); font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border-radius: var(--radius-pill); padding: 2px 8px; border: 1.2px solid var(--ink); }
+  .need { background: var(--banana-bright); }
+  .optl { background: var(--white); color: var(--muted-strong); border-color: var(--field); }
+  .qhelp { font-size: .92rem; color: var(--muted-strong); margin-bottom: 12px; line-height: 1.5; }
+  .q textarea { min-height: 110px; resize: vertical; line-height: 1.55; }
+  .q .chips { margin-bottom: 10px; }
+  .chip[aria-pressed="true"] { background: var(--ink) !important; color: var(--white); box-shadow: 3px 3px 0 var(--banana-bright); }
+  .qex { margin-top: 12px; background: var(--stone); border: 1.5px dashed rgba(29,29,31,.25); border-radius: 14px; padding: 10px 14px; font-size: .9rem; line-height: 1.5; color: var(--muted-strong); }
+  .qex .exlbl { display: block; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+  .qex ol { margin: 2px 0 0 1.2em; }
+  .qtools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+  .aibtn { background: var(--lavender); color: var(--ink); border: 1.5px solid var(--ink); border-radius: var(--radius-pill); padding: 7px 14px; font: inherit; font-size: .86rem; font-weight: 700; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+  .aibtn:hover { transform: translateY(-1px); box-shadow: 3px 3px 0 var(--ink); }
+  .aibtn:disabled { opacity: .6; cursor: progress; transform: none; box-shadow: none; }
+  .usebtn { background: var(--white); color: var(--ink); border: 1.5px solid var(--ink); border-radius: var(--radius-pill); padding: 7px 14px; font: inherit; font-size: .86rem; font-weight: 600; cursor: pointer; }
+  .usebtn:hover { background: var(--banana-pastel); }
+  .qnote { font-size: .84rem; color: var(--forest); font-weight: 600; margin-top: 8px; }
+  .qerr { font-size: .9rem; color: #B3361A; font-weight: 600; margin-top: 8px; }
+  .qerr:empty, .qnote:empty { display: none; }
+
+  .lines { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .lines li { display: grid; grid-template-columns: auto 1fr 34px; gap: 8px; align-items: center; }
+  .lines .ln { font-size: .8rem; font-weight: 700; color: var(--muted-strong); min-width: 64px; }
+  @media (max-width: 480px) { .lines li { grid-template-columns: 1fr 34px; } .lines .ln { grid-column: 1 / -1; min-width: 0; } }
+  .xbtn { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--field); background: var(--white); font-size: 16px; cursor: pointer; color: var(--muted-strong); }
+  .xbtn:hover { border-color: var(--coral-site); background: var(--coral-site); color: var(--white); }
+  .addbtn { margin-top: 10px; }
+
+  .choice { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  @media (max-width: 480px) { .choice { grid-template-columns: 1fr; } }
+  .choice button { font: inherit; font-weight: 600; font-size: .92rem; padding: 12px 10px; border-radius: 16px; border: 1.5px solid var(--field); background: var(--white); cursor: pointer; }
+  .choice button[aria-pressed="true"] { border-color: var(--ink); background: var(--banana-pastel); box-shadow: 3px 3px 0 var(--ink); }
+  .choice button small { display: block; font-weight: 500; font-size: .76rem; color: var(--muted); margin-top: 2px; }
+
+  .range { display: flex; align-items: end; gap: 10px; }
+  .range label { flex: 1; font-size: .82rem; font-weight: 600; color: var(--muted-strong); }
+  .range label input { margin-top: 4px; }
+  .range .to { padding-bottom: 12px; font-weight: 700; color: var(--muted); }
+  .numin { position: relative; max-width: 260px; }
+  .numin span { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-weight: 600; color: var(--muted); font-size: .92rem; }
+  .numin span + input { padding-left: 44px !important; }
+
+  .drop { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; border: 2px dashed rgba(29,29,31,.3); border-radius: 18px; padding: 22px 16px; cursor: pointer; background: var(--stone); transition: border-color .15s, background .15s; }
+  .drop:hover, .drop:focus-within { border-color: var(--ink); background: var(--banana-pastel); }
+  .drop .drop-ic { font-size: 30px; }
+  .drop small { color: var(--muted); font-size: .8rem; }
+  .coverprev { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; }
+  .coverprev img { max-width: 220px; max-height: 260px; border-radius: 16px; border: 1.5px solid var(--ink); display: block; }
+  .covers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 560px) { .covers { grid-template-columns: repeat(2, 1fr); } }
+  .coverpick { border: 1.5px solid var(--field); border-radius: 18px; padding: 8px 8px 9px; text-align: center; cursor: pointer; background: var(--white); position: relative; transition: transform .15s, box-shadow .15s, border-color .15s; font: inherit; color: inherit; }
+  .coverpick:hover { border-color: var(--ink); transform: translateY(-2px); }
+  .coverpick.sel { border-color: var(--ink); box-shadow: 4px 4px 0 var(--ink); transform: rotate(-1.5deg); }
+  .coverpick.sel::after {
+    content: '✓'; position: absolute; top: -9px; right: -9px; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--banana-bright); border: 1.5px solid var(--ink); font-size: 13px; font-weight: 800; display: grid; place-items: center;
+  }
+  .coverpick .sw { height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 7px; border: 1.3px solid rgba(29,29,31,.2); }
+  .coverpick .nm { font-size: .76rem; font-weight: 700; }
+
+  .costhead, .costrow { display: grid; grid-template-columns: 1fr 150px 116px 36px; gap: 8px; align-items: center; }
+  .costhead { font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 6px; }
+  .costrow { margin-bottom: 8px; }
+  .costrow input, .costrow select { padding: 10px 12px !important; font-size: 14px !important; }
+  .costrow .rm { position: relative; }
+  .costrow .rm span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 600; color: var(--muted); }
+  .costrow .rm input { padding-left: 38px !important; }
+  @media (max-width: 640px) { .costhead { display: none; } .costrow { grid-template-columns: 1fr 1fr 34px; margin-bottom: 14px; } .costrow .citem { grid-column: 1 / -1; } }
+
+  .finpanel { background: var(--ink); color: var(--white); border-radius: 22px; padding: 18px 20px; margin: 0 0 16px; }
+  .finpanel .split-badge { display: inline-block; background: var(--banana-bright); color: var(--ink); font-size: .74rem; font-weight: 700; border-radius: var(--radius-pill); padding: 4px 12px; margin-bottom: 12px; transform: rotate(-1.5deg); }
+  .finrow { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; font-size: .9rem; }
+  .finrow.total { border-top: 1.5px dashed rgba(255,255,255,.3); margin-top: 6px; padding-top: 10px; font-weight: 700; font-size: 1rem; }
+  .finrow .neg { color: var(--coral-site); }
+  .finrow .pos { color: var(--banana-bright); }
+  .fineq { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .fineq > div { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); border-radius: 14px; padding: 10px 12px; }
+  .fineq .lbl { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; opacity: .75; }
+  .fineq .val { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 500; margin-top: 2px; }
+  .splitnote { font-size: .8rem; line-height: 1.5; color: rgba(255,255,255,.78); margin-top: 12px; }
+
+  .ack { display: flex; gap: 12px; align-items: flex-start; background: var(--banana-pastel); border: 1.5px solid var(--ink); border-radius: 18px; padding: 14px 16px; font-size: .95rem; line-height: 1.5; cursor: pointer; }
+  .ack input { margin-top: 3px; }
+
+  .expect { list-style: none; display: flex; flex-direction: column; gap: 12px; margin: 4px 0 6px; }
+  .expect li { display: flex; gap: 12px; align-items: flex-start; font-size: 1rem; line-height: 1.5; }
+  .expect .ei { width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%; border: 1.5px solid var(--ink); display: grid; place-items: center; font-size: 16px; background: var(--banana-pastel); }
+  .expect li:nth-child(2n) .ei { background: var(--pink); }
+  .expect li:nth-child(3n) .ei { background: var(--sky); }
+  .resume { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+  .rev { background: var(--white); border: 1.5px solid var(--ink); border-radius: 22px; padding: 16px 20px; margin-bottom: 14px; }
+  .rev-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .rev-head h2 { font-size: 1.1rem; font-weight: 800; }
+  .rev dl { display: grid; grid-template-columns: minmax(120px, 34%) 1fr; gap: 6px 14px; font-size: .9rem; }
+  .rev dt { color: var(--muted); }
+  .rev dd { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .rev dd.miss { color: #B3361A; font-weight: 600; }
+  @media (max-width: 560px) { .rev dl { grid-template-columns: 1fr; } .rev dt { margin-top: 6px; } }
+  #formError { color: #B3361A; font-size: .95rem; font-weight: 600; margin: 12px 0; }
+  #formError:empty { display: none; }
+
+  /* Attachment previews */
+  .filepre { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+  .filepre .it { position: relative; width: 88px; }
+  .filepre img, .filepre .pdf { width: 88px; height: 88px; border-radius: 14px; border: 1.5px solid var(--ink); display: block; object-fit: cover; }
+  .filepre .pdf { background: var(--lavender); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; gap: 4px; overflow: hidden; padding: 6px; text-align: center; }
+  .filepre .rm { position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--white); color: var(--ink); font-size: 13px; font-weight: 700; cursor: pointer; line-height: 1; }
+  .filepre .rm:hover { background: var(--coral-site); border-color: var(--coral-site); color: var(--white); }
+  .filepre .cap { font-size: .7rem; color: var(--muted); margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ── Done ── */
+  #done .done-card {
+    position: relative; max-width: 520px; margin: 12vh auto 40px; text-align: center;
+    background: var(--banana-bright); border: 1.5px solid var(--ink); border-radius: 28px;
+    padding: 32px 24px 26px; box-shadow: 6px 6px 0 var(--ink);
+  }
+  #done h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; }
+  #done p { font-size: .96rem; margin: 10px 0 20px; line-height: 1.55; color: rgba(29,29,31,.82); }
+  #done .s1 { width: 48px; top: -22px; left: -14px; transform: rotate(-12deg); }
+  #done .s2 { width: 40px; bottom: -16px; right: -12px; transform: rotate(16deg); }
+
+  /* ── Footer ── */
+  .foot { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 22px 20px 30px; border-top: 1.5px dashed rgba(29,29,31,.18); font-size: .8rem; color: var(--muted); }
+  .foot .brand { color: var(--ink); }
+  .foot a { color: var(--ink); }
+  body:not([data-view]) .foot, body[data-view=""] .foot { display: none; }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 0 14px 24px; }
+    .panel, .step { padding-left: 16px; padding-right: 16px; }
+    .hub-hero { padding-top: 30px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Doodle library, shared with the survey page's stickers -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="d-sparkle" viewBox="0 0 100 100">
+      <path d="M50 4 L56 34 L78 12 L66 40 L96 36 L70 52 L94 70 L64 64 L72 94 L52 70 L40 96 L38 66 L10 80 L30 56 L4 44 L34 40 L20 12 L44 32 Z"
+            fill="#F7A6C8" stroke="#1d1d1f" stroke-width="2.5" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="d-smiley" viewBox="0 0 100 100">
+      <path d="M50 8 C74 8 92 25 92 48 C92 71 74 86 50 86 C44 86 38 85 33 83 L16 93 L21 76 C12 69 8 59 8 48 C8 25 26 8 50 8 Z"
+            fill="#BFE6EE" stroke="#1d1d1f" stroke-width="4" stroke-linejoin="round"/>
+      <ellipse cx="38" cy="40" rx="4.5" ry="7" fill="#1d1d1f"/>
+      <ellipse cx="62" cy="40" rx="4.5" ry="7" fill="#1d1d1f"/>
+      <path d="M31 55 Q50 74 69 55" fill="none" stroke="#1d1d1f" stroke-width="5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="d-squiggle" viewBox="0 0 100 60">
+      <path d="M8 44 C18 8 34 8 34 30 C34 50 52 52 56 30 C60 8 80 6 92 22"
+            fill="none" stroke="#8ed462" stroke-width="11" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="d-star" viewBox="0 0 100 100">
+      <path d="M50 4 C54 38 62 46 96 50 C62 54 54 62 50 96 C46 62 38 54 4 50 C38 46 46 38 50 4 Z"
+            fill="#8ed462" stroke="#1d1d1f" stroke-width="3" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="d-gold" viewBox="0 0 100 100">
+      <path d="M50 4 C54 38 62 46 96 50 C62 54 54 62 50 96 C46 62 38 54 4 50 C38 46 46 38 50 4 Z" fill="#f5c11f" stroke="#1d1d1f" stroke-width="3" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="d-cross" viewBox="0 0 100 100">
+      <path d="M18 18 L82 82 M82 18 L18 82" stroke="#ef6442" stroke-width="16" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="d-swash" viewBox="0 0 200 24">
+      <path d="M4 16 C50 6 120 4 196 12 L194 22 C120 14 60 16 6 24 Z" fill="#D5FC4C"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="doodles" aria-hidden="true">
+  <div class="doodle d1"><svg><use href="#d-sparkle"/></svg></div>
+  <div class="doodle d2"><svg viewBox="0 0 100 60"><use href="#d-squiggle"/></svg></div>
+  <div class="doodle d3"><svg><use href="#d-star"/></svg></div>
+  <div class="doodle d4"><svg><use href="#d-smiley"/></svg></div>
+  <div class="doodle d5"><svg><use href="#d-cross"/></svg></div>
+</div>
+
+<!-- Top bar (shown once you're inside) -->
+<nav class="topnav">
+  <div class="in">
+    <button class="home" onclick="showHub()" aria-label="All Circles">
+      <img src="/img/wip-logo.png" alt="myWIPhealing">
+      <span>WIP Harmoni Circle<small>memberSHIPS hub</small></span>
+    </button>
+    <div class="acts">
+      <button class="btn btn-lime btn-sm nav-propose" onclick="showForm()">＋ <span class="long">Propose a Circle</span><span class="short">Propose</span></button>
+      <button class="btn btn-line btn-sm mechip" onclick="showMe()" aria-label="My Circles"><span class="gav" id="navInitials">·</span><span class="lbl">My Circles</span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- Sign-in gate. data-mode picks which block shows:
+     signin | signup | forgot | reset | invite | sent | off | loading -->
+<div id="gate" data-mode="loading">
+  <div class="panel pop">
+    <svg class="sticker s1" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-sparkle"/></svg>
+    <svg class="sticker s2" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-star"/></svg>
+    <img class="logo" src="/img/wip-logo.png" alt="myWIPhealing">
+    <h1>Harmoni <span class="swash">Circle<svg viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden="true"><use href="#d-swash"/></svg></span></h1>
+
+    <div class="m m-loading"><p class="lede">One moment…</p></div>
+
+    <!-- Sign in / create account share one form -->
+    <div class="m m-signin m-signup">
+      <p class="lede m m-signin">Welcome back, memberSHIPS. Sign in to see what's coming up.</p>
+      <p class="lede m m-signup">Create your member account. You'll need the invite code from the WIP team.</p>
+      <button type="button" class="btn btn-line btn-lg gbtn" onclick="googleSignIn()">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+        Continue with Google
+      </button>
+      <div class="or"><span>or with email</span></div>
+      <form id="authForm" onsubmit="event.preventDefault(); emailAuth()">
+        <div class="m m-signup"><label for="a_name" class="sr">Your name</label><input id="a_name" maxlength="80" placeholder="Your name" autocomplete="name"></div>
+        <label for="a_email" class="sr">Email</label>
+        <input id="a_email" type="email" placeholder="Email" autocomplete="email" required>
+        <label for="a_pw" class="sr">Password</label>
+        <input id="a_pw" type="password" placeholder="Password" minlength="8" required>
+        <button class="btn btn-ink btn-lg btn-pop" id="authBtn">Sign in →</button>
+      </form>
+      <div class="gate-links">
+        <span class="m m-signin">New here? <a href="#" onclick="setMode('signup');return false">Create an account</a> · <a href="#" onclick="setMode('forgot');return false">Forgot password?</a></span>
+        <span class="m m-signup">Already a member? <a href="#" onclick="setMode('signin');return false">Sign in</a></span>
+      </div>
+    </div>
+
+    <div class="m m-forgot">
+      <p class="lede">We'll email you a link to set a new password.</p>
+      <form onsubmit="event.preventDefault(); sendReset()">
+        <label for="f_resetEmail" class="sr">Email</label>
+        <input id="f_resetEmail" type="email" placeholder="Email" autocomplete="email" required>
+        <button class="btn btn-ink btn-lg btn-pop">Send reset link</button>
+      </form>
+      <div class="gate-links"><a href="#" onclick="setMode('signin');return false">← Back to sign in</a></div>
+    </div>
+
+    <div class="m m-reset">
+      <p class="lede">Choose a new password for your account.</p>
+      <form onsubmit="event.preventDefault(); saveNewPassword()">
+        <label for="a_newpw" class="sr">New password</label>
+        <input id="a_newpw" type="password" placeholder="New password (8+ characters)" minlength="8" autocomplete="new-password" required>
+        <button class="btn btn-ink btn-lg btn-pop">Save password</button>
+      </form>
+    </div>
+
+    <div class="m m-invite">
+      <p class="lede">One more step. Enter the memberSHIPS invite code the WIP team shared with you.</p>
+      <form onsubmit="event.preventDefault(); joinWithInvite()">
+        <label for="i_name" class="sr">Your name</label>
+        <input id="i_name" maxlength="80" placeholder="Your name (shown to other members)" autocomplete="name" required>
+        <label for="i_code" class="sr">Invite code</label>
+        <input id="i_code" placeholder="Invite code" autocomplete="off" required>
+        <button class="btn btn-lime btn-lg btn-pop">Join the Circle 🌱</button>
+      </form>
+      <div class="gate-links">Signed in as <strong id="inviteEmail"></strong> · <a href="#" onclick="signOut();return false">Use another account</a></div>
+    </div>
+
+    <div class="m m-sent"><p class="lede" id="sentMsg"></p>
+      <div class="gate-links"><a href="#" onclick="setMode('signin');return false">← Back to sign in</a></div>
+    </div>
+
+    <div class="m m-off"><p class="lede" id="offMsg">Member login isn't set up yet.</p></div>
+
+    <div id="gateError" role="alert"></div>
+    <div class="tags m m-signin m-signup"><span>Peer-led</span><span>Monthly</span><span>No art skills needed</span></div>
+  </div>
+</div>
+
+<!-- Member hub -->
+<div id="hub" class="view wrap">
+  <section class="hub-hero">
+    <div class="photo left" aria-hidden="true"><img src="/img/photo-4.webp" alt=""></div>
+    <div class="photo right" aria-hidden="true"><img src="/img/photo-5.webp" alt=""></div>
+    <div class="copy">
+      <span class="eyebrow"><i></i> memberSHIPS only · peer-led</span>
+      <h1>Make, share &amp; heal in a <span class="swash">Circle<svg viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden="true"><use href="#d-swash"/></svg></span></h1>
+      <p class="sub">Monthly creative gatherings, designed and hosted by members like you. No artistic skill required, just come as you are.</p>
+      <div class="tags"><span>Art-therapy informed</span><span>Small groups</span><span>Clinically safeguarded</span></div>
+      <div class="cta"><button class="btn btn-lime btn-lg btn-pop" onclick="showForm()">＋ Propose your Circle</button></div>
+    </div>
+  </section>
+
+  <div class="sechead">
+    <div>
+      <h2><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#d-gold"/></svg> Upcoming Circles</h2>
+      <p>Tap a Circle to see the plan, who's going, and grab your seat.</p>
+    </div>
+  </div>
+  <div id="eventList"></div>
+  <div id="pastWrap"></div>
+</div>
+
+<!-- My Circles -->
+<div id="me" class="view wrap">
+  <section class="me-hero">
+    <span class="eyebrow"><i></i> Your memberSHIPS journey</span>
+    <h1>Hi, <span class="swash" id="meName">friend<svg viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden="true"><use href="#d-swash"/></svg></span></h1>
+    <p id="meSince"></p>
+  </section>
+  <div class="statgrid" id="meStats"></div>
+
+  <div class="sechead"><div>
+    <h2><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#d-gold"/></svg> Coming up</h2>
+    <p>Circles you've said yes (or maybe) to.</p>
+  </div></div>
+  <div class="mylist" id="meUpcoming"></div>
+
+  <div class="sechead"><div>
+    <h2><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#d-sparkle"/></svg> Your proposals</h2>
+    <p>Every Circle you've designed, and where it is in review.</p>
+  </div></div>
+  <div class="mylist" id="meProposals"></div>
+
+  <div class="sechead"><div>
+    <h2><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#d-star"/></svg> Circles you've been to</h2>
+  </div></div>
+  <div class="mylist" id="mePast"></div>
+
+  <div class="sechead"><div><h2>Your profile</h2></div></div>
+  <div class="panel">
+    <div class="profile">
+      <div class="fld" style="margin:0"><label for="p_name">Name shown to other members</label><input id="p_name" maxlength="80"></div>
+      <button class="btn btn-ink" onclick="saveName()">Save</button>
+    </div>
+    <div class="who" id="meWho"></div>
+    <div id="profileMsg" class="who" role="status"></div>
+    <div style="margin-top:16px"><button class="btn btn-line btn-sm" onclick="signOut()">Log out</button></div>
+  </div>
+</div>
+
+<!-- Event detail -->
+<div id="detail" class="view wrap"></div>
+
+<!-- Proposal form: one step at a time, built from STEPS in the script -->
+<div id="formview" class="view wrap">
+  <div class="wiz">
+    <div class="wiz-meta"><span id="wizCount"></span><span class="saved" id="wizSaved" role="status"></span></div>
+    <div class="wiz-bar" aria-hidden="true"><div id="wizFill"></div></div>
+    <div id="wizBody"></div>
+    <div class="wiz-nav">
+      <button type="button" class="btn btn-line" id="wizBack" onclick="wizGo(-1)">← Back</button>
+      <button type="button" class="linkbtn" id="wizLater" onclick="saveForLater()">Save &amp; finish later</button>
+      <button type="button" class="btn btn-lime btn-pop" id="wizNext" onclick="wizGo(1)">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Success -->
+<div id="done" class="view wrap">
+  <div class="done-card">
+    <svg class="sticker s1" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-sparkle"/></svg>
+    <svg class="sticker s2" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-star"/></svg>
+    <h1>Proposal submitted! 🎉</h1>
+    <p>Terima kasih! The WIP team will review your Circle (the numbers, the venue and the safeguarding plan) and publish it here once approved. You can follow its status in My Circles.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-ink btn-lg" onclick="showMe()">See it in My Circles</button>
+      <button class="btn btn-line btn-lg" onclick="showHub()">Back to Circles</button>
+    </div>
+  </div>
+</div>
+
+<footer class="foot">
+  <span class="brand"><strong>myWIPhealing</strong> · WIP Harmoni Circle · members only</span>
+  <a href="https://mywiphealing.com" target="_blank" rel="noopener">mywiphealing.com ↗</a>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+let sb = null;       // Supabase client, once /api/member/config says logins are on
+let ME = null;       // { member, activity } from /api/member/me
+let EVENTS = [];
+let CONFIG = { facilitatorShare: 60, currency: "RM", covers: [] };
+let currentEvent = null;
+let selectedCover = null;
+let ATTACHMENTS = [];
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const fmtRM = (n) => "RM " + Number(n || 0).toLocaleString("en-MY", { maximumFractionDigits: 2 });
+const initials = (name) => name.trim().split(/\s+/).slice(0, 2).map((w) => (w[0] || "").toUpperCase()).join("");
+const coverBg = (c) => `background:linear-gradient(120deg, ${esc(c.from)}, ${esc(c.to)})`;
+// Supabase sends people back here after Google sign-in and email links.
+const RETURN_TO = location.origin + location.pathname;
+
+function show(id) {
+  document.querySelectorAll(".view").forEach((v) => v.classList.remove("on"));
+  if (id) { $(id).classList.add("on"); $("gate").style.display = "none"; }
+  document.body.dataset.view = id || "";
+  window.scrollTo(0, 0);
+}
+
+// ---------- sign-in gate ----------
+
+function setMode(mode, message = "", ok = false) {
+  show(null);
+  $("gate").style.display = "block";
+  $("gate").dataset.mode = mode;
+  $("gateError").textContent = message;
+  $("gateError").className = ok ? "ok" : "";
+  $("authBtn").textContent = mode === "signup" ? "Create account →" : "Sign in →";
+  $("a_pw").autocomplete = mode === "signup" ? "new-password" : "current-password";
+}
+
+function gateError(e) {
+  $("gateError").className = "";
+  $("gateError").textContent = e.message || String(e);
+}
+
+async function googleSignIn() {
+  const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: RETURN_TO } });
+  if (error) gateError(error);
+}
+
+async function emailAuth() {
+  const email = $("a_email").value.trim();
+  const password = $("a_pw").value;
+  $("gateError").textContent = "";
+  $("authBtn").disabled = true;
+  try {
+    if ($("gate").dataset.mode === "signup") {
+      const name = $("a_name").value.trim();
+      if (name.length < 2) throw new Error("Tell us your name");
+      const { data, error } = await sb.auth.signUp({
+        email, password,
+        options: { data: { full_name: name }, emailRedirectTo: RETURN_TO },
+      });
+      if (error) throw error;
+      // Email confirmation on: no session until they click the link.
+      if (!data.session) {
+        $("sentMsg").textContent = `Check ${email} for a link to confirm your account, then come back here to sign in.`;
+        return setMode("sent");
+      }
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    }
+    await enter();
+  } catch (e) {
+    gateError(e);
+  } finally {
+    $("authBtn").disabled = false;
+  }
+}
+
+async function sendReset() {
+  const email = $("f_resetEmail").value.trim();
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: RETURN_TO });
+  if (error) return gateError(error);
+  $("sentMsg").textContent = `If ${email} has an account, a reset link is on its way.`;
+  setMode("sent");
+}
+
+async function saveNewPassword() {
+  const { error } = await sb.auth.updateUser({ password: $("a_newpw").value });
+  if (error) return gateError(error);
+  await enter();
+}
+
+async function joinWithInvite() {
+  try {
+    await api("/api/member/join", {
+      method: "POST",
+      body: JSON.stringify({ name: $("i_name").value, inviteCode: $("i_code").value }),
+    });
+    await enter();
+  } catch (e) { gateError(e); }
+}
+
+async function signOut() {
+  if (sb) await sb.auth.signOut();
+  ME = null;
+  setMode("signin");
+}
+
+// Signed in with Supabase: load the member profile, or ask for the invite
+// code if this account hasn't joined yet.
+async function enter() {
+  try {
+    ME = await api("/api/member/me");
+  } catch (e) {
+    if (e.needsInvite) {
+      const { data: { user } } = await sb.auth.getUser();
+      const meta = (user && user.user_metadata) || {};
+      $("inviteEmail").textContent = (user && user.email) || "";
+      if (!$("i_name").value) $("i_name").value = meta.full_name || meta.name || "";
+      return setMode("invite");
+    }
+    return setMode("signin", e.message);
+  }
+  $("navInitials").textContent = initials(ME.member.name) || "·";
+  await showHub();
+  // Deep links from the main site: /circle/#propose and /circle/#me
+  if (location.hash === "#propose") showForm();
+  else if (location.hash === "#me") showMe();
+}
+
+async function api(path, opts = {}) {
+  const { data: { session } } = await sb.auth.getSession();
+  const res = await fetch(path, {
+    ...opts,
+    headers: { "Content-Type": "application/json", Authorization: "Bearer " + (session ? session.access_token : ""), ...(opts.headers || {}) },
+  });
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) {
+    await sb.auth.signOut();
+    setMode("signin", "Your session ended. Please sign in again.");
+    throw new Error(data.error || "Please sign in again.");
+  }
+  if (!res.ok) {
+    const err = new Error(data.error || "Server error");
+    err.needsInvite = Boolean(data.needsInvite);
+    throw err;
+  }
+  return data;
+}
+
+async function boot() {
+  let cfg;
+  try {
+    cfg = await fetch("/api/member/config").then((r) => r.json());
+  } catch {
+    cfg = { auth: false, reason: "Couldn't reach the server. Refresh to try again." };
+  }
+  if (!cfg.auth || !window.supabase) {
+    $("offMsg").textContent = cfg.reason || "Member login couldn't load. Refresh to try again.";
+    return setMode("off");
+  }
+  sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+  // Arriving from a password-reset email: ask for the new password first.
+  sb.auth.onAuthStateChange((event) => {
+    if (event === "PASSWORD_RECOVERY") setMode("reset");
+  });
+  const { data: { session } } = await sb.auth.getSession();
+  if ($("gate").dataset.mode === "reset") return;
+  if (session) await enter(); else setMode("signin");
+}
+
+// ---------- My Circles ----------
+
+async function showMe() {
+  show("me");
+  try {
+    ME = await api("/api/member/me");
+  } catch (e) { return; }
+  renderMe();
+}
+
+const STATUS_LABEL = {
+  under_review: "In review", approved: "Live", completed: "Hosted", rejected: "Not approved", cancelled: "Cancelled",
+};
+
+function myRow(item, pill, pillClass, extra = "") {
+  const w = whenParts(item.dateTime);
+  // Only live Circles have a detail page the member can open.
+  const openable = EVENTS.some((e) => e.id === item.id);
+  const title = openable
+    ? `<button type="button" class="rowlink" onclick="openEvent('${esc(item.id)}')">${esc(item.title)}</button>`
+    : esc(item.title);
+  return `<div class="myrow ${openable ? "open" : ""}">
+    <span class="sw" style="${coverBg(item.cover)}">${item.coverImage ? `<img src="${esc(item.coverImage)}" alt="">` : esc(item.cover.emoji)}</span>
+    <span class="t"><b>${title}</b><small>${esc(w.dow)}, ${esc(w.day)} ${esc(w.mon)} · ${esc(w.time)} · ${esc(item.venueName || "")}</small>${extra}</span>
+    <span class="status ${pillClass}">${esc(pill)}</span>
+  </div>`;
+}
+
+function renderMe() {
+  const { member, activity } = ME;
+  const c = activity.counts;
+  $("meName").firstChild.textContent = member.name.split(/\s+/)[0];
+  $("meSince").textContent = `Member since ${new Date(member.joinedAt).toLocaleDateString("en-MY", { month: "long", year: "numeric" })}`;
+  $("meStats").innerHTML = `
+    <div class="stat"><div class="num">${c.joined}</div><div class="lbl">Circles joined</div><div class="sub">${c.attended} attended · ${c.upcoming} coming up</div></div>
+    <div class="stat"><div class="num">${c.proposed}</div><div class="lbl">Circles proposed</div><div class="sub">Designed and sent in for review</div></div>
+    <div class="stat"><div class="num">${c.hosted}</div><div class="lbl">Circles hosted</div><div class="sub">Went live and took place</div></div>`;
+
+  const upcoming = activity.joined.filter((j) => !j.past);
+  $("meUpcoming").innerHTML = upcoming.length
+    ? upcoming.map((j) => myRow(j,
+        j.waitlisted ? "Waitlist" : j.rsvp === "maybe" ? "Maybe" : j.paymentStatus === "pending" ? "Payment pending" : `Going${j.pax > 1 ? ` · ${j.pax}` : ""}`,
+        j.waitlisted || j.paymentStatus === "pending" ? "waitlist" : j.rsvp,
+        j.paymentUrl ? `<span class="note"><a href="${esc(j.paymentUrl)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Pay now ↗</a></span>` : "")).join("")
+    : `<div class="emptyline">Nothing yet. <a href="#" onclick="showHub();return false">Browse upcoming Circles →</a></div>`;
+
+  $("meProposals").innerHTML = activity.proposals.length
+    ? activity.proposals.map((p) => myRow(p,
+        p.status === "approved" && p.past ? "Hosted" : STATUS_LABEL[p.status] || p.status,
+        p.status === "approved" && p.past ? "completed" : p.status,
+        (p.status === "approved" || p.status === "completed" ? `<span class="note">${p.goingCount} ${p.past ? "attended" : "going"}</span>` : "") +
+        (p.adminNote ? `<span class="note">WIP team: ${esc(p.adminNote)}</span>` : ""))).join("")
+    : `<div class="emptyline">You haven't proposed a Circle yet. <a href="#" onclick="showForm();return false">Design one →</a></div>`;
+
+  const past = activity.joined.filter((j) => j.past && j.rsvp === "going" && !j.waitlisted);
+  $("mePast").innerHTML = past.length
+    ? past.slice().reverse().map((j) => myRow(j, "Attended", "attended")).join("")
+    : `<div class="emptyline">Your past Circles will show up here.</div>`;
+
+  $("p_name").value = member.name;
+  $("meWho").textContent = `Signed in as ${member.email} with ${member.provider === "google" ? "Google" : "email and password"}.`;
+  $("profileMsg").textContent = "";
+}
+
+async function saveName() {
+  try {
+    const d = await api("/api/member/me", { method: "POST", body: JSON.stringify({ name: $("p_name").value }) });
+    ME.member = d.member;
+    $("navInitials").textContent = initials(d.member.name);
+    renderMe();
+    $("profileMsg").textContent = "Saved ✓";
+  } catch (e) { $("profileMsg").textContent = "⚠ " + e.message; }
+}
+
+// ---------- hub ----------
+
+async function showHub() {
+  show("hub");
+  const d = await api("/api/harmoni/events");
+  EVENTS = d.events; CONFIG = d.config;
+  renderList();
+  renderPast();
+}
+
+// Past Circles from mywiphealing.com/wip-harmoni-circle — posters hotlinked
+// from the site's own media library, each linking out to the Instagram.
+const IG = "https://www.instagram.com/mywiphealing";
+const PAST = [
+  { name: "Bend your Plastic Brain", img: "https://mywiphealing.com/wp-content/uploads/2026/09/WIPHarmoniCircleGeloraPoster-ezgif.com-jpg-to-webp-converter.webp" },
+  { name: "Mekar Nature Art", img: "https://mywiphealing.com/wp-content/uploads/2026/08/WIPHarmoniCircleAugustPoster-2-ezgif.com-png-to-webp-converter-1.webp" },
+  { name: "Family Movie Collage Art", img: "https://mywiphealing.com/wp-content/uploads/2026/07/SaveClip.App_721168945_18089682545369098_2097785901219948425_n-ezgif.com-png-to-webp-converter.webp" },
+  { name: "Living Loom", img: "https://mywiphealing.com/wp-content/uploads/2026/07/LivingLoom-Nadia1-ezgif.com-png-to-webp-converter.webp" },
+  { name: "Movie Collage: Emotions that Speak", img: "https://mywiphealing.com/wp-content/uploads/2026/07/SaveClip.App_701692343_18087002339369098_6683120863814059306_n-ezgif.com-png-to-webp-converter.webp" },
+  { name: "The Art of Poetry", img: "https://mywiphealing.com/wp-content/uploads/2026/04/HarmoniCircleArtofPoetry-ezgif.com-png-to-webp-converter.webp" },
+];
+
+function renderPast() {
+  $("pastWrap").innerHTML = `
+    <div class="sechead">
+      <div>
+        <h2><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#d-sparkle"/></svg> Past Circles</h2>
+        <p>See how members designed theirs. Every Circle below was proposed, hosted and facilitated by the community.</p>
+      </div>
+    </div>
+    <div class="past">${PAST.map((p) =>
+      `<a class="pastcard" href="${IG}" target="_blank" rel="noopener">
+        <img src="${p.img}" alt="${esc(p.name)} poster" loading="lazy" onerror="this.closest('.pastcard').style.display='none'">
+        <div class="nm">${esc(p.name)} ↗</div>
+      </a>`).join("")}
+    </div>
+    <a class="igcta" href="${IG}" target="_blank" rel="noopener">
+      <span class="em">📸</span>
+      <span><strong>Follow @mywiphealing on Instagram</strong><small>Full highlights &amp; reels from every past Harmoni Circle</small></span>
+      <span class="go" aria-hidden="true">↗</span>
+    </a>`;
+}
+
+function whenParts(dt) {
+  const d = new Date(dt);
+  return {
+    dow: d.toLocaleDateString("en-MY", { weekday: "short" }),
+    day: d.getDate(),
+    mon: d.toLocaleDateString("en-MY", { month: "short" }),
+    time: d.toLocaleTimeString("en-MY", { hour: "numeric", minute: "2-digit" }),
+  };
+}
+
+function avatarStack(ev, n = 4) {
+  const going = ev.rsvps.filter((r) => r.status === "going" && !r.waitlisted);
+  if (!going.length) return "";
+  const shown = going.slice(0, n).map((r) => `<span class="av" title="${esc(r.name)}">${esc(initials(r.name))}</span>`).join("");
+  const extra = going.length > n ? `<span class="av more">+${going.length - n}</span>` : "";
+  return `<span class="avatars">${shown}${extra}</span>`;
+}
+
+// Cover art for a card: the host's photo when there is one, else the colour.
+function coverArt(ev, cls = "cover") {
+  return ev.coverImage
+    ? `<div class="${cls} img"><img src="${esc(ev.coverImage)}" alt="" loading="lazy">`
+    : `<div class="${cls}" style="${coverBg(ev.cover)}">`;
+}
+
+function renderList() {
+  const el = $("eventList");
+  if (!EVENTS.length) {
+    el.innerHTML = `<div class="panel lime empty">
+      <svg class="face" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-smiley"/></svg>
+      <h2>No Circles yet. Be the first!</h2>
+      <p>Propose a gathering: pick a creative medium, a venue, and design the flow your way.</p>
+      <button class="btn btn-lime btn-pop" onclick="showForm()">＋ Propose your Circle</button>
+    </div>`;
+    return;
+  }
+  el.innerHTML = `<div class="events">` + EVENTS.map((ev) => {
+    const w = whenParts(ev.dateTime);
+    const full = ev.spotsLeft <= 0;
+    return `<button type="button" class="evcard" onclick="openEvent('${esc(ev.id)}')">
+      ${coverArt(ev)}
+        <span class="datechip"><b>${esc(w.day)}</b><small>${esc(w.mon)} · ${esc(w.dow)}</small></span>
+        ${ev.coverImage ? "" : `<span class="emo">${esc(ev.cover.emoji)}</span>`}
+      </div>
+      <div class="body">
+        <h3>${esc(ev.title)}</h3>
+        <div class="host">${esc(ev.sessionType)}${ev.host ? ` · with ${esc(ev.host)}` : ""}</div>
+        <div class="evrow"><span class="ic">🕑</span><span><strong>${esc(w.dow)}, ${esc(w.day)} ${esc(w.mon)}</strong> · ${esc(w.time)}</span></div>
+        <div class="evrow"><span class="ic">📍</span><span>${esc(ev.venueName)}</span></div>
+        <div class="evfoot">
+          <span class="who">${avatarStack(ev)} <span>${ev.goingCount} going${full ? " · <span class='full'>Full</span>" : ` · ${ev.spotsLeft} left`}</span></span>
+          <span class="price">${Number(ev.ticketPrice) > 0 ? fmtRM(ev.ticketPrice) : "Free"}</span>
+        </div>
+      </div>
+    </button>`;
+  }).join("") + `</div>`;
+}
+
+// ---------- detail ----------
+
+// Just what someone needs to decide and turn up: when, where, what, price,
+// what to bring. The host's facilitation plan isn't sent to members at all.
+function openEvent(id) {
+  const ev = EVENTS.find((e) => e.id === id);
+  if (!ev) return;
+  currentEvent = ev;
+  const w = whenParts(ev.dateTime);
+  const d = new Date(ev.dateTime);
+  const end = new Date(d.getTime() + 2 * 3600 * 1000);
+  const stamp = (x) => x.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const gcal = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(ev.title) +
+    "&dates=" + stamp(d) + "/" + stamp(end) +
+    "&location=" + encodeURIComponent(ev.venueName + (ev.venueAddress ? ", " + ev.venueAddress : ""));
+  const maps = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(ev.venueName + (ev.venueAddress ? " " + ev.venueAddress : ""));
+  const pct = ev.capacity ? Math.min(100, Math.round((ev.goingCount / ev.capacity) * 100)) : 0;
+  const full = ev.spotsLeft <= 0;
+  const mine = ev.mine || {};
+  const paid = Number(ev.ticketPrice) > 0;
+  const price = paid ? fmtRM(ev.ticketPrice) : "Free";
+  const mode = { physical: "In person", online: "Online", hybrid: "In person & online" }[ev.venueMode] || "";
+
+  const going = ev.rsvps.filter((r) => r.status === "going" && !r.waitlisted);
+  const wait = ev.rsvps.filter((r) => r.waitlisted);
+  const maybe = ev.rsvps.filter((r) => r.status === "maybe");
+  const guestChip = (r) => `<span class="guest"><span class="gav">${esc(initials(r.name))}</span>${esc(r.name)}${r.pax > 1 ? ` · ${r.pax} pax` : ""}${r.waitlisted ? ' <span class="wl">waitlist</span>' : ""}</span>`;
+
+  const heroInfo = `<div class="info">
+      <h1>${esc(ev.title)}</h1>
+      <div class="hostline">${esc(ev.sessionType)}${ev.host ? ` with ${esc(ev.host)}` : ""} · ${esc(ev.duration || "")}</div>
+      <div class="tags"><span>${esc(ev.theme)}</span><span>${esc(mode)}</span><span>${price}</span></div>
+      <div class="quick">
+        <div><span>🗓️</span><span><strong>${esc(d.toLocaleDateString("en-MY", { weekday: "long", day: "numeric", month: "long" }))}</strong> · ${esc(w.time)} · <a href="${gcal}" target="_blank" rel="noopener">Add to calendar ↗</a></span></div>
+        <div><span>📍</span><span><strong>${esc(ev.venueName)}</strong>${ev.venueAddress ? ` · ${esc(ev.venueAddress)}` : ""}${ev.venueMode !== "online" ? ` · <a href="${maps}" target="_blank" rel="noopener">Directions ↗</a>` : ""}</span></div>
+        <div><span>👥</span><span>For ${esc(ev.audience || "all members")}</span></div>
+      </div>
+    </div>`;
+
+  // Seat + payment state for the signed-in member.
+  let youre = "";
+  if (mine.rsvp) {
+    const label = mine.waitlisted ? "⏳ You're on the waitlist"
+      : mine.rsvp === "maybe" ? "🤔 You said maybe"
+      : mine.paymentStatus === "pending" ? "💳 Seat held, payment pending"
+      : mine.paymentStatus === "paid" ? "🙌 You're going · paid"
+      : "🙌 You're going";
+    youre = `<div class="youre ${mine.waitlisted || mine.paymentStatus === "pending" ? "wait" : mine.rsvp}">
+        <span>${label}${mine.pax > 1 ? ` · ${mine.pax} seats` : ""}</span>
+        <button class="linkbtn" onclick="cancelRsvp()">Withdraw</button>
+      </div>
+      ${mine.paymentStatus === "pending" && !mine.waitlisted && ev.paymentUrl
+        ? `<a class="btn btn-ink btn-pop" style="width:100%;justify-content:center;margin:8px 0 4px" href="${esc(ev.paymentUrl)}" target="_blank" rel="noopener">Pay ${fmtRM(ev.ticketPrice * (mine.pax || 1))} now ↗</a>` : ""}`;
+  }
+  const payOpen = !paid || ev.paymentUrl;
+  const goLabel = mine.rsvp === "going" ? "Update seats"
+    : full ? "Join waitlist"
+    : paid ? `Reserve & pay ${price} →`
+    : "I'm going 🙌";
+
+  $("detail").innerHTML = `
+  <div class="backbar"><button class="btn btn-line btn-sm" onclick="showHub()">← All Circles</button></div>
+  <div class="dhero ${ev.coverImage ? "hasimg" : ""}">
+    ${ev.coverImage
+      ? `<div class="poster"><img src="${esc(ev.coverImage)}" alt="${esc(ev.title)} poster"></div>`
+      : `<div class="cover" style="${coverBg(ev.cover)}"><span class="emo">${esc(ev.cover.emoji)}</span></div>`}
+    ${heroInfo}
+  </div>
+  <div class="detail-grid">
+    <div class="stack">
+      <div class="panel">
+        <h2><svg class="ic" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-star"/></svg> What you'll do</h2>
+        <p class="about">${esc(ev.coreActivity)}</p>
+        ${ev.takeaway ? `<h2>You'll leave with</h2><p class="about">${esc(ev.takeaway)}</p>` : ""}
+        ${ev.whatToBring && ev.whatToBring.length ? `<h2>Bring along</h2><div class="bring">${ev.whatToBring.map((i) => `<span>${esc(i)}</span>`).join("")}</div>` : ""}
+      </div>
+      <div class="panel">
+        <h2>Good to know</h2>
+        <div class="infoline" style="border-top:0"><span class="ic">🎨</span><span>No artistic skill needed. Come as you are.</span></div>
+        ${ev.accessibility ? `<div class="infoline"><span class="ic">♿</span><span>${esc(ev.accessibility)}</span></div>` : ""}
+        <div class="infoline"><span class="ic">🛡️</span><span>A qualified mental health professional is present or on call, as at every Harmoni Circle.</span></div>
+      </div>
+      <div class="panel">
+        <h2><svg class="ic" viewBox="0 0 100 100" aria-hidden="true"><use href="#d-smiley"/></svg> Conversation</h2>
+        <div id="comments">${ev.comments.length ? ev.comments.map((c) =>
+          `<div class="cmt"><span class="who">${esc(c.name)}</span><span class="when">${esc(new Date(c.at).toLocaleDateString("en-MY", { day: "numeric", month: "short" }))}</span><br>${esc(c.text)}</div>`
+        ).join("") : '<div class="muted" style="font-size:.9rem">No comments yet. Start one!</div>'}</div>
+        <div class="cmtform">
+          <input id="c_text" maxlength="280" placeholder="Say something kind…" aria-label="Comment" onkeydown="if(event.key==='Enter')postComment()">
+          <button class="btn btn-ink" onclick="postComment()">Post</button>
+        </div>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="panel lime rsvpcard">
+        <h2>${mine.rsvp ? "You're on the list" : "Are you in?"}</h2>
+        ${mine.hosting ? `<div class="hostnote">🌱 You're hosting this Circle.</div>` : ""}
+        <div class="price-big">${price}${paid ? " <small>per person</small>" : ""}</div>
+        <div class="seats"><strong>${ev.goingCount}</strong> of ${ev.capacity} seats taken · ${ev.maybeCount} maybe</div>
+        <div class="meter"><div style="width:${pct}%"></div></div>
+        ${full && mine.rsvp !== "going" ? '<div class="full" style="font-size:.86rem;margin-bottom:8px">This Circle is full. RSVP to join the waitlist.</div>' : ""}
+        ${youre}
+        <div class="fld" style="margin-top:12px"><select id="r_pax" aria-label="Seats">${[1,2,3,4,5,6,7,8,9,10].map((n) => `<option value="${n}" ${n === (mine.pax || 1) ? "selected" : ""}>${n} seat${n > 1 ? "s" : ""}</option>`).join("")}</select></div>
+        <div class="rsvp-btns">
+          ${payOpen ? `<button class="btn btn-lime btn-pop" onclick="rsvp('going')">${goLabel}</button>` : ""}
+          ${mine.rsvp === "maybe" ? "" : `<button class="btn btn-line" onclick="rsvp('maybe')">Maybe</button>`}
+        </div>
+        ${paid && !payOpen ? `<p class="paynote">Payment for this Circle opens soon. Tap Maybe to keep an eye on it.</p>` : ""}
+        ${paid && payOpen && !full && !mine.rsvp ? `<p class="paynote">Your seat is held when you tap Reserve. Payment opens in a new tab; the WIP team confirms it.</p>` : ""}
+        <div id="rsvpMsg" role="status"></div>
+      </div>
+      <div class="panel">
+        <h2>Who's coming</h2>
+        <div class="glabel">Going (${going.length})</div>
+        <div class="guests">${going.length ? going.map(guestChip).join("") : '<span class="muted" style="font-size:.86rem">Be the first!</span>'}</div>
+        ${wait.length ? `<div class="glabel">Waitlist (${wait.length})</div><div class="guests">${wait.map(guestChip).join("")}</div>` : ""}
+        ${maybe.length ? `<div class="glabel">Maybe (${maybe.length})</div><div class="guests">${maybe.map(guestChip).join("")}</div>` : ""}
+      </div>
+    </div>
+  </div>`;
+  show("detail");
+}
+
+async function rsvp(status) {
+  $("rsvpMsg").textContent = "";
+  const ev = currentEvent;
+  const payFirst = status === "going" && ev.paymentUrl && !(ev.mine && ev.mine.paymentStatus === "paid");
+  // Open the payment tab inside the click, or popup blockers stop it.
+  const payTab = payFirst ? window.open("", "_blank") : null;
+  try {
+    const d = await api(`/api/harmoni/events/${encodeURIComponent(ev.id)}/rsvp`, {
+      method: "POST",
+      body: JSON.stringify({ status, pax: Number($("r_pax").value) }),
+    });
+    if (payTab) {
+      if (d.paymentUrl) { payTab.opener = null; payTab.location.href = d.paymentUrl; }
+      else payTab.close();
+    }
+    await refreshEvent(ev.id);
+    $("rsvpMsg").textContent = d.waitlisted ? "You're on the waitlist. We'll let you know if a seat opens."
+      : status === "maybe" ? "Noted as maybe."
+      : d.paymentUrl ? "Seat held! Finish paying in the new tab. If it didn't open, use the Pay now button."
+      : "See you there! 🌱";
+  } catch (e) {
+    if (payTab) payTab.close();
+    $("rsvpMsg").textContent = "⚠ " + e.message;
+  }
+}
+
+async function cancelRsvp() {
+  const m = currentEvent.mine || {};
+  if (m.paymentStatus === "paid" && !confirm("You've already paid for this Circle. Withdraw anyway? The WIP team will be in touch about a refund.")) return;
+  try {
+    await api(`/api/harmoni/events/${encodeURIComponent(currentEvent.id)}/rsvp`, { method: "DELETE" });
+    await refreshEvent(currentEvent.id);
+    $("rsvpMsg").textContent = m.paymentStatus === "paid" ? "Withdrawn. Email hello@mywiphealing.com about your refund." : "Your RSVP is withdrawn.";
+  } catch (e) { $("rsvpMsg").textContent = "⚠ " + e.message; }
+}
+
+async function postComment() {
+  try {
+    await api(`/api/harmoni/events/${encodeURIComponent(currentEvent.id)}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ text: $("c_text").value }),
+    });
+    await refreshEvent(currentEvent.id);
+  } catch (e) { alert(e.message); }
+}
+
+async function refreshEvent(id) {
+  const d = await api("/api/harmoni/events");
+  EVENTS = d.events;
+  openEvent(id);
+}
+
+// ---------- proposal form: one step at a time ----------
+//
+// Written for neurodivergent members: one small step on screen at a time, a
+// visible example on every question (not placeholder text that vanishes),
+// tap-to-choose options, a "write a draft for me" helper, checks on each step
+// in plain words, and answers saved on this device so people can stop and come
+// back. Questions and examples follow the WIP Harmoni Circle Session Host
+// Proposal. Server rules (app.js buildProposal) are mirrored in problem().
+
+const STEPS = [
+  {
+    title: "Session identity",
+    intro: "The basics people see first: the name, the picture, who it's for and when.",
+    qs: [
+      { id: "title", type: "text", label: "What's your session called?", req: true, min: 3, max: 120, ai: true,
+        help: "A short name that tells people what they'll experience.",
+        example: "Guided Neurographic Lines Session" },
+      { id: "coverImage", type: "cover", label: "Add a cover photo or poster",
+        help: "Once your Circle is approved, this is the picture on your event. You can skip it." },
+      { id: "sessionType", type: "text", label: "What type of session is it?", req: true, min: 2, max: 60,
+        help: "Tap one, or type your own.",
+        choices: ["Workshop", "Creative meet-up", "Talk sharing", "Circle", "Movement"] },
+      { id: "audience", type: "text", label: "Who is it for?", req: true, min: 2, max: 200,
+        help: "Tap one, or type your own.",
+        choices: ["Open to all", "SHIPS members", "First-timers welcome"] },
+      { id: "dateTime", type: "datetime", label: "When would you like to hold it?", req: true,
+        help: "Your preferred date and start time. The WIP team confirms it with you." },
+      { id: "duration", type: "text", label: "How long will it run?", req: true, min: 2, max: 40,
+        help: "Tap one, or type your own.",
+        choices: ["90 minutes", "2 hours", "2.5 hours", "3 hours"] },
+    ],
+  },
+  {
+    title: "The activity",
+    intro: "What actually happens in the room.",
+    qs: [
+      { id: "coreActivity", type: "textarea", label: "What will people actually do?", req: true, min: 20, max: 2000, ai: true,
+        help: "2 or 3 sentences is plenty.",
+        example: "A guided painting session where participants express emotions through neurographic art — drawing free-flow lines, adding colour, and rounding corners to rewire thinking patterns." },
+      { id: "flow", type: "lines", item: "Step", label: "What's the flow of the session?", req: true, minItems: 3, maxItems: 8, ai: true,
+        help: "Short steps are fine. You need at least 3.",
+        example: [
+          "Set an intention — think about a phase of life you tend to control most",
+          "Draw neuro-lines — move pencil freely across paper for 3-5 seconds",
+          "Add colour — fill the new shapes with markers or paint",
+          "Round the corners — turn sharp X-shapes into soft flowing junctions with black marker",
+          "Doodle — add white/gold gel pen details to finish",
+        ] },
+      { id: "reference", type: "url", label: "A tutorial or guide you'll draw from", max: 300,
+        help: "A YouTube video, blog or book. Skip this if you don't have one.",
+        example: "https://www.youtube.com/watch?v=Y0Tcx_DqVFQ" },
+      { id: "attachments", type: "files", label: "Photos or PDFs of your past work",
+        help: "Only the WIP team sees these. They help us get to know your style. Up to 3." },
+    ],
+  },
+  {
+    title: "Location & logistics",
+    intro: "Where it happens, how many people, and what needs setting up.",
+    qs: [
+      { id: "venueMode", type: "choice", label: "Where will it happen?", req: true,
+        options: [["physical", "In person", "at a venue"], ["online", "Online", "e.g. Google Meet"], ["hybrid", "Both", "hybrid"]] },
+      { id: "venueName", type: "text", label: "Venue name or online platform", req: true, min: 2, max: 120,
+        help: "Where will people go? For online, name the platform.",
+        example: "Bits n Blobs, Tamarind Square  /  Google Meet  /  hybrid at Suritma Space" },
+      { id: "venueAddress", type: "text", label: "Address or how to get there", max: 240,
+        help: "Street address, or \"link shared after RSVP\" for online." },
+      { id: "venueNotes", type: "textarea", rows: 3, label: "Venue booking notes", max: 500,
+        help: "Have you checked it's free, and what it costs? \"Not sure yet\" is a fine answer.",
+        example: "Need to check with Aqilah on available dates and rental cost for Bits n Blobs" },
+      { id: "capacity", type: "range", label: "How many people?", req: true,
+        help: "The smallest and largest group you'd run it for.",
+        choices: [[5, 10], [8, 15], [10, 20]] },
+      { id: "prep", type: "textarea", rows: 3, label: "Setup & preparation needed", max: 1000, ai: true,
+        example: "Arrange chairs in circle, prepare paper + pencils at each seat, test projector for demo video" },
+    ],
+  },
+  {
+    title: "Objectives & intention",
+    intro: "What people take home, and why this matters to you.",
+    qs: [
+      { id: "takeaway", type: "textarea", label: "What do you want people to walk away with?", req: true, min: 10, max: 1000, ai: true,
+        example: "A felt sense of calm, a tool for self-regulation they can use at home, and connection to others through shared creative process." },
+      { id: "intention", type: "textarea", label: "Why does this session matter to you and to this circle?", req: true, min: 10, max: 1500, ai: true,
+        example: "Because so many of us hold tension in our bodies without a way to release it. Art gives us a non-verbal outlet — and doing it together reminds us we are not alone." },
+    ],
+  },
+  {
+    title: "Psychological theme",
+    intro: "The heart of every Harmoni Circle: the wellbeing idea behind your activity. Everyday words are perfect. No expert language needed.",
+    qs: [
+      { id: "theme", type: "text", label: "What's the core theme?", req: true, min: 2, max: 80, ai: true,
+        help: "Tap one, or type your own.",
+        choices: ["Neuroplasticity", "Emotional regulation", "Boundaries", "Grief", "Joy", "Self-compassion"],
+        example: "Neuroplasticity — Rewiring Thinking with Art" },
+      { id: "themeExplain", type: "textarea", label: "How does the theme connect to the activity?", req: true, min: 20, max: 2000, ai: true,
+        help: "Explain it in your own words.",
+        example: "When we round sharp corners in neurographic art, we are physically simulating how the brain can bend rigid thought patterns into softer, more adaptive ones. The act of drawing mirrors the process of rewiring." },
+      { id: "keyMessage", type: "textarea", rows: 3, label: "What key message should people reflect on?", req: true, min: 5, max: 500, ai: true,
+        example: "You are not stuck in your current patterns. With intention and practice, your mind can shift — just like the lines on the page." },
+    ],
+  },
+  {
+    title: "Materials & price",
+    intro: "What's needed, who brings it, and what it costs to join.",
+    qs: [
+      { id: "costs", type: "costs", label: "What's needed, and who provides each item?", req: true,
+        help: "Host = you bring it (this counts as your cost). WIP = we provide it. Participants = they bring their own; it shows on the event page as \"What to bring\".",
+        example: [["Paper, pencil, black marker", "host"], ["Acrylic markers / watercolour", "circle"], ["White/gold gel pens", "participants"]] },
+      { id: "costPerParticipant", type: "number", prefix: "RM", minv: 0, maxv: 10000, step: 0.01, label: "Estimated cost per person",
+        help: "Roughly what the materials and venue cost per person, if anything.",
+        example: "RM35 per person (covers materials + venue contribution)" },
+      { id: "ticketPrice", type: "number", prefix: "RM", minv: 0, maxv: 10000, step: 0.01, req: true, label: "Ticket price per person",
+        help: "What each person pays to join. Put 0 if it's free." },
+      { id: "projectedAttendees", type: "number", minv: 1, maxv: 10000, req: true, label: "How many people do you expect?",
+        help: "Your best guess. We use it to estimate the money below.",
+        check: (F) => Number(F.capacity) && Number(F.projectedAttendees) > Number(F.capacity)
+          ? `That's more than your largest group (${F.capacity}). Change one of them.` : "" },
+    ],
+    after: () => finPanelHTML(),
+  },
+  {
+    title: "Facilitation & flow",
+    intro: "How you'll hold the space, from the first minute to the last.",
+    qs: [
+      { id: "opening", type: "textarea", rows: 3, label: "How will you open the session?", req: true, min: 5, max: 1000, ai: true,
+        example: "Grounding breath (1 min) > brief intro on neuroplasticity > set intention — invite participants to write a word/phrase on the back of their paper about an area of life they tend to over-control" },
+      { id: "instructions", type: "lines", item: "Step", label: "What are the step-by-step instructions for the activity?", req: true, minItems: 3, maxItems: 10, ai: true,
+        help: "Clear enough that someone else could follow them.",
+        example: [
+          "Draw fast squiggly lines across paper (3–5 sec)",
+          "Extend loose ends to page edges",
+          "Fill new shapes with colour",
+          "Round all sharp corners with black marker",
+          "Thicken lines at junctions",
+          "Add doodle details with gel pens",
+        ] },
+      { id: "closing", type: "textarea", rows: 3, label: "How will you close the session?", req: true, min: 5, max: 1000, ai: true,
+        example: "Silent gallery walk (walk around to see each other's work) > optional sharing circle — anyone can share one word about how they feel now > closing breath" },
+    ],
+  },
+  {
+    title: "Reflection prompts",
+    intro: "Questions people can sit with at the end. Open questions work best: not yes/no.",
+    qs: [
+      { id: "prompts", type: "lines", item: "Prompt", label: "What questions will you invite people to reflect on?", req: true, minItems: 2, maxItems: 4, ai: true,
+        help: "2 to 4 prompts.",
+        example: [
+          "Where in your life do you hold the tightest control — and what would softening feel like?",
+          "Did you notice any resistance during the process? Where did it show up — in your hand, your thoughts, your breath?",
+          "What shifted between the first line you drew and the final piece?",
+          "If your artwork could speak, what would it say about how you are feeling right now?",
+        ] },
+    ],
+  },
+  {
+    title: "Your notes & support",
+    intro: "Anything that helps us support you. All optional.",
+    qs: [
+      { id: "help", type: "textarea", rows: 3, label: "What help would you like?", max: 500,
+        example: "Would appreciate help with material prep — cutting paper, sorting marker packs. Also need someone to manage the playlist for background music." },
+      { id: "accessibility", type: "textarea", rows: 3, label: "Accessibility considerations", max: 500, ai: true,
+        help: "Shown on the event page, so people know what to expect.",
+        example: "Space is ground floor with ramp access. If participants have limited hand mobility, we can adapt by using larger brushes or finger painting instead of fine pens." },
+      { id: "other", type: "textarea", rows: 3, label: "Anything else the circle should know?", max: 1000,
+        example: "This is my first time facilitating — I'm nervous but excited. Would love a co-facilitator or buddy to help hold the space." },
+    ],
+  },
+  {
+    title: "You & safeguarding",
+    intro: "So the WIP team can reach you, and one safety agreement.",
+    qs: [
+      { id: "contactName", type: "text", label: "Your name", req: true, min: 2, max: 80 },
+      { id: "contactEmail", type: "email", label: "Your email", req: true, min: 5, max: 120,
+        help: "So the WIP team can talk with you about this proposal." },
+      { id: "safeguarding", type: "check", req: true,
+        label: "Every Harmoni Circle runs with clinical safeguarding: a qualified mental health professional present or on call. I understand WIP confirms this before my session is published." },
+    ],
+  },
+];
+
+const QS = Object.fromEntries(STEPS.flatMap((s) => s.qs).map((q) => [q.id, q]));
+const REVIEW = STEPS.length + 1; // step number of the "check & send" screen
+const WHO = { host: "Host", circle: "WIP", participants: "Participants" };
+
+let F = null;          // answers in progress
+let wizStep = 0;       // 0 = "before you start", 1..STEPS.length, REVIEW
+let resumeStep = 0;    // where a saved draft left off
+const UNDO = {};       // one level of undo per question after a draft/example fills it
+const NOTE = {};       // a short message under a question ("Drafted for you…")
+
+function blankAnswers() {
+  return {
+    title: "", coverId: null, coverImage: null, sessionType: "", audience: "", dateTime: "", duration: "",
+    coreActivity: "", flow: ["", "", ""], reference: "", attachments: [],
+    venueMode: "physical", venueName: "", venueAddress: "", venueNotes: "", minCapacity: "", capacity: "", prep: "",
+    takeaway: "", intention: "", theme: "", themeExplain: "", keyMessage: "",
+    costs: [{ item: "", who: "host", rm: "" }], costPerParticipant: "", ticketPrice: "", projectedAttendees: "",
+    opening: "", instructions: ["", "", ""], closing: "", prompts: ["", ""],
+    help: "", accessibility: "", other: "",
+    contactName: ME ? ME.member.name : "", contactEmail: ME ? ME.member.email || "" : "", safeguarding: false,
+  };
+}
+
+// ----- saving on this device -----
+
+const draftKey = () => "harmoniDraft:" + (ME ? ME.member.id : "anon");
+
+function loadDraft() {
+  try { return JSON.parse(localStorage.getItem(draftKey()) || "null"); } catch { return null; }
+}
+
+let saveTimer = null;
+function saveDraft() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    const put = (answers) => localStorage.setItem(draftKey(), JSON.stringify({ F: answers, step: wizStep, at: Date.now() }));
+    try {
+      put(F);
+      $("wizSaved").textContent = "✓ Saved on this device";
+    } catch {
+      // Photos can overflow browser storage; keep the words at least.
+      try {
+        put({ ...F, coverImage: null, attachments: [] });
+        $("wizSaved").textContent = "✓ Words saved (photos need re-adding if you leave)";
+      } catch { $("wizSaved").textContent = ""; }
+    }
+  }, 400);
+}
+
+function clearDraft() { try { localStorage.removeItem(draftKey()); } catch {} }
+
+function saveForLater() {
+  saveDraft();
+  clearTimeout(saveTimer);
+  try { localStorage.setItem(draftKey(), JSON.stringify({ F, step: wizStep, at: Date.now() })); } catch {}
+  showHub().then(() => {
+    $("eventList").insertAdjacentHTML("beforebegin",
+      `<div class="youre" id="laterNote" style="margin-bottom:16px"><span>✓ Your proposal is saved on this device. Pick it up any time from "Propose a Circle".</span></div>`);
+    setTimeout(() => { const n = $("laterNote"); if (n) n.remove(); }, 8000);
+  });
+}
+
+// ----- opening the form -----
+
+function showForm() {
+  const saved = loadDraft();
+  F = { ...blankAnswers(), ...(saved ? saved.F : {}) };
+  if (!F.contactName && ME) F.contactName = ME.member.name;
+  if (!F.contactEmail && ME) F.contactEmail = ME.member.email || "";
+  if (!F.coverId && CONFIG.covers.length) F.coverId = CONFIG.covers[0].id;
+  resumeStep = saved && saved.step > 0 ? Math.min(saved.step, REVIEW) : 0;
+  wizStep = 0;
+  show("formview");
+  renderWizard();
+}
+
+function startOver() {
+  if (!confirm("Start a fresh proposal? Your saved answers will be cleared.")) return;
+  clearDraft();
+  F = blankAnswers();
+  if (CONFIG.covers.length) F.coverId = CONFIG.covers[0].id;
+  resumeStep = 0;
+  wizGoto(1);
+}
+
+// ----- rendering -----
+
+function renderWizard() {
+  const total = STEPS.length;
+  let body;
+  if (wizStep === 0) body = introHTML();
+  else if (wizStep === REVIEW) body = reviewHTML();
+  else body = stepHTML(STEPS[wizStep - 1]);
+  $("wizBody").innerHTML = body;
+
+  $("wizCount").textContent = wizStep === 0 ? "Before you start" : wizStep === REVIEW ? "Last step: check & send" : `Step ${wizStep} of ${total}`;
+  $("wizFill").style.width = `${Math.round((Math.min(wizStep, total + 1) / (total + 1)) * 100)}%`;
+  $("wizBack").disabled = wizStep === 0;
+  $("wizLater").style.visibility = wizStep === 0 ? "hidden" : "visible";
+  $("wizNext").innerHTML = wizStep === 0 ? (resumeStep ? "Start from the beginning →" : "Let's start →")
+    : wizStep === total ? "Check my answers →"
+    : wizStep === REVIEW ? "Send for review 🌱" : "Next →";
+  if (wizStep === STEPS.findIndex((s) => s.after) + 1) computeFin();
+}
+
+function introHTML() {
+  return `<div class="wiz-head">
+      <span class="eyebrow"><i></i> Host a Harmoni Circle</span>
+      <h1 id="wizH" tabindex="-1" style="margin-top:12px">Propose your <span class="swash">Circle<svg viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden="true"><use href="#d-swash"/></svg></span></h1>
+      <p>Here's what to expect before you begin.</p>
+    </div>
+    <div class="q">
+      <ul class="expect">
+        <li><span class="ei">🧩</span><span><strong>${STEPS.length} short steps</strong>, one at a time. Most people take 15 to 20 minutes.</span></li>
+        <li><span class="ei">💾</span><span><strong>Your answers save on this device</strong> as you type. Take a break whenever you like and come back.</span></li>
+        <li><span class="ei">✨</span><span><strong>Every question has an example.</strong> Stuck? Tap <em>Use this example</em> or <em>Write a draft for me</em>, then change anything you like.</span></li>
+        <li><span class="ei">✅</span><span>Only questions marked <span class="need">Required</span> need an answer. The rest you can skip.</span></li>
+        <li><span class="ei">🤝</span><span><strong>Nothing is final.</strong> The WIP team reads every proposal and works it through with you before it goes live.</span></li>
+      </ul>
+      ${resumeStep ? `<div class="resume">
+          <button type="button" class="btn btn-ink btn-pop" onclick="wizGoto(${resumeStep})">Continue where you left off (${resumeStep === REVIEW ? "check & send" : "step " + resumeStep}) →</button>
+          <button type="button" class="btn btn-line" onclick="startOver()">Start a new one</button>
+        </div>` : ""}
+    </div>`;
+}
+
+function stepHTML(step) {
+  return `<div class="wiz-head">
+      <h1 id="wizH" tabindex="-1">${esc(step.title)}</h1>
+      <p>${esc(step.intro)}</p>
+    </div>
+    ${step.qs.map(qHTML).join("")}
+    ${step.after ? step.after() : ""}`;
+}
+
+function badge(q) { return q.req ? '<span class="need">Required</span>' : '<span class="optl">Optional</span>'; }
+
+function qHTML(q) {
+  const v = F[q.id];
+  const inputAttrs = (extra = "") => `id="in_${q.id}" data-q="${q.id}" ${extra}`;
+  let field = "";
+  switch (q.type) {
+    case "text": case "url": case "email":
+      field = chipsHTML(q) + `<input ${inputAttrs(`type="${q.type === "text" ? "text" : q.type}" maxlength="${q.max}"`)} value="${esc(v || "")}">`;
+      break;
+    case "textarea":
+      field = `<textarea ${inputAttrs(`maxlength="${q.max}" rows="${q.rows || 4}"`)}>${esc(v || "")}</textarea>`;
+      break;
+    case "datetime":
+      field = `<input ${inputAttrs('type="datetime-local"')} value="${esc(v || "")}" style="max-width:320px">`;
+      break;
+    case "number":
+      field = `<div class="numin">${q.prefix ? `<span>${q.prefix}</span>` : ""}<input ${inputAttrs(`type="number" inputmode="decimal" min="${q.minv}" max="${q.maxv}" step="${q.step || 1}"`)} value="${esc(v ?? "")}"></div>`;
+      break;
+    case "choice":
+      field = `<div class="choice" role="group" aria-label="${esc(q.label)}">${q.options.map(([val, lbl, sub]) =>
+        `<button type="button" data-choice="${q.id}" data-val="${val}" aria-pressed="${v === val}">${esc(lbl)}<small>${esc(sub)}</small></button>`).join("")}</div>`;
+      break;
+    case "range":
+      field = `<div class="chips">${q.choices.map(([a, b]) =>
+          `<button type="button" class="chip" data-range="${a},${b}" aria-pressed="${Number(F.minCapacity) === a && Number(F.capacity) === b}">${a} – ${b} people</button>`).join("")}</div>
+        <div class="range">
+          <label>Smallest group<input type="number" inputmode="numeric" min="1" max="200" data-q="minCapacity" id="in_minCapacity" value="${esc(F.minCapacity)}"></label>
+          <span class="to">to</span>
+          <label>Largest group<input type="number" inputmode="numeric" min="1" max="200" data-q="capacity" id="in_capacity" value="${esc(F.capacity)}"></label>
+        </div>`;
+      break;
+    case "lines":
+      field = `<ol class="lines">${v.map((line, i) => `<li>
+          <label class="ln" for="in_${q.id}_${i}">${q.item} ${i + 1}</label>
+          <input id="in_${q.id}_${i}" data-q="${q.id}" data-line="${i}" maxlength="300" value="${esc(line)}">
+          ${v.length > q.minItems ? `<button type="button" class="xbtn" data-line-remove="${q.id}" data-i="${i}" aria-label="Remove ${q.item.toLowerCase()} ${i + 1}">×</button>` : "<span></span>"}
+        </li>`).join("")}</ol>
+        ${v.length < q.maxItems ? `<button type="button" class="btn btn-line btn-sm addbtn" data-line-add="${q.id}">＋ Add a ${q.item.toLowerCase()}</button>` : ""}`;
+      break;
+    case "costs":
+      field = `<div class="costhead"><span>Item</span><span>Who provides it</span><span>Cost</span><span></span></div>
+        ${F.costs.map((c, i) => `<div class="costrow">
+          <input class="citem" data-cost="${i}" data-k="item" maxlength="80" value="${esc(c.item)}" aria-label="Item ${i + 1}" placeholder="Item">
+          <select data-cost="${i}" data-k="who" aria-label="Who provides item ${i + 1}">${Object.entries(WHO).map(([k, l]) => `<option value="${k}" ${c.who === k ? "selected" : ""}>${l}</option>`).join("")}</select>
+          <div class="rm"><span>RM</span><input type="number" min="0" max="50000" step="0.01" data-cost="${i}" data-k="rm" value="${esc(c.rm)}" aria-label="Cost of item ${i + 1} in RM"></div>
+          ${F.costs.length > 1 ? `<button type="button" class="xbtn" data-cost-remove="${i}" aria-label="Remove item ${i + 1}">×</button>` : "<span></span>"}
+        </div>`).join("")}
+        <button type="button" class="btn btn-line btn-sm addbtn" data-cost-add>＋ Add an item</button>`;
+      break;
+    case "check":
+      return `<div class="q" id="q_${q.id}"><label class="ack"><input type="checkbox" data-q="${q.id}" id="in_${q.id}" ${v ? "checked" : ""}>
+          <span>${esc(q.label)} ${badge(q)}</span></label><div class="qerr" id="err_${q.id}" role="alert"></div></div>`;
+    case "cover":
+      field = coverFieldHTML();
+      break;
+    case "files":
+      field = `<label class="drop"><input type="file" class="sr" data-files accept="image/png,image/jpeg,image/webp,image/gif,application/pdf" multiple ${F.attachments.length >= 3 ? "disabled" : ""}>
+          <span class="drop-ic">📎</span><b>${F.attachments.length >= 3 ? "That's the maximum of 3" : "Choose photos or PDFs"}</b><small>Photos are resized for you. PDFs up to about 1MB.</small></label>
+        <div class="filepre">${F.attachments.map((a, i) => `<div class="it">
+          ${a.type === "application/pdf" ? `<div class="pdf">📄<span style="word-break:break-all">${esc(a.name)}</span></div>` : `<img src="${a.data}" alt="${esc(a.name)}">`}
+          <button type="button" class="rm" data-file-remove="${i}" aria-label="Remove ${esc(a.name)}">×</button><div class="cap">${esc(a.name)}</div></div>`).join("")}</div>`;
+      break;
+  }
+  const labelFor = ["choice", "range", "lines", "costs", "cover", "files"].includes(q.type) ? "" : `for="in_${q.id}"`;
+  return `<div class="q" id="q_${q.id}">
+      <label class="qlabel" ${labelFor}>${esc(q.label)} ${badge(q)}</label>
+      ${q.help ? `<p class="qhelp">${esc(q.help)}</p>` : ""}
+      ${field}
+      ${exampleHTML(q)}
+      <div class="qnote" id="note_${q.id}" role="status">${NOTE[q.id] || ""}</div>
+      <div class="qerr" id="err_${q.id}" role="alert"></div>
+    </div>`;
+}
+
+function chipsHTML(q) {
+  if (!q.choices) return "";
+  return `<div class="chips">${q.choices.map((c) =>
+    `<button type="button" class="chip" data-chip="${q.id}" data-val="${esc(c)}" aria-pressed="${F[q.id] === c}">${esc(c)}</button>`).join("")}</div>`;
+}
+
+function exampleHTML(q) {
+  const ex = q.example;
+  const tools = [];
+  if (ex) tools.push(`<button type="button" class="usebtn" data-use="${q.id}">Use this example</button>`);
+  if (q.ai) tools.push(`<button type="button" class="aibtn" data-ai="${q.id}">✨ Write a draft for me</button>`);
+  if (UNDO[q.id] !== undefined) tools.push(`<button type="button" class="linkbtn" data-undo="${q.id}">Undo</button>`);
+  if (!ex && !tools.length) return "";
+  let shown = "";
+  if (Array.isArray(ex) && q.type === "lines") shown = `<ol>${ex.map((l) => `<li>${esc(l)}</li>`).join("")}</ol>`;
+  else if (Array.isArray(ex)) shown = ex.map(([item, who]) => `${esc(item)} — <strong>${WHO[who]}</strong>`).join("<br>");
+  else if (ex) shown = esc(ex);
+  return `${ex ? `<div class="qex"><span class="exlbl">Example</span>${shown}</div>` : ""}
+    <div class="qtools">${tools.join("")}</div>`;
+}
+
+function coverFieldHTML() {
+  const presets = CONFIG.covers.map((c) => `<button type="button" class="coverpick ${c.id === F.coverId ? "sel" : ""}" data-coverid="${esc(c.id)}" aria-pressed="${c.id === F.coverId}">
+      <div class="sw" style="${coverBg(c)}">${esc(c.emoji)}</div><div class="nm">${esc(c.name)}</div></button>`).join("");
+  return `${F.coverImage
+      ? `<div class="coverprev"><img src="${F.coverImage.data}" alt="Your cover photo"><button type="button" class="btn btn-line btn-sm" data-cover-remove>Remove photo</button></div>`
+      : `<label class="drop"><input type="file" class="sr" data-cover-file accept="image/png,image/jpeg,image/webp,image/gif">
+          <span class="drop-ic">🖼️</span><b>Choose a photo or poster</b><small>JPG, PNG or WebP. We'll resize it for you.</small></label>`}
+    <p class="qhelp" style="margin:14px 0 8px">${F.coverImage ? "Backup colour, in case the photo can't show:" : "No photo? Pick a colour cover instead:"}</p>
+    <div class="covers">${presets}</div>`;
+}
+
+function finPanelHTML() {
+  const share = CONFIG.facilitatorShare;
+  return `<div class="finpanel" aria-live="polite">
+      <span class="split-badge">Fixed split: ${share}% you / ${100 - share}% WIP</span>
+      <div class="finrow"><span>Money in (people × price)</span><span id="finRev">RM 0</span></div>
+      <div class="finrow"><span>Your cost to host (Host items)</span><span id="finCost">RM 0</span></div>
+      <div class="finrow total"><span>Projected profit</span><span id="finProfit">RM 0</span></div>
+      <div class="fineq">
+        <div><div class="lbl">You get</div><div class="val" id="finFac">RM 0</div></div>
+        <div><div class="lbl">WIP gets</div><div class="val" id="finOrg">RM 0</div></div>
+      </div>
+      <div class="splitnote">You keep ${share}% of the projected profit. WIP's ${100 - share}% covers our program system, the SHIPS peer framework, and the art-therapy psychology education module behind every Circle.</div>
+    </div>`;
+}
+
+function computeFin() {
+  if (!$("finRev")) return;
+  const n = (x) => (Number.isFinite(parseFloat(x)) ? parseFloat(x) : 0);
+  const rev = n(F.ticketPrice) * n(F.projectedAttendees);
+  const cost = F.costs.filter((c) => c.who === "host").reduce((s, c) => s + n(c.rm), 0);
+  const profit = rev - cost;
+  const fac = (profit * CONFIG.facilitatorShare) / 100;
+  $("finRev").textContent = fmtRM(rev);
+  $("finCost").textContent = fmtRM(cost);
+  $("finProfit").textContent = fmtRM(profit);
+  $("finProfit").className = profit < 0 ? "neg" : "pos";
+  $("finFac").textContent = fmtRM(fac);
+  $("finOrg").textContent = fmtRM(profit - fac);
+}
+
+function rerenderQ(id) {
+  const el = $("q_" + id);
+  if (el) el.outerHTML = qHTML(QS[id]);
+}
+
+// Fill a question from the example or a draft, keeping one step of undo.
+function fillQ(id, value, note) {
+  UNDO[id] = JSON.parse(JSON.stringify(F[id]));
+  F[id] = value;
+  NOTE[id] = note;
+  rerenderQ(id);
+  saveDraft();
+  computeFin();
+}
+
+// ----- checking answers -----
+
+function problem(q) {
+  const v = F[q.id];
+  const cross = q.check ? q.check(F) : "";
+  switch (q.type) {
+    case "cover": case "files": return "";
+    case "check": return v ? "" : "Please tick this box to continue.";
+    case "choice": return v ? "" : "Please choose one.";
+    case "datetime":
+      if (!v) return "Pick a date and start time.";
+      return new Date(v) <= new Date() ? "Pick a date in the future." : "";
+    case "number": {
+      if (v === "" || v === null || v === undefined) return q.req ? "Please add a number." : "";
+      const n = Number(v);
+      if (!Number.isFinite(n) || n < q.minv || n > q.maxv) return `Use a number from ${q.minv} to ${q.maxv}.`;
+      return cross;
+    }
+    case "range": {
+      const a = Number(F.minCapacity), b = Number(F.capacity);
+      if (!F.minCapacity || !F.capacity) return "Add the smallest and largest group size, or tap one of the options.";
+      if (!(a >= 1 && a <= 200 && b >= 1 && b <= 200)) return "Group sizes go from 1 to 200.";
+      return a > b ? "The smallest group can't be bigger than the largest." : "";
+    }
+    case "lines": {
+      const filled = v.map((s) => s.trim()).filter(Boolean);
+      if (q.req && filled.length < q.minItems) return `Please add at least ${q.minItems} ${q.item.toLowerCase()}s.`;
+      if (filled.some((s) => s.length < 3)) return `Each ${q.item.toLowerCase()} needs a few words.`;
+      return "";
+    }
+    case "costs": {
+      const rows = F.costs.filter((c) => c.item.trim());
+      if (!rows.length) return "Add at least one item, or tap Use this example.";
+      if (rows.some((c) => c.rm !== "" && !(Number(c.rm) >= 0))) return "Costs need to be a number (0 is fine).";
+      return "";
+    }
+  }
+  const s = String(v || "").trim();
+  if (!s) return q.req ? `This one needs an answer.${q.example || q.ai ? " Stuck? Try the example or ✨ draft." : ""}` : "";
+  if (q.min && s.length < q.min) return `A little more, please (at least ${q.min} characters).`;
+  if (q.type === "url" && !/^https?:\/\//i.test(s)) return "Links start with http:// or https://";
+  if (q.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) return "That email doesn't look quite right.";
+  return cross;
+}
+
+function checkStep(stepNo) {
+  const bad = STEPS[stepNo - 1].qs.map((q) => [q, problem(q)]).filter(([, msg]) => msg);
+  STEPS[stepNo - 1].qs.forEach((q) => {
+    const err = $("err_" + q.id);
+    const msg = (bad.find(([b]) => b === q) || [])[1] || "";
+    if (err) err.textContent = msg;
+    const card = $("q_" + q.id);
+    if (card) card.classList.toggle("bad", Boolean(msg));
+  });
+  if (bad.length) {
+    const first = $("q_" + bad[0][0].id);
+    first.scrollIntoView({ behavior: "smooth", block: "center" });
+    const input = first.querySelector("input:not(.sr), textarea, select, button");
+    if (input) setTimeout(() => input.focus({ preventScroll: true }), 300);
+  }
+  return !bad.length;
+}
+
+// ----- moving between steps -----
+
+function wizGoto(n) {
+  wizStep = n;
+  renderWizard();
+  window.scrollTo(0, 0);
+  const h = $("wizH");
+  if (h) h.focus({ preventScroll: true });
+  saveDraft();
+}
+
+function wizGo(dir) {
+  if (dir < 0) return wizGoto(Math.max(0, wizStep - 1));
+  if (wizStep === REVIEW) return submitProposal();
+  if (wizStep >= 1 && !checkStep(wizStep)) return;
+  wizGoto(wizStep + 1);
+}
+
+// ----- review & send -----
+
+function answerText(q) {
+  const v = F[q.id];
+  switch (q.type) {
+    case "cover": return F.coverImage ? "📷 " + F.coverImage.name : "Colour: " + ((CONFIG.covers.find((c) => c.id === F.coverId) || {}).name || "");
+    case "files": return F.attachments.length ? F.attachments.map((a) => a.name).join(", ") : "";
+    case "check": return v ? "✓ Agreed" : "";
+    case "choice": return ((q.options.find(([val]) => val === v) || [])[1]) || "";
+    case "datetime": return v ? new Date(v).toLocaleString("en-MY", { weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit" }) : "";
+    case "range": return F.minCapacity && F.capacity ? `${F.minCapacity} – ${F.capacity} people` : "";
+    case "lines": return v.map((s) => s.trim()).filter(Boolean).map((s, i) => `${i + 1}. ${s}`).join("\n");
+    case "costs": return F.costs.filter((c) => c.item.trim()).map((c) => `${c.item} (${WHO[c.who]}${c.rm !== "" ? ", " + fmtRM(c.rm) : ""})`).join("\n");
+    case "number": return v === "" || v === null ? "" : (q.prefix ? fmtRM(v) : String(v));
+    default: return String(v || "").trim();
+  }
+}
+
+function reviewHTML() {
+  return `<div class="wiz-head">
+      <h1 id="wizH" tabindex="-1">Check &amp; send</h1>
+      <p>Have a look over your answers. Tap <strong>Edit</strong> to change anything. When it looks right, send it to the WIP team.</p>
+    </div>
+    ${STEPS.map((s, i) => `<div class="rev">
+      <div class="rev-head"><h2>${i + 1}. ${esc(s.title)}</h2><button type="button" class="btn btn-line btn-sm" onclick="wizGoto(${i + 1})">Edit</button></div>
+      <dl>${s.qs.map((q) => {
+        const text = answerText(q);
+        const miss = problem(q);
+        const label = q.type === "check" ? "Safeguarding" : q.label;
+        return `<dt>${esc(label)}</dt><dd class="${miss ? "miss" : ""}">${miss ? "⚠ " + esc(miss) : text ? esc(text) : '<span class="muted">Skipped</span>'}</dd>`;
+      }).join("")}</dl>
+    </div>`).join("")}
+    <div id="formError" role="alert"></div>`;
+}
+
+function payloadFromAnswers() {
+  const lines = (arr, fmt) => arr.map((s) => s.trim()).filter(Boolean).map(fmt).join("\n");
+  const num = (x) => (x === "" || x === null || x === undefined ? null : Number(x));
+  return {
+    title: F.title, coverId: F.coverId || (CONFIG.covers[0] || {}).id, coverImage: F.coverImage,
+    sessionType: F.sessionType, audience: F.audience, duration: F.duration,
+    dateTime: F.dateTime ? new Date(F.dateTime).toISOString() : "",
+    coreActivity: F.coreActivity, reference: F.reference,
+    flow: lines(F.flow, (s, i) => `Step ${i + 1}: ${s}`),
+    venueMode: F.venueMode, venueName: F.venueName, venueAddress: F.venueAddress, venueNotes: F.venueNotes,
+    minCapacity: num(F.minCapacity), capacity: num(F.capacity), prep: F.prep,
+    takeaway: F.takeaway, intention: F.intention,
+    theme: F.theme, themeExplain: F.themeExplain, keyMessage: F.keyMessage,
+    costs: F.costs.filter((c) => c.item.trim()).map((c) => ({ item: c.item.trim(), who: c.who, rm: Number(c.rm) || 0 })),
+    costPerParticipant: num(F.costPerParticipant),
+    ticketPrice: num(F.ticketPrice), projectedAttendees: num(F.projectedAttendees),
+    opening: F.opening, instructions: lines(F.instructions, (s, i) => `${i + 1}. ${s}`), closing: F.closing,
+    prompts: lines(F.prompts, (s, i) => `Prompt ${i + 1}: ${s}`),
+    help: F.help, accessibility: F.accessibility, other: F.other,
+    contactName: F.contactName, contactEmail: F.contactEmail, safeguarding: F.safeguarding === true,
+    attachments: F.attachments,
+  };
+}
+
+async function submitProposal() {
+  const firstBad = STEPS.findIndex((s) => s.qs.some((q) => problem(q)));
+  if (firstBad >= 0) {
+    $("formError").textContent = `A few answers still need a look (marked ⚠ above). Start with step ${firstBad + 1}: ${STEPS[firstBad].title}.`;
+    return;
+  }
+  $("wizNext").disabled = true;
+  $("wizNext").textContent = "Sending…";
+  try {
+    await api("/api/harmoni/events", { method: "POST", body: JSON.stringify(payloadFromAnswers()) });
+    clearDraft();
+    F = null;
+    show("done");
+  } catch (e) {
+    $("formError").textContent = e.message;
+    $("wizNext").innerHTML = "Send for review 🌱";
+  } finally {
+    $("wizNext").disabled = false;
+  }
+}
+
+// ----- "write a draft for me" -----
+
+async function aiDraft(id, btn) {
+  const q = QS[id];
+  const answers = {};
+  for (const k of ["title", "sessionType", "audience", "duration", "coreActivity", "venueName", "theme", "takeaway"]) answers[k] = F[k] || "";
+  answers.flow = F.flow.filter((s) => s.trim()).join("\n");
+  answers.instructions = F.instructions.filter((s) => s.trim()).join("\n");
+  btn.disabled = true;
+  btn.textContent = "✨ Writing…";
+  try {
+    const d = await api("/api/harmoni/draft", { method: "POST", body: JSON.stringify({ field: id, answers }) });
+    let value = d.text;
+    if (q.type === "lines") {
+      value = (d.lines || []).slice(0, q.maxItems);
+      while (value.length < q.minItems) value.push("");
+    }
+    fillQ(id, value, "✨ Drafted for you. Change anything that doesn't sound like you.");
+  } catch (e) {
+    NOTE[id] = "";
+    rerenderQ(id);
+    $("err_" + id).textContent = e.message;
+  }
+}
+
+// ----- photos -----
+
+const readAsDataURL = (file) => new Promise((ok, fail) => {
+  const r = new FileReader();
+  r.onload = () => ok(r.result);
+  r.onerror = () => fail(new Error(`Couldn't read "${file.name}"`));
+  r.readAsDataURL(file);
+});
+
+// Big phone photos become a ~1600px JPEG, well under the server's ~1MB cap.
+// GIFs are kept as they are (resizing would drop the animation).
+async function shrinkImage(file) {
+  if (file.type === "image/gif") {
+    if (file.size > 1_000_000) throw new Error(`"${file.name}" is over ~1MB. Try a smaller GIF.`);
+    return { name: file.name, type: file.type, data: await readAsDataURL(file) };
+  }
+  const img = await new Promise((ok, fail) => {
+    const i = new Image();
+    i.onload = () => ok(i);
+    i.onerror = () => fail(new Error(`"${file.name}" doesn't look like a photo we can open.`));
+    readAsDataURL(file).then((u) => { i.src = u; }, fail);
+  });
+  for (const [side, quality] of [[1600, 0.85], [1200, 0.75], [900, 0.7]]) {
+    const scale = Math.min(1, side / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(img.naturalWidth * scale);
+    c.height = Math.round(img.naturalHeight * scale);
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#fff"; // transparent PNGs would turn black as JPEG
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    const data = c.toDataURL("image/jpeg", quality);
+    if (data.length < 1_400_000) return { name: file.name.replace(/\.[^.]+$/, "") + ".jpg", type: "image/jpeg", data };
+  }
+  throw new Error(`"${file.name}" is too big even after resizing. Try a smaller photo.`);
+}
+
+async function addAttachments(files) {
+  for (const file of files) {
+    if (F.attachments.length >= 3) { $("err_attachments").textContent = "Up to 3 files, please."; break; }
+    try {
+      if (file.type === "application/pdf") {
+        if (file.size > 1_000_000) throw new Error(`"${file.name}" is over ~1MB. Try a smaller PDF.`);
+        F.attachments.push({ name: file.name, type: file.type, data: await readAsDataURL(file) });
+      } else if (/^image\/(png|jpeg|webp|gif)$/.test(file.type)) {
+        F.attachments.push(await shrinkImage(file));
+      } else {
+        throw new Error(`"${file.name}" isn't a photo or PDF.`);
+      }
+    } catch (e) {
+      rerenderQ("attachments");
+      $("err_attachments").textContent = e.message;
+      return saveDraft();
+    }
+  }
+  rerenderQ("attachments");
+  saveDraft();
+}
+
+// ----- one set of listeners for every step -----
+
+(() => {
+  const body = $("wizBody");
+  const clearErr = (id) => {
+    const err = $("err_" + id);
+    if (err) err.textContent = "";
+    const card = $("q_" + id);
+    if (card) card.classList.remove("bad");
+  };
+
+  body.addEventListener("input", (e) => {
+    const t = e.target;
+    if (t.dataset.q && t.dataset.line !== undefined) {
+      F[t.dataset.q][Number(t.dataset.line)] = t.value;
+      clearErr(t.dataset.q);
+    } else if (t.dataset.q && t.type !== "checkbox") {
+      F[t.dataset.q] = t.value;
+      clearErr(t.dataset.q === "minCapacity" ? "capacity" : t.dataset.q);
+      // A typed answer no longer matches a tapped chip.
+      document.querySelectorAll(`[data-chip="${t.dataset.q}"]`).forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.val === t.value)));
+    } else if (t.dataset.cost !== undefined) {
+      F.costs[Number(t.dataset.cost)][t.dataset.k] = t.value;
+      clearErr("costs");
+    } else return;
+    saveDraft();
+    computeFin();
+  });
+
+  body.addEventListener("change", async (e) => {
+    const t = e.target;
+    if (t.type === "checkbox" && t.dataset.q) { F[t.dataset.q] = t.checked; clearErr(t.dataset.q); saveDraft(); }
+    if (t.dataset.cost !== undefined) { F.costs[Number(t.dataset.cost)][t.dataset.k] = t.value; saveDraft(); computeFin(); }
+    if (t.dataset.coverFile !== undefined && t.files[0]) {
+      try {
+        F.coverImage = await shrinkImage(t.files[0]);
+        rerenderQ("coverImage");
+        saveDraft();
+      } catch (err) {
+        rerenderQ("coverImage");
+        $("err_coverImage").textContent = err.message;
+      }
+    }
+    if (t.dataset.files !== undefined && t.files.length) addAttachments([...t.files]);
+  });
+
+  body.addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    const d = b.dataset;
+    if (d.chip) { F[d.chip] = d.val; NOTE[d.chip] = ""; rerenderQ(d.chip); clearErr(d.chip); saveDraft(); }
+    else if (d.choice) { F[d.choice] = d.val; rerenderQ(d.choice); saveDraft(); }
+    else if (d.range) { const [a, c] = d.range.split(","); F.minCapacity = a; F.capacity = c; rerenderQ("capacity"); saveDraft(); }
+    else if (d.use) {
+      const q = QS[d.use];
+      const ex = q.example;
+      let v = ex;
+      if (q.type === "lines") v = [...ex];
+      if (q.type === "costs") v = ex.map(([item, who]) => ({ item, who, rm: "" }));
+      if (q.type === "number") v = String(ex).match(/[\d.]+/)[0];
+      fillQ(q.id === "costs" ? "costs" : d.use, v, "Example added. Make it yours: change anything that doesn't fit your session.");
+    }
+    else if (d.ai) aiDraft(d.ai, b);
+    else if (d.undo) { F[d.undo] = UNDO[d.undo]; delete UNDO[d.undo]; NOTE[d.undo] = ""; rerenderQ(d.undo); saveDraft(); computeFin(); }
+    else if (d.lineAdd) { F[d.lineAdd].push(""); rerenderQ(d.lineAdd); saveDraft(); const inputs = $("q_" + d.lineAdd).querySelectorAll("input"); inputs[inputs.length - 1].focus(); }
+    else if (d.lineRemove) { F[d.lineRemove].splice(Number(d.i), 1); rerenderQ(d.lineRemove); saveDraft(); }
+    else if (d.costAdd !== undefined) { F.costs.push({ item: "", who: "host", rm: "" }); rerenderQ("costs"); saveDraft(); }
+    else if (d.costRemove !== undefined) { F.costs.splice(Number(d.costRemove), 1); rerenderQ("costs"); saveDraft(); computeFin(); }
+    else if (d.coverid) { F.coverId = d.coverid; rerenderQ("coverImage"); saveDraft(); }
+    else if (d.coverRemove !== undefined) { F.coverImage = null; rerenderQ("coverImage"); saveDraft(); }
+    else if (d.fileRemove !== undefined) { F.attachments.splice(Number(d.fileRemove), 1); rerenderQ("attachments"); saveDraft(); }
+  });
+
+  // Enter in a one-line box shouldn't do anything surprising.
+  body.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.tagName === "INPUT" && e.target.type !== "checkbox") e.preventDefault();
+  });
+})();
+
+// ---------- boot ----------
+
+boot();
+</script>
+</body>
+</html>

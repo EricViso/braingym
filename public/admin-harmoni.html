@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>myWIPhealing — Harmoni Circles Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/brand.css">
+<style>
+  #login { max-width: 360px; margin: 16vh auto; text-align: center; }
+  #login input { width: 100%; padding: 12px; font-size: 16px; border: 1px solid var(--line); border-radius: 12px; margin: 8px 0 12px; }
+  #loginError { color: var(--warn); font-size: .85rem; min-height: 1em; }
+  .login-title { font-size: 20px; margin-bottom: 10px; }
+  .who-acct { font-size: 11px; background: var(--accent-soft); border-radius: var(--radius-pill); padding: 1px 8px; font-weight: 600; margin-left: 4px; }
+  .memtable { width: 100%; border-collapse: collapse; font-size: .84rem; }
+  .memtable th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); padding: 6px 10px 6px 0; }
+  .memtable td { padding: 8px 10px 8px 0; border-top: 1px solid var(--line-soft); }
+  .memtable td.n { text-align: right; font-family: var(--font-mono); }
+  .memtable th.n { text-align: right; }
+  .tablewrap { overflow-x: auto; }
+  .prop .cov.img { overflow: hidden; border: 1px solid var(--line); }
+  .prop .cov.img img { width: 100%; height: 100%; object-fit: cover; }
+  .payblock { margin-top: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); font-size: 13px; }
+  .payblock.missing { border-color: var(--accent); background: var(--accent-soft); }
+  .payrow { display: flex; gap: 8px; margin-top: 6px; }
+  .payrow input { flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; font: inherit; }
+  .paywarn { margin-top: 6px; font-weight: 600; color: var(--accent); }
+  .paid { color: var(--good); font-weight: 700; }
+  .btn.mini { padding: 3px 9px; font-size: 11px; }
+
+  .prop { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); box-shadow: var(--shadow); margin-bottom: 14px; overflow: hidden; }
+  .prop summary { cursor: pointer; list-style: none; display: flex; gap: 14px; align-items: center; padding: 16px 18px; flex-wrap: wrap; }
+  .prop summary::-webkit-details-marker { display: none; }
+  .prop .cov { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex: 0 0 auto; }
+  .prop .ttl { flex: 1; min-width: 200px; }
+  .prop .ttl h4 { font-size: 15.5px; }
+  .prop .ttl .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .prop .body { padding: 4px 18px 18px; border-top: 1px solid var(--line-soft); }
+  .cols { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
+  @media (max-width: 820px) { .cols { grid-template-columns: 1fr; } }
+  .kv { width: 100%; border-collapse: collapse; font-size: .83rem; margin-top: 6px; }
+  .kv td { padding: 5px 8px 5px 0; border-top: 1px solid var(--line-soft); vertical-align: top; }
+  .kv td:first-child { color: var(--muted); width: 42%; }
+  .desc { font-size: .87rem; line-height: 1.55; white-space: pre-wrap; margin-top: 6px; }
+
+  .fin { background: var(--myrtle); color: var(--white); border-radius: var(--radius); padding: 14px 16px; margin-top: 10px; }
+  .fin .row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
+  .fin .row.t { border-top: 1px solid rgba(255,255,255,.25); margin-top: 5px; padding-top: 8px; font-weight: 700; }
+  .fin .neg { color: #FFB4A2; }
+  .fin .pos { color: var(--banana-bright); }
+  .fin .eq { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .fin .eq > div { background: rgba(255,255,255,.1); border-radius: 10px; padding: 8px 10px; }
+  .fin .eq .l { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; opacity: .8; }
+  .fin .eq .v { font-family: var(--font-mono); font-size: 15px; }
+
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+  .note { font-size: 12.5px; color: var(--muted-strong); font-style: italic; }
+  .rsvptable { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: 6px; }
+  .rsvptable th, .rsvptable td { text-align: left; padding: 4px 8px 4px 0; border-top: 1px solid var(--line-soft); }
+  .sec { margin: 22px 0 10px; display: flex; align-items: center; gap: 10px; }
+  .sec .count { background: var(--accent-soft); border-radius: var(--radius-pill); font-size: 11.5px; font-weight: 700; padding: 3px 11px; }
+  .wl { color: var(--warn); font-weight: 700; }
+  .cmt { font-size: 13px; padding: 6px 0; border-top: 1px solid var(--line-soft); }
+  .attachgrid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .attachgrid a { text-decoration: none; color: var(--ink); }
+  .attachgrid img { width: 110px; height: 110px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); display: block; }
+  .attachgrid .pdf { width: 110px; height: 110px; border-radius: 10px; border: 1px solid var(--line); background: var(--accent-soft); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; gap: 4px; overflow: hidden; padding: 6px; text-align: center; }
+  .attachgrid .cap { font-size: 10.5px; color: var(--muted); margin-top: 3px; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+</head>
+<body class="theme-harmoni">
+
+<div id="login" class="card" style="display:none">
+  <h2 class="login-title">🔐 Harmoni Circles Admin</h2>
+  <input type="password" id="pw" placeholder="Admin password" autofocus>
+  <button class="btn btn-primary" style="width:100%" onclick="login()">Enter</button>
+  <div id="loginError"></div>
+</div>
+
+<div id="dash" class="wrap stack" style="display:none">
+  <div class="appbar">
+    <div>
+      <div class="brand-mark"><h1>myWIPhealing <span class="accent">Harmoni Circles</span></h1></div>
+      <div class="subtitle">Member proposals & events · review the numbers, approve, track RSVPs</div>
+    </div>
+    <div class="bar-actions">
+      <a class="btn btn-banana btn-sm" href="/circle/" target="_blank">Member view ↗</a>
+      <button class="btn btn-on-dark btn-sm" onclick="location.href='/admin.html'">← Admin Hub</button>
+      <button class="btn btn-on-dark btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </div>
+  <div id="content"></div>
+  <div class="foot">
+    <span class="brand">myWIPhealing · Harmoni Circles</span>
+    <span>Restricted access · proposals contain member contact details</span>
+    <span>Powered by Gym Brain</span>
+  </div>
+</div>
+
+<script>
+let token = sessionStorage.getItem("adminToken") || "";
+let CONFIG = { facilitatorShare: 50, currency: "RM" };
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const fmtRM = (n) => "RM " + Number(n || 0).toLocaleString("en-MY", { maximumFractionDigits: 2 });
+const STATUS_TAG = {
+  under_review: '<span class="tag flag">under review</span>',
+  approved: '<span class="tag pos">approved</span>',
+  rejected: '<span class="tag neg">rejected</span>',
+  completed: '<span class="tag">completed</span>',
+  cancelled: '<span class="tag neg">cancelled</span>',
+};
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, { ...opts, headers: { "Content-Type": "application/json", Authorization: "Bearer " + token, ...(opts.headers || {}) } });
+  if (res.status === 401) { logout(); throw new Error("Session expired"); }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Server error");
+  return data;
+}
+
+async function login() {
+  $("loginError").textContent = "";
+  try {
+    const res = await fetch("/api/admin/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: $("pw").value }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Login failed");
+    token = data.token; sessionStorage.setItem("adminToken", token);
+    showDash();
+  } catch (e) { $("loginError").textContent = e.message; }
+}
+
+function logout() {
+  token = ""; sessionStorage.removeItem("adminToken");
+  $("dash").style.display = "none"; $("login").style.display = "block";
+}
+
+async function showDash() {
+  $("login").style.display = "none"; $("dash").style.display = "block";
+  try {
+    const d = await api("/api/admin/harmoni/events");
+    CONFIG = d.config;
+    render(d.events || []);
+  } catch (e) {
+    $("content").innerHTML = `<div class="card">⚠️ ${esc(e.message)}</div>`;
+  }
+}
+
+function finBlock(fin) {
+  if (!fin) return "";
+  return `<div class="fin">
+    <div class="row"><span>Projected revenue (attendees × price)</span><span>${fmtRM(fin.projectedRevenue)}</span></div>
+    <div class="row"><span>Total cost to host</span><span>${fmtRM(fin.totalCost)}</span></div>
+    <div class="row t"><span>Projected profit</span><span class="${fin.projectedProfit < 0 ? "neg" : "pos"}">${fmtRM(fin.projectedProfit)}</span></div>
+    <div class="eq">
+      <div><div class="l">Facilitator ${esc(String(fin.facilitatorShare))}%</div><div class="v">${fmtRM(fin.facilitatorPayout)}</div></div>
+      <div><div class="l">WIP ${esc(String(100 - fin.facilitatorShare))}%</div><div class="v">${fmtRM(fin.orgPayout)}</div></div>
+    </div>
+  </div>`;
+}
+
+function proposalCard(ev) {
+  const d = ev.data || {};
+  const when = d.dateTime ? new Date(d.dateTime).toLocaleString("en-MY", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "—";
+  const WHO = { host: "Host", circle: "Circle (WIP)", participants: "Participants" };
+  const costs = (d.costs || []).map((c) => `<tr><td>${esc(c.item)}</td><td>${esc(WHO[c.who] || c.who || "")}</td><td style="text-align:right">${fmtRM(c.rm)}</td></tr>`).join("");
+  const actions = [];
+  if (ev.status === "under_review") {
+    actions.push(`<button class="btn btn-banana btn-sm" onclick="setStatus('${esc(ev.id)}','approved')">Approve & publish</button>`);
+    actions.push(`<button class="btn btn-outline btn-sm" onclick="setStatus('${esc(ev.id)}','rejected')">Reject…</button>`);
+  }
+  if (ev.status === "approved") {
+    actions.push(`<button class="btn btn-banana btn-sm" onclick="setStatus('${esc(ev.id)}','completed')">Mark completed</button>`);
+    actions.push(`<button class="btn btn-outline btn-sm" onclick="setStatus('${esc(ev.id)}','cancelled')">Cancel…</button>`);
+  }
+  if (ev.status === "rejected" || ev.status === "cancelled") {
+    actions.push(`<button class="btn btn-outline btn-sm" onclick="setStatus('${esc(ev.id)}','under_review')">Back to review</button>`);
+  }
+  if (ev.status === "completed") {
+    actions.push(`<button class="btn btn-outline btn-sm" onclick="setStatus('${esc(ev.id)}','approved')">Re-open</button>`);
+  }
+
+  const rsvps = Array.isArray(d.rsvps) ? d.rsvps : [];
+  const going = rsvps.filter((r) => r.status === "going" && !r.waitlisted);
+  const wait = rsvps.filter((r) => r.waitlisted);
+  const maybe = rsvps.filter((r) => r.status === "maybe");
+  const goingPax = going.reduce((s, r) => s + r.pax, 0);
+  const rsvpKey = (r) => r.memberId || `name:${r.name}`;
+  const payCell = (r) => {
+    if (r.status !== "going" || r.waitlisted) return "";
+    const act = (action, label) => `<button class="btn btn-outline btn-sm mini" onclick="rsvpAction('${esc(ev.id)}', '${esc(rsvpKey(r))}', '${action}')">${label}</button>`;
+    if (r.paymentStatus === "paid") return `<span class="paid">paid</span> ${act("unpaid", "Undo")}`;
+    if (r.paymentStatus === "pending") return `<span class="wl">pending</span> ${act("paid", "Mark paid")}`;
+    return '<span class="muted">—</span>';
+  };
+  const rsvpTable = (list) => list.length
+    ? `<table class="rsvptable"><tr><th>Name</th><th>Pax</th><th>Status</th><th>Payment</th><th>When</th><th></th></tr>` +
+      list.map((r) => `<tr><td>${esc(r.name)}</td><td>${r.pax}</td><td>${r.waitlisted ? '<span class="wl">waitlist</span>' : esc(r.status)}</td><td>${payCell(r)}</td><td>${esc(new Date(r.at).toLocaleString("en-MY", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }))}</td>
+        <td><button class="btn btn-outline btn-sm mini" onclick="rsvpAction('${esc(ev.id)}', '${esc(rsvpKey(r))}', 'remove')" title="Remove this RSVP">×</button></td></tr>`).join("") +
+      `</table>`
+    : '<div class="muted" style="font-size:12.5px">No RSVPs yet.</div>';
+
+  // Payment link members are sent to when they RSVP "going". Paid Circles
+  // can't take "going" RSVPs until one is set.
+  const needsLink = Number(d.ticketPrice) > 0;
+  const payBlock = ev.status === "approved" || ev.status === "under_review" ? `
+    <div class="payblock ${needsLink && !d.paymentUrl ? "missing" : ""}">
+      <label for="pay_${esc(ev.id)}"><strong>Payment link</strong> ${needsLink ? `for ${fmtRM(d.ticketPrice)} per person` : "(free Circle, not needed)"}</label>
+      <div class="payrow">
+        <input id="pay_${esc(ev.id)}" type="url" placeholder="https://… (ToyyibPay, Billplz, Stripe payment link…)" value="${esc(d.paymentUrl || "")}">
+        <button class="btn btn-banana btn-sm" onclick="savePaymentLink('${esc(ev.id)}')">Save</button>
+      </div>
+      ${needsLink && !d.paymentUrl ? `<div class="paywarn">Members can't RSVP "going" until this is set.</div>` : ""}
+    </div>` : "";
+  const comments = (Array.isArray(d.comments) ? d.comments : []).map((c) =>
+    `<div class="cmt"><strong>${esc(c.name)}</strong> <span class="muted" style="font-size:11px">${esc(new Date(c.at).toLocaleString())}</span><br>${esc(c.text)}</div>`).join("");
+
+  const planRow = (label, val) => (val ? `<tr><td>${esc(label)}</td><td>${esc(val)}</td></tr>` : "");
+  const planText = (label, val) => (val ? `<h4 style="margin-top:10px;font-size:12.5px">${esc(label)}</h4><div class="desc">${esc(val)}</div>` : "");
+
+  return `<details class="prop" ${ev.status === "under_review" ? "open" : ""}>
+    <summary>
+      ${d.coverImage
+        ? `<span class="cov img"><img src="${d.coverImage.data}" alt="Cover photo"></span>`
+        : `<span class="cov" style="background:linear-gradient(120deg, ${esc(d.cover ? d.cover.from : "#F5EFE6")}, ${esc(d.cover ? d.cover.to : "#DEFFA9")})">${esc(d.cover ? d.cover.emoji : "🌿")}</span>`}
+      <span class="ttl"><h4>${esc(d.title)}</h4>
+        <div class="sub">${esc(d.sessionType || "")} · ${esc(when)} · ${esc(d.venueName || "")} · theme: ${esc(d.theme || "—")} · submitted ${esc(new Date(ev.submittedAt).toLocaleDateString("en-MY", { day: "numeric", month: "short" }))}</div>
+      </span>
+      ${STATUS_TAG[ev.status] || ""}
+      ${ev.status === "approved" ? `<span class="tag">${goingPax}/${d.capacity || "?"} going</span>` : ""}
+    </summary>
+    <div class="body cols">
+      <div>
+        <table class="kv">
+          <tr><td>When / duration</td><td>${esc(when)} · ${esc(d.duration || "—")}</td></tr>
+          <tr><td>Where</td><td>${esc({ physical: "Physical", online: "Online", hybrid: "Hybrid" }[d.venueMode] || "")} — ${esc(d.venueName || "")}${d.venueAddress ? " · " + esc(d.venueAddress) : ""}</td></tr>
+          ${planRow("Venue notes", d.venueNotes)}
+          ${planRow("Audience", d.audience)}
+          <tr><td>Participants</td><td>${esc(String(d.minCapacity || 1))} min · ${esc(String(d.capacity))} max</td></tr>
+          ${planRow("Preparation", d.prep)}
+          <tr><td>Ticket / proj. attendees</td><td>${fmtRM(d.ticketPrice)} · ${esc(String(d.projectedAttendees))} expected${d.costPerParticipant != null ? ` · ~${fmtRM(d.costPerParticipant)}/participant materials` : ""}</td></tr>
+          <tr><td>Facilitator</td><td>${esc(d.contactName || "")} · ${esc(d.contactEmail || "")}</td></tr>
+          ${d.createdBy ? `<tr><td>Submitted from account</td><td>${esc(d.createdBy.name || "")} · ${esc(d.createdBy.email || "")}<span class="who-acct">member</span></td></tr>` : ""}
+          ${ev.decidedAt ? `<tr><td>Last decision</td><td>${esc(ev.decidedBy || "admin")} on ${esc(new Date(ev.decidedAt).toLocaleString())}</td></tr>` : ""}
+          ${ev.adminNote ? `<tr><td>Admin note</td><td class="note">${esc(ev.adminNote)}</td></tr>` : ""}
+        </table>
+
+        <details style="margin-top:12px"><summary style="cursor:pointer;font-size:13px;font-weight:700">🌀 Full session plan (host framework)</summary>
+          ${planText("1 · What participants will do", d.coreActivity)}
+          ${d.reference ? `<div class="desc" style="font-size:12px">🔗 <a href="${esc(d.reference)}" target="_blank" rel="noopener">${esc(d.reference)}</a></div>` : ""}
+          ${planText("2 · Flow", d.flow)}
+          ${planText("4 · What they walk away with", d.takeaway)}
+          ${planText("4 · Deeper intention", d.intention)}
+          ${planText("5 · Theme — in their words (" + (d.theme || "") + ")", d.themeExplain)}
+          ${planText("5 · Key message", d.keyMessage)}
+          ${planText("7 · Opening", d.opening)}
+          ${planText("7 · Step-by-step instructions", d.instructions)}
+          ${planText("7 · Closing", d.closing)}
+          ${planText("8 · Reflection prompts", d.prompts)}
+          ${planText("9 · Help needed", d.help)}
+          ${planText("9 · Accessibility", d.accessibility)}
+          ${planText("9 · Anything else", d.other)}
+        </details>
+
+        <h4 style="margin-top:14px;font-size:13px">Materials &amp; resources</h4>
+        <table class="kv"><tr><th style="text-align:left">Item</th><th style="text-align:left">Provided by</th><th style="text-align:right">Cost</th></tr>${costs || '<tr><td class="muted">None listed</td></tr>'}</table>
+        ${(d.attachments && d.attachments.length) ? `
+        <h4 style="margin-top:14px;font-size:13px">Workshop experience attachments (${d.attachments.length})</h4>
+        <div class="attachgrid">${d.attachments.map((a) => {
+          const inner = a.type === "application/pdf"
+            ? `<div class="pdf">📄<span style="word-break:break-all">${esc(a.name)}</span></div>`
+            : `<img src="${a.data}" alt="${esc(a.name)}">`;
+          return `<a href="${a.data}" download="${esc(a.name)}" title="${esc(a.name)}">${inner}<div class="cap">${esc(a.name)}</div></a>`;
+        }).join("")}</div>` : ""}
+        ${finBlock(d.financials)}
+        ${payBlock}
+        <div class="actions">${actions.join("")}
+          ${ev.status !== "under_review" ? `<button class="btn btn-outline btn-sm" onclick="setStatus('${esc(ev.id)}','under_review')">→ Review</button>` : ""}
+        </div>
+      </div>
+      <div>
+        ${ev.status === "approved" || ev.status === "completed" ? `
+        <h4 style="font-size:13px">RSVPs — going (${going.length}, ${goingPax} pax)</h4>${rsvpTable(going)}
+        ${wait.length ? `<h4 style="font-size:13px;margin-top:10px">Waitlist (${wait.length})</h4>${rsvpTable(wait)}` : ""}
+        ${maybe.length ? `<h4 style="font-size:13px;margin-top:10px">Maybe (${maybe.length})</h4>${rsvpTable(maybe)}` : ""}
+        <h4 style="font-size:13px;margin-top:14px">Comments (${(d.comments || []).length})</h4>
+        ${comments || '<div class="muted" style="font-size:12.5px">No comments yet.</div>'}` : ""}
+      </div>
+    </div>
+  </details>`;
+}
+
+function render(events) {
+  const groups = [
+    ["under_review", "Needs review", "proposals waiting for your decision"],
+    ["approved", "Live on the member hub", "members can RSVP to these now"],
+    ["completed", "Completed", "wrapped up Circles"],
+    ["rejected", "Rejected", ""],
+    ["cancelled", "Cancelled", ""],
+  ];
+  let html = "";
+  for (const [status, title, sub] of groups) {
+    const list = events.filter((ev) => ev.status === status);
+    html += `<div class="sec"><h3 style="font-size:16px">${esc(title)}</h3><span class="count">${list.length}</span>
+      ${sub ? `<span class="muted" style="font-size:12px">${esc(sub)}</span>` : ""}</div>`;
+    html += list.length ? list.map(proposalCard).join("") : `<div class="muted" style="font-size:13px;margin-bottom:8px">None.</div>`;
+  }
+  html += `<div class="sec"><h3 style="font-size:16px">Members</h3><span class="count" id="memCount">…</span>
+    <span class="muted" style="font-size:12px">accounts that joined with the invite code</span></div>
+    <div class="card tablewrap" id="memList"><div class="muted" style="font-size:13px">Loading…</div></div>`;
+  $("content").innerHTML = html;
+  loadMembers();
+}
+
+async function savePaymentLink(id) {
+  try {
+    await api(`/api/admin/harmoni/events/${encodeURIComponent(id)}/payment`, {
+      method: "POST", body: JSON.stringify({ paymentUrl: $("pay_" + id).value.trim() }),
+    });
+    showDash();
+  } catch (e) { alert(e.message); }
+}
+
+async function rsvpAction(id, key, action) {
+  if (action === "remove" && !confirm("Remove this RSVP? Their seat is freed. If they paid, arrange the refund separately.")) return;
+  try {
+    await api(`/api/admin/harmoni/events/${encodeURIComponent(id)}/rsvp`, { method: "POST", body: JSON.stringify({ key, action }) });
+    showDash();
+  } catch (e) { alert(e.message); }
+}
+
+async function loadMembers() {
+  try {
+    const { members } = await api("/api/admin/harmoni/members");
+    $("memCount").textContent = members.length;
+    $("memList").innerHTML = members.length
+      ? `<table class="memtable"><tr><th>Name</th><th>Email</th><th>Sign-in</th><th>Joined</th><th class="n">Circles joined</th><th class="n">Proposed</th><th class="n">Hosted</th></tr>` +
+        members.map((m) => `<tr><td><strong>${esc(m.name)}</strong></td><td>${esc(m.email || "")}</td><td>${m.provider === "google" ? "Google" : "Email"}</td>
+          <td>${esc(new Date(m.joinedAt).toLocaleDateString("en-MY", { day: "numeric", month: "short", year: "numeric" }))}</td>
+          <td class="n">${m.counts.joined}</td><td class="n">${m.counts.proposed}</td><td class="n">${m.counts.hosted}</td></tr>`).join("") + `</table>`
+      : '<div class="muted" style="font-size:13px">No members yet. They appear here after signing in and entering the invite code.</div>';
+  } catch (e) {
+    $("memList").innerHTML = `<div class="muted" style="font-size:13px">⚠️ ${esc(e.message)}</div>`;
+  }
+}
+
+async function setStatus(id, status) {
+  let note;
+  if (status === "rejected" || status === "cancelled") {
+    note = prompt("Optional note (shown to admin, stored on the proposal):", "");
+    if (note === null) return;
+  }
+  try {
+    await api(`/api/admin/harmoni/events/${encodeURIComponent(id)}/status`, {
+      method: "POST",
+      body: JSON.stringify({ status, note }),
+    });
+    showDash();
+  } catch (e) { alert(e.message); }
+}
+
+$("pw").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
+if (token) showDash(); else $("login").style.display = "block";
+</script>
+</body>
+</html>
