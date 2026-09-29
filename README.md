@@ -13,12 +13,26 @@ Two halves:
    Community Health (public), Corporate Impact (per-client), Participant Journeys (internal),
    and the Admin Hub.
 
+Plus **WIP Harmoni Circle** — a members-only event hub (`/circle/`) where
+memberSHIPS members propose their own peer-led circles (theme, venue, date, itemised
+costs, projected revenue) under a fixed facilitator/WIP profit split, and RSVP to approved
+ones. Each member has their own login (email + password, or Google, via Supabase Auth) and a
+**My Circles** page showing how many Circles they've joined, proposed and hosted. Proposals
+land in an admin review queue (`/admin-harmoni.html`) and only appear on the hub once
+approved.
+
 ## Setup
 
 1. Install dependencies: `npm install`
 2. Set values in `.env`:
    - `DEEPSEEK_API_KEY` — DeepSeek API key (https://platform.deepseek.com)
    - `ADMIN_PASSWORD` — password for the admin-gated dashboards
+   - `MEMBER_INVITE_CODE` — invite code a new account enters once to join the Harmoni Circle
+     hub (`MEMBER_PASSWORD` still works as the old name). See "Member logins" below.
+   - `SUPABASE_ANON_KEY` — needed for member logins (plus the Supabase URL/service key below)
+   - *(optional, Harmoni Circle)* `HARMONI_FACILITATOR_SHARE` — facilitator's fixed share of
+     projected profit, percent 0–100 (default 60; WIP's share covers the program system,
+     SHIPS peer framework and art-therapy psychology education module)
    - *(optional, Community totals)* `STAT_PEOPLE_REACHED`, `STAT_HOURS_DELIVERED`,
      `STAT_COMMUNITIES`, `STAT_ORGANISATIONS`, `STAT_SINCE_YEAR` — org-confirmed totals.
      Left unset, the Community dashboard shows an honest "set in config" placeholder
@@ -35,6 +49,8 @@ Two halves:
 | Corporate Impact dashboard | `/corporate.html` | Admin password |
 | Participant Journeys | `/participant.html` | Admin password (internal) |
 | Admin Hub | `/admin.html` | Admin password |
+| WIP Harmoni Circle hub | `/circle/` (`#propose`, `#me` deep-link) | Member account (Supabase Auth) + one-time invite code |
+| Harmoni Circles admin | `/admin-harmoni.html` | Admin password |
 
 ## The website (WordPress snapshot)
 
@@ -59,7 +75,12 @@ All pages share `public/brand.css`, which encodes the **myWIPhealing Color Syste
 (stonewashed `#F5EFE6` surfaces, near-black `#2C2C2A` text, banana-green `#C9EE21`/`#D5FC4C`
 pill CTAs paired with near-black, coral `#E8794A`, myrtle `#174509` dark sections). Each
 dashboard carries its assigned section accent: Community = rose, Corporate = blue,
-Individual = mint (set via `body class="theme-*"`).
+Individual = mint, Harmoni Circles admin = crimson (set via `body class="theme-*"`).
+
+The member-facing pages (the survey at `/` and the Harmoni Circle hub) instead use the
+mywiphealing.com website look: page-local tokens (`#1d1d1f` ink, forest/leaf greens, site
+coral `#ef6442`, pastel pinks/mints/lavenders), Bricolage Grotesque headings, ink-outlined
+cards with offset shadows, and the hand-drawn doodle stickers.
 
 ## How it works
 
@@ -77,6 +98,102 @@ Individual = mint (set via `body class="theme-*"`).
 - `POST /api/admin/responses/:id/approve-quote` — consent gate: mark/unmark one open-text
   answer as a public testimonial (`{ field, author, approved }`).
 - `POST /api/admin/insights` — on-demand DeepSeek report across the dataset.
+
+Harmoni Circle:
+
+"Member auth" = a Supabase Auth access token (`Authorization: Bearer …`) whose user has
+joined with the invite code. The server verifies tokens against Supabase (`/auth/v1/user`,
+cached 60s).
+
+- `GET /api/member/config` — public. Whether logins are on, plus the Supabase URL and anon
+  key the page needs to sign in.
+- `POST /api/member/join` — signed-in user. `{ inviteCode, name }` turns the account into a
+  member. Wrong codes are throttled (8 tries / 15 min per account).
+- `GET /api/member/me` — member auth. Profile plus activity: `counts` (`joined`, `attended`,
+  `upcoming`, `proposed`, `hosted`) and the `joined` / `proposals` lists behind them.
+  Joined = RSVP'd going with a seat (not waitlisted) on a live or completed Circle; hosted =
+  their own proposal that went live and has taken place.
+- `POST /api/member/me` — member auth. Profile: any of `{ name, roles, state, city, photo }`.
+  `roles` ⊂ fighter / caregiver / practitioner (Mental health fighter, Caregiver, Practitioner);
+  `state` is a Malaysian state/FT or "Outside Malaysia"; `photo` is a JPG/PNG/WebP data URL
+  (the page square-crops it to 400px) or `null` to remove. Name + a role + a state make the
+  profile complete; the page asks new members to fill it in right after joining (skippable).
+  Other members only ever see name and photo; role and location are for the member and admins.
+- `GET /api/harmoni/photos/:key` — **no auth**. A profile photo, by a random key that changes
+  with every upload (never the member id).
+- `GET /api/harmoni/events` — member auth. Approved events only, as an **attendee view**: when,
+  where, price, what you'll do, what you'll leave with, what to bring (Participant-provided
+  items), accessibility notes, host first name, RSVP counts, the payment link, and a per-viewer
+  `mine` block (hosting? RSVP? payment status?). The host's facilitation plan (flow,
+  instructions, prompts, intention, costs, attachments, notes) and contact details are never
+  sent to members.
+- `GET /api/harmoni/events/:id/cover` — **no auth** (image tags can't send a token). The event's
+  cover picture for live events only: the host's cover upload, else their first image
+  attachment. Served with the allow-listed image type, never sniffed.
+- `POST /api/harmoni/draft` — member auth. `{ field, answers }` → a DeepSeek-written draft for
+  one proposal question ("✨ Write a draft for me"), built on what the member has written so far.
+  `{ text }`, or `{ lines }` for list questions. 40 per member per hour.
+- `POST /api/harmoni/events` — member auth. Submits a Circle proposal. The server validates
+  every field (future date, capacity 1–200, itemised costs, safeguarding acknowledgment,
+  up to 3 image/PDF attachments ≤ ~1MB each) and computes the financial snapshot itself —
+  projected revenue, cost, profit, and the fixed facilitator/WIP split. Status starts at
+  `under_review`.
+  The proposer's account is recorded as `data.createdBy`. Optional `coverImage` (PNG/JPG/WebP/GIF
+  data URL, ≤ ~1MB; the form shrinks photos first) becomes the event cover once approved.
+- `POST /api/harmoni/events/:id/rsvp` — member auth. `{ status: going|maybe, pax }`; the name
+  comes from the account. One RSVP per member (a new one replaces it); `going` is capped at
+  capacity with overflow flagged waitlisted. `DELETE` withdraws it. On a paid Circle, `going`
+  needs the admin's payment link to exist; the seat is held as `paymentStatus: "pending"` and
+  the response carries `paymentUrl` for the page to open. There is no payment-provider webhook:
+  an admin marks it paid.
+- `POST /api/harmoni/events/:id/comments` — member auth, `{ text }` ≤ 280 chars.
+- `GET /api/admin/harmoni/members` — admin auth. Every member with their activity counts.
+- `POST /api/admin/harmoni/events/:id/payment` — admin auth. `{ paymentUrl }` (https, any
+  provider; empty clears it).
+- `POST /api/admin/harmoni/events/:id/rsvp` — admin auth. `{ key, action: paid|unpaid|remove }`,
+  where `key` is the RSVP's member id (or `name:<name>` for pre-account RSVPs).
+- `GET /api/admin/harmoni/events` / `POST /api/admin/harmoni/events/:id/status` — admin auth.
+  Review queue: list everything, then approve / reject / complete / cancel with an optional note.
+
+Events and member profiles live in the same dual-store setup as responses (Redis or local
+`data/*.json` primary, Supabase mirror) under separate `events` / `members` keys, and
+`GET /api/admin/storage` reports counts for responses and events.
+
+RSVPs and comments made before member accounts existed only carry a typed name, so they
+aren't linked to anyone and don't count toward a member's totals.
+
+### Member logins (Supabase Auth)
+
+Logins stay off (the hub explains why) until all of this is in place:
+
+1. **Supabase project** with `supabase/schema.sql` run in it, including the `members`
+   table. The app only turns logins on once it can see that table, so it can never sign
+   members up into another of the org's Supabase projects.
+2. **Env vars** on Vercel and in local `.env`: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
+   `SUPABASE_ANON_KEY` (or their `SURVEY_`-prefixed overrides), and `MEMBER_INVITE_CODE`.
+3. **Auth → URL Configuration**: set Site URL to the production domain and add
+   `https://www.mywiphealing.com/circle/` and `http://localhost:3000/circle/`
+   (plus any other local port you use) to Redirect URLs. Google sign-in, confirmation emails
+   and password-reset links all return there.
+4. **Google sign-in**: in Google Cloud Console create an OAuth client (type "Web
+   application") with authorised redirect URI `https://<project-ref>.supabase.co/auth/v1/callback`,
+   then paste its client ID and secret into Supabase → Auth → Providers → Google.
+5. **Email + password**: on by default. Keep "Confirm email" on; Supabase's built-in mailer
+   is rate-limited, so set up custom SMTP (Auth → SMTP) before inviting many members.
+
+A new member signs in (Google or email), enters the invite code once, and from then on just
+signs in. Change `MEMBER_INVITE_CODE` any time: existing members are unaffected.
+
+Where members get the code: the "Join our Circle" / "Claim your membership" buttons on
+`/wip-harmoni-circle/` go to the RM100 Stripe payment link. Set that link's confirmation
+message (Stripe → Payment Links → After payment) to point new members at
+`mywiphealing.com/circle/` with the invite code, so only paying members see it.
+
+Site entry points into the hub: a round member icon beside "Request Proposal" in every page
+header (a full-width "Member login" button in the mobile menu), a "Members: upcoming Circles"
+button in the `/wip-harmoni-circle/` hero, and an "Upcoming Circles / Host your own Circle"
+band above that page's "Our events". Styles for all of these live in `public/memberlink.css`,
+which each exported page links. `/harmoni-circle.html` and `/members` redirect to `/circle/`.
 
 Aggregation lives in `stats.js` (`communityStats`, `corporateStats`, `groupByParticipant`,
 `computeStats`) — pure functions over the stored responses.

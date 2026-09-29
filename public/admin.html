@@ -15,7 +15,7 @@
   :root { --accent: var(--forest); }
 
   /* ── Dashboard nav: pastel sticker cards ── */
-  .navcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .navcards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .navcard {
     display: block; text-decoration: none; color: var(--ink); position: relative;
     border-radius: 22px; padding: 20px 22px 18px; border: 1.5px solid var(--ink);
@@ -26,6 +26,7 @@
   .navcard.c-comm  { background: var(--pink); }
   .navcard.c-corp  { background: var(--sky); }
   .navcard.c-indiv { background: var(--mint); }
+  .navcard.c-harm  { background: var(--lavender); }
   .navcard .ico { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; }
   .navcard h4 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; padding-right: 40px; }
   .navcard p { font-size: 12.5px; color: rgba(29,29,31,.72); margin-top: 4px; }
@@ -81,6 +82,7 @@
   .quote-tools .qrow .qtext { flex: 1; color: var(--ink); }
   .author-in { border: 1.5px solid var(--ink); border-radius: var(--radius-pill); padding: 6px 12px; font: inherit; font-size: 12.5px; }
 
+  @media (max-width: 1100px) { .navcards { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 900px) { .navcards { grid-template-columns: 1fr; } }
   @media (max-width: 560px) { .bar-row .name { flex-basis: 40%; } }
 </style>
@@ -128,6 +130,10 @@
     <a class="navcard c-indiv" href="/participant.html">
       <svg class="ico" viewBox="0 0 100 100" aria-hidden="true"><use href="/img/doodles.svg#d-smiley"/></svg>
       <h4>Participant Journeys</h4><p>Internal pre→post journeys &amp; flags.</p><span class="go">Open →</span>
+    </a>
+    <a class="navcard c-harm" href="/admin-harmoni.html">
+      <svg class="ico" viewBox="0 0 100 100" aria-hidden="true"><use href="/img/doodles.svg#d-sparkle"/></svg>
+      <h4>Harmoni Circles</h4><p>Review proposals, payment links, RSVPs &amp; members.</p><span class="go">Open →</span>
     </a>
   </div>
 
