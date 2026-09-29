@@ -1,10 +1,10 @@
 // Adds this repo's own pages to the mirrored WordPress site, which knows
 // nothing about them:
 //   - every page: a header bar trimmed to Our Solution, Peer Stories, About and
-//     Contact (desktop + mobile drawer), with "For Corporate", "Our Impact"
-//     (/community.html) and "Impact Survey" (/bot/) moved under the Our
-//     Solution dropdown; the latter two also go in the footer, plus footer
-//     links to the policy pages and the team login, which nothing linked to
+//     Contact (desktop + mobile drawer), with "For Corporate" moved under the
+//     Our Solution dropdown; "Our Impact" (/community.html) and "Impact
+//     Survey" (/bot/) in the footer, plus footer links to the policy pages
+//     and the team login, which nothing linked to
 //   - homepage: the community dashboard + survey sections after the hero
 //     (scripts/home-sections.html)
 //
@@ -19,7 +19,8 @@ const path = require("path");
 const PUBLIC = path.join(__dirname, "..", "public");
 const HOME_SECTIONS = path.join(__dirname, "home-sections.html");
 
-// Pages the site owns but WordPress's menus do not list.
+// Pages the site owns but WordPress's menus do not list. Linked from the
+// footer (and the homepage sections), not the header.
 const NAV_ITEMS = [
   { href: "/community.html", label: "Our Impact" },
   { href: "/bot/", label: "Impact Survey" },
@@ -34,7 +35,6 @@ const FOOTER_LEGAL = [
 // than on the bar itself. For Corporate is a WordPress menu item, moved here.
 const SOLUTION_ITEMS = [
   { href: "/corporate/", label: "For Corporate" },
-  ...NAV_ITEMS,
 ];
 
 // With only four items on the bar, give them a little breathing room on
