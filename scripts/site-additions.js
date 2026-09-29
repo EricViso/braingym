@@ -1,7 +1,9 @@
 // Adds this repo's own pages to the mirrored WordPress site, which knows
 // nothing about them:
-//   - every page: "Our Impact" (/community.html) and "Impact Survey" (/bot/)
-//     in the header menu (desktop + mobile drawer) and the footer, plus footer
+//   - every page: a header bar trimmed to Our Solution, Peer Stories, About and
+//     Contact (desktop + mobile drawer), with "For Corporate", "Our Impact"
+//     (/community.html) and "Impact Survey" (/bot/) moved under the Our
+//     Solution dropdown; the latter two also go in the footer, plus footer
 //     links to the policy pages and the team login, which nothing linked to
 //   - homepage: the community dashboard + survey sections after the hero
 //     (scripts/home-sections.html)
@@ -28,16 +30,20 @@ const FOOTER_LEGAL = [
   { href: "/admin.html", label: "Team login" },
 ];
 
-// WordPress sized the desktop menu bar (900px) for its own seven items; widen
-// it for the two added here, and tighten spacing on narrow desktops so the
-// menu stays on one line. Below 1025px Kadence swaps in the mobile drawer.
+// Secondary links that live under the header's "Our Solution" dropdown rather
+// than on the bar itself. For Corporate is a WordPress menu item, moved here.
+const SOLUTION_ITEMS = [
+  { href: "/corporate/", label: "For Corporate" },
+  ...NAV_ITEMS,
+];
+
+// With only four items on the bar, give them a little breathing room on
+// desktop. Below 1025px Kadence swaps in the mobile drawer, which aligns each
+// WordPress item through its kb-nav-link-* class; Peer Stories (rewritten
+// below) has none, so it gets the same left alignment here.
 const NAV_CSS = `<style>
-@media (min-width:1025px){
-.wp-block-kadence-header .kb-header-container:has(.wip-nav-item),
-.wp-block-kadence-header-row .kadence-header-row-inner:has(.wip-nav-item){max-width:1180px}}
-@media (min-width:1025px){.wp-block-kadence-header-row .kadence-header-row-inner:has(.wip-nav-item) .menu-container > .menu > .wp-block-kadence-navigation-link{margin:0 .3em}}
-@media (min-width:1025px) and (max-width:1279px){.wp-block-kadence-header-row .kadence-header-row-inner:has(.wip-nav-item) .kb-nav-link-content{font-size:15px;--kb-nav-link-padding-left:.3em;--kb-nav-link-padding-right:.3em}
-.wp-block-kadence-header-row .kadence-header-row-inner:has(.wip-nav-item) .menu-container > .menu > .wp-block-kadence-navigation-link{margin:0 .4em}}
+@media (min-width:1025px){.wp-block-kadence-header-row .kadence-header-row-inner:has(.wip-nav-item) .menu-container > .menu > .wp-block-kadence-navigation-link{margin:0 .5em}}
+@media (max-width:767px){.kb-navigation > .menu-item:not([class*="kb-nav-link-"]) > .kb-link-wrap.kb-link-wrap.kb-link-wrap.kb-link-wrap{--kb-nav-link-align:left;--kb-nav-link-flex-justify:start;--kb-nav-link-media-container-align-self:start}}
 </style>`;
 
 const wrap = (name, html) => `<!--wip:add:${name}-->${html}<!--/wip:add:${name}-->`;
@@ -63,7 +69,7 @@ function closingDivEnd(html, from) {
 }
 
 function navItems() {
-  const items = NAV_ITEMS.map(
+  const items = SOLUTION_ITEMS.map(
     (i) =>
       `<li class="wp-block-kadence-navigation-link menu-item wip-nav-item"><div class="kb-link-wrap">` +
       `<a class="kb-nav-link-content" href="${i.href}">${i.label}</a></div></li>\n`
@@ -83,11 +89,18 @@ function addToPage(html, { home }) {
   html = html.replace(resDrop,
     `<li class="wp-block-kadence-navigation-link menu-item"><div class="kb-link-wrap"><a class="kb-nav-link-content" href="/ships-peer-stories/">Peer Stories</a></div></li>`);
 
-  // Header menus (desktop + mobile drawer share the markup): before "About".
-  const about = /<li class="wp-block-kadence-navigation-link[^"]*"><div class="kb-link-wrap"><a class="kb-nav-link-content" href="\/about-us\/">/g;
+  // WordPress's top-level "For Corporate" item: dropped here and re-added under
+  // Our Solution below (marker-wrapped, so re-runs don't duplicate it).
+  const corporate = /<li class="wp-block-kadence-navigation-link[^"]*"><div class="kb-link-wrap"><a class="kb-nav-link-content" href="\/corporate\/">For Corporate<\/a><\/div><\/li>\n*/g;
+  html = html.replace(corporate, "");
+
+  // Header menus (desktop + mobile drawer share the markup): at the end of the
+  // "Our Solution" dropdown. Its sub-items hold no lists, so the first
+  // </ul></li> after the label closes the dropdown.
+  const solution = /(<a class="kb-nav-link-content" role="button">Our Solution<\/a>[\s\S]*?)(<\/ul><\/li>)/g;
   let navCount = 0;
-  html = html.replace(about, (m) => (navCount++, navItems() + m));
-  if (!navCount) missed.push("header menu (no About item)");
+  html = html.replace(solution, (m, head, end) => (navCount++, head + navItems() + end));
+  if (!navCount) missed.push("header menu (no Our Solution dropdown)");
   else html = html.replace("</head>", wrap("head-style", NAV_CSS) + "\n</head>");
 
   // Footer "Resources" menu.
@@ -115,7 +128,9 @@ function addToPage(html, { home }) {
     else {
       const at = closingDivEnd(html, hero);
       const block = wrap("home-sections", "\n" + fs.readFileSync(HOME_SECTIONS, "utf8").trim() + "\n");
-      html = html.slice(0, at) + "\n" + block + "\n" + html.slice(at);
+      // No newline after the block: strip() removes the one that follows it,
+      // so adding one here would grow the page by a blank line per run.
+      html = html.slice(0, at) + "\n" + block + html.slice(at);
     }
   }
   return [html, missed];
