@@ -69,7 +69,7 @@ body {
 .appbar::after { display: none; }
 .appbar .brand-mark { align-items: center; gap: 14px; }
 .appbar .logo-badge {
-  width: 50px; height: 50px; border-radius: 50%; background: var(--banana-bright);
+  width: 50px; height: 50px; border-radius: 50%; background: var(--white);
   display: grid; place-items: center; flex-shrink: 0;
 }
 .appbar .logo-badge img { height: 34px; }

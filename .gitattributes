@@ -1,0 +1,17 @@
+# Media files are never text; without this, git's autodetection can treat some
+# PNG/WebP files as text and rewrite their bytes (CRLF -> LF), corrupting them.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.avif binary
+*.mp4 binary
+*.webm binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary
+*.pdf binary

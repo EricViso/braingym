@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    { "source": "/peer-stories", "destination": "/", "permanent": true },
+    { "source": "/peer-stories/", "destination": "/", "permanent": true },
+    { "source": "/harmoni-circle.html", "destination": "/circle/", "permanent": true },
+    { "source": "/members", "destination": "/circle/", "permanent": false },
+    { "source": "/members/", "destination": "/circle/", "permanent": false }
+  ],
   "rewrites": [{ "source": "/api/(.*)", "destination": "/api" }],
   "functions": {
     "api/index.js": {
