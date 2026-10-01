@@ -28,7 +28,7 @@ const CATEGORY_FIELDS = {
   gender: "Gender",
   creative_expression: "Creative expression",
   community_role: "Community role",
-  booth_experience: "Booth experience (A best - E worst)",
+  booth_experience: "Session experience (A best - E worst)",
 };
 
 // Open-text answers eligible to become a public testimonial. Shared by the
@@ -42,6 +42,19 @@ const QUOTE_FIELDS = [
   "suggestions",
   "pre_mood",
 ];
+
+// Questions each programme asks register themselves here, so a programme's
+// own scales, choices and reflections reach the dashboards without this file
+// being edited each time.
+for (const q of survey.programQuestions()) {
+  const label = q.label || q.field;
+  if (q.scale && q.label && !SCALE_FIELDS[q.field]) SCALE_FIELDS[q.field] = label;
+  if (q.category && !CATEGORY_FIELDS[q.field]) CATEGORY_FIELDS[q.field] = label;
+  if (q.quote && !QUOTE_FIELDS.includes(q.field)) QUOTE_FIELDS.push(q.field);
+}
+
+// Tick-all-that-apply answers, stored as one comma-separated value.
+const MULTI_FIELDS = new Set(survey.programQuestions().filter((q) => q.multi).map((q) => q.field));
 
 // The four positive post-session scales that compose the Wellbeing Index.
 const WELLBEING_POST = [
@@ -90,6 +103,7 @@ const PROGRAM_KEYS = new Map();
 for (const p of survey.PROGRAMS) {
   PROGRAM_KEYS.set(p.id.toLowerCase(), p.id);
   PROGRAM_KEYS.set(p.label.toLowerCase(), p.id);
+  for (const alias of p.aliases || []) PROGRAM_KEYS.set(alias.toLowerCase(), p.id);
 }
 function programId(value) {
   if (value === null || value === undefined || value === "") return null;
@@ -128,8 +142,11 @@ function distribution(datas, field) {
   for (const d of datas) {
     const v = field === "program" ? programId(d[field]) : d[field];
     if (v === null || v === undefined || v === "") continue;
-    const key = String(v);
-    counts[key] = (counts[key] || 0) + 1;
+    // A tick-all-that-apply answer counts once under each thing ticked.
+    const keys = MULTI_FIELDS.has(field)
+      ? (Array.isArray(v) ? v : String(v).split(",")).map((k) => String(k).trim()).filter(Boolean)
+      : [String(v)];
+    for (const key of keys) counts[key] = (counts[key] || 0) + 1;
   }
   return counts;
 }
@@ -216,6 +233,145 @@ function computeStats(responses) {
   };
 }
 
+// ---------- per-programme panels (public, aggregate only) ----------
+
+// A sensitive breakdown is held back until this many people have answered it,
+// so a public chart can never point at one or two individuals.
+const MIN_N = 5;
+
+function publicLabel(q) {
+  const label = q.label || SCALE_FIELDS[q.field] || CATEGORY_FIELDS[q.field] || q.text.split(" / ")[0];
+  return label.replace(/^(Seni Scape |Circle: |Healing: )/, "").replace(/ \(you can choose more than one\)/, "");
+}
+
+// The stored answer to a choice question. The session-experience rating also
+// lives under its pre-refactor name on imported rows.
+function choiceValue(d, field) {
+  const raw = field === "booth_experience" ? d.booth_experience || d.program_experience : d[field];
+  if (raw === null || raw === undefined || raw === "") return null;
+  return (Array.isArray(raw) ? raw.join(", ") : String(raw)).trim();
+}
+
+// Answers to a choice question, in the order the options are asked. A stored
+// value counts under every option it names: the English half of the option,
+// its leading letter ("A"), or - for zones, whose names have changed between
+// events - its zone number. Older responses hold several choices in one
+// value, so this matches inside the value rather than splitting it. A value
+// naming no option (a typed "Other") is pooled.
+function optionCounts(q, datas) {
+  const opts = q.options.map((opt) => {
+    const en = opt.split(" / ")[0].trim();
+    return {
+      en,
+      letter: (en.match(/^([A-Z]) - /) || [])[1],
+      zone: (en.match(/^Zone (\d)/) || [])[1],
+      count: 0,
+    };
+  });
+  let other = 0;
+  let n = 0;
+  for (const d of datas) {
+    const v = choiceValue(d, q.field);
+    if (v === null) continue;
+    n++;
+    const zones = new Set((v.match(/Zone\s*[\d\s&]+/g) || []).join(" ").match(/\d/g) || []);
+    const hits = opts.filter((o) => (o.letter && v === o.letter) || v.includes(o.en) || (o.zone && zones.has(o.zone)));
+    if (hits.length) for (const o of hits) o.count++;
+    else other++;
+  }
+  const items = opts.map((o) => ({ label: o.letter ? o.en.replace(/^[A-Z] - /, "") : o.en, count: o.count }));
+  if (other) {
+    const slot = items.find((i) => /^other$/i.test(i.label));
+    if (slot) slot.count += other;
+    else items.push({ label: "Other", count: other });
+  }
+  return { n, items };
+}
+
+// A sentence or two per programme, written from its own numbers, so a reader
+// gets the story before the charts. Only states what the data shows.
+function narrative(p) {
+  if (!p.count) return "No responses yet for this programme.";
+  const parts = [`${p.count} ${p.count === 1 ? "person has" : "people have"} completed this survey.`];
+  const worth = p.shift.find((s) => s.before !== null && s.after !== null);
+  if (worth) parts.push(`${worth.label.replace(/ \(.*/, "")} moved from ${worth.before} before the session to ${worth.after} after (out of 5).`);
+  const rated = p.groups.flatMap((g) => g.items).filter((i) => !/^Pre: /.test(i.label));
+  if (rated.length > 1) {
+    const top = rated.slice().sort((a, b) => b.average - a.average)[0];
+    const low = rated.slice().sort((a, b) => a.average - b.average)[0];
+    parts.push(
+      top.average === low.average
+        ? `Every rated statement averages ${top.average} / 5.`
+        : `Highest rated: "${top.label}" at ${top.average} / 5. Lowest: "${low.label}" at ${low.average} / 5.`
+    );
+  } else if (rated.length === 1) {
+    parts.push(`"${rated[0].label}" averages ${rated[0].average} / 5.`);
+  }
+  for (const c of p.charts.filter((c) => c.n >= MIN_N).slice(0, 2)) {
+    const top = c.items.slice().sort((a, b) => b.count - a.count)[0];
+    if (top && top.count) parts.push(`${c.label}: most chose "${top.label}" (${top.count} of ${c.n}).`);
+  }
+  return parts.join(" ");
+}
+
+// One panel per programme, built from that programme's own questionnaire in
+// survey.js: its rating questions grouped by section, its choice questions as
+// breakdowns, and a before -> after shift where the programme collects one.
+function programPanels(responses) {
+  return survey.PROGRAMS.map((p) => {
+    const rs = responses.filter((r) => r.data && programId(r.data.program) === p.id);
+    const datas = rs.map((r) => r.data);
+    const sections = survey.sectionsFor(p.id);
+
+    const groups = sections
+      .map((sec) => {
+        const items = sec.questions
+          .filter((q) => q.scale)
+          .map((q) => {
+            const nums = scaleVals(datas, q.field);
+            return { label: publicLabel(q), average: avg(nums), count: nums.length };
+          })
+          .filter((i) => i.count);
+        return { title: sec.title.split(" / ")[0].replace(/^Section \w+ - /, ""), average: avg(items.map((i) => i.average)), items };
+      })
+      .filter((g) => g.items.length);
+
+    // Headline: each person's mean across the programme's outcome ratings.
+    // "Before the session" items and the understanding scale are left out -
+    // they are not outcomes on the same footing.
+    const outcomeFields = sections
+      .flatMap((sec) => sec.questions)
+      .filter((q) => q.scale && q.scale !== survey.SCALE_UNDERSTANDING && !q.field.startsWith("pre_"))
+      .map((q) => q.field);
+
+    const charts = sections
+      .flatMap((sec, i) => sec.questions.filter((q) => q.options && !q.scale && (i > 0 || q.insight)))
+      .map((q) => ({ label: publicLabel(q), multi: Boolean(q.multi), minN: q.insight ? MIN_N : 1, ...optionCounts(q, datas) }))
+      .filter((c) => c.n >= c.minN)
+      .map(({ minN, ...c }) => c);
+
+    const shift = [
+      { label: "Sense of self-worth (1-5)", before: avg(scaleVals(datas, "pre_self_worth")), after: avg(scaleVals(datas, "post_self_worth")) },
+      { label: "Mind state (1-5)", before: avg(scaleVals(datas, "pre_mind_heavy")), after: avg(scaleVals(datas, "post_mind_peaceful")), note: "before = heaviness, after = calm" },
+    ].filter((s) => s.before !== null || s.after !== null);
+
+    const panel = {
+      id: p.id,
+      label: p.label,
+      count: rs.length,
+      outcome: avg(datas.map((d) => rowScaleAvg(d, outcomeFields))),
+      sentiment: sentimentSplit(rs),
+      shift,
+      groups,
+      charts,
+      // Approved quotes only, from this programme's participants.
+      testimonials: approvedTestimonials(rs),
+    };
+    panel.narrative = narrative(panel);
+    return panel;
+  });
+}
+
 // ---------- community (public, anonymised, aggregate only) ----------
 
 function communityStats(responses) {
@@ -297,6 +453,7 @@ function communityStats(responses) {
     booth: boothDistribution(datas),
     words,
     testimonials: approvedTestimonials(responses),
+    programs: programPanels(responses),
     // Phase 2 — not yet collected by the survey:
     engagementRate: null,
   };

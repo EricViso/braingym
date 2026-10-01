@@ -12,6 +12,20 @@
 <link rel="stylesheet" href="/brand.css">
 <link rel="stylesheet" href="/sitebar.css">
 <link rel="stylesheet" href="/wip.css">
+<style>
+  .prog-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .prog-intro { font-size: 13.5px; color: var(--muted-strong); margin-bottom: 14px; max-width: 70ch; }
+  .prog-head h2 { font-family: var(--font-display); font-size: 24px; line-height: 1.15; }
+  .prog-story { font-size: 14.5px; line-height: 1.6; margin-top: 8px; max-width: 78ch; }
+  .hbar + .hbar { margin-top: 10px; }
+  .hbar-label { font-size: 12.5px; color: var(--muted-strong); font-weight: 600; margin-bottom: 5px; }
+  .hbar-row { display: flex; align-items: center; gap: 10px; }
+  .hbar-row .bar-track { height: 16px; }
+  .hbar-row .bar-fill { padding: 0; }
+  .hbar-val { font-family: var(--font-mono); font-size: 12px; font-weight: 600; min-width: 48px; text-align: right; }
+  .card h3 .avg { margin-left: auto; font-family: var(--font-mono); letter-spacing: 0; text-transform: none; color: var(--ink); }
+  .card-note { font-size: 11.5px; color: var(--muted); margin-top: 12px; }
+</style>
 </head>
 <body class="theme-community">
 <nav class="sitebar" aria-label="myWIPhealing site">
@@ -30,7 +44,7 @@
       <span class="logo-badge"><img src="/img/wip-logo.png" alt=""></span>
       <div>
         <h1>myWIPhealing <span class="swash">Community Health</span></h1>
-        <div class="subtitle">Aggregate, anonymised wellbeing across all Seni Scape &amp; Harmoni Circle sessions · Powered by Gym Brain</div>
+        <div class="subtitle">Aggregate, anonymised wellbeing across all myWIPhealing programmes · Powered by Gym Brain</div>
       </div>
     </div>
     <div class="bar-actions">
@@ -58,6 +72,15 @@
       <div id="effectiveness"></div>
     </div>
   </div>
+
+  <!-- By programme: each programme asks its own questions, so each gets its
+       own story and charts. Built from /api/public/community `programs`. -->
+  <div class="card">
+    <h3><span class="dot"></span> Impact by programme</h3>
+    <p class="prog-intro">Each programme asks its own questions, so each has its own story. Pick one to see what its participants told us.</p>
+    <div class="prog-tabs" id="progTabs" role="tablist"></div>
+  </div>
+  <div class="stack" id="progPanel"></div>
 
   <!-- Word cloud -->
   <div class="card">
@@ -98,6 +121,66 @@ function barPair(label, before, after, max, note) {
     <div class="bar-row"><div class="tier">Before</div><div class="bar-track"><div class="bar-fill" style="width:${pct(before)}%">${n1(before)}</div></div></div>
     <div class="bar-row"><div class="tier">After</div><div class="bar-track"><div class="bar-fill after" style="width:${pct(after)}%">${n1(after)}</div></div></div>
   </div>`;
+}
+
+// One labelled bar with its value at the end. `display` is what is printed.
+function hbar(label, value, max, display) {
+  const pct = value === null || !max ? 0 : Math.round((value / max) * 100);
+  return `<div class="hbar"><div class="hbar-label">${esc(label)}</div>
+    <div class="hbar-row"><div class="bar-track"><div class="bar-fill after" style="width:${pct}%"></div></div>
+    <div class="hbar-val">${esc(display)}</div></div></div>`;
+}
+
+let PROGRAMS = [];
+
+function renderTabs(activeId) {
+  $("progTabs").innerHTML = PROGRAMS.map((p) => `
+    <button type="button" role="tab" aria-selected="${p.id === activeId}"
+      class="btn btn-sm ${p.id === activeId ? "btn-primary" : "btn-outline"}"
+      onclick="showProgram('${esc(p.id)}')">${esc(p.label)} · ${p.count}</button>`).join("");
+}
+
+function showProgram(id) {
+  const p = PROGRAMS.find((x) => x.id === id);
+  if (!p) return;
+  renderTabs(id);
+  const head = `<div class="card prog-head"><h2>${esc(p.label)}</h2><p class="prog-story">${esc(p.narrative)}</p></div>`;
+  if (!p.count) { $("progPanel").innerHTML = head; return; }
+
+  const sent = p.sentiment || {};
+  const sentTotal = (sent.positive || 0) + (sent.mixed || 0) + (sent.negative || 0);
+  const posPct = sentTotal ? Math.round((sent.positive / sentTotal) * 100) : null;
+
+  const cards = [];
+  if (p.shift.length) {
+    cards.push(`<div class="card"><h3><span class="dot"></span> Before → after</h3>
+      <div class="bars">${p.shift.map((s) => barPair(s.label, s.before, s.after, 5, s.note)).join("")}</div>
+      <div class="card-note">Same-session scores, self-reported.</div></div>`);
+  }
+  for (const g of p.groups) {
+    cards.push(`<div class="card"><h3><span class="dot"></span> ${esc(g.title)}<span class="avg">${n1(g.average)} / 5</span></h3>
+      ${g.items.map((i) => hbar(i.label, i.average, 5, `${i.average} / 5`)).join("")}
+      <div class="card-note">Average rating, 1–5 · n = ${Math.max(...g.items.map((i) => i.count))}</div></div>`);
+  }
+  for (const c of p.charts) {
+    const max = Math.max(1, ...c.items.map((i) => i.count));
+    cards.push(`<div class="card"><h3><span class="dot"></span> ${esc(c.label)}</h3>
+      ${c.items.filter((i) => i.count).map((i) => hbar(i.label, i.count, max, i.count)).join("") || '<div class="muted">No answers yet.</div>'}
+      <div class="card-note">${c.n} ${c.n === 1 ? "person" : "people"} answered${c.multi ? " · more than one choice allowed" : ""}</div></div>`);
+  }
+  const quotes = (p.testimonials || []).slice(0, 2).map((q) => `
+    <div class="quote"><div class="mark">&ldquo;</div>
+      <div class="quote-text">${esc(q.text)}</div>
+      <div class="quote-author">— ${esc(q.author)}</div></div>`).join("");
+
+  $("progPanel").innerHTML = `${head}
+    <div class="grid grid-3">
+      ${kpi("Responses", p.count, "", "Completed surveys")}
+      ${kpi("Outcome score", p.outcome, "/5", "Mean of this programme's outcome ratings", p.outcome === null)}
+      ${kpi("Positive sessions", posPct, "%", "Share of responses read as positive", posPct === null)}
+    </div>
+    ${cards.length ? `<div class="grid grid-2">${cards.join("")}</div>` : ""}
+    ${quotes ? `<div class="grid grid-2">${quotes}</div>` : ""}`;
 }
 
 function wordClass(count, max) {
@@ -171,6 +254,11 @@ async function load() {
       `</div>
       <div class="muted" style="font-size:11.5px;margin-top:12px">Mean effectiveness: ${n1(s.effectiveness)} / 5 · n=${s.effectivenessCount}</div>`
     : `<div class="muted">Awaiting effectiveness ratings. This metric lights up once 3+ participants rate the program.</div>`;
+
+  // Programme panels: open on the programme with the most responses.
+  PROGRAMS = s.programs || [];
+  const first = PROGRAMS.slice().sort((a, b) => b.count - a.count)[0];
+  if (first) showProgram(first.id);
 
   // Word cloud
   const words = s.words || [];

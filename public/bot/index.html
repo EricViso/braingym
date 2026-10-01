@@ -240,6 +240,29 @@
   .chip-next:hover:not(:disabled) { background: var(--coral-site); border-color: var(--coral-site); }
   .chip-next:disabled { opacity: .35; cursor: default; }
   .msg strong { font-weight: 700; }
+
+  /* ── Linear 1-5 scale (rating questions) ── */
+  .scale {
+    align-self: flex-start; width: min(94%, 420px); padding-left: 38px;
+    animation: settle .38s cubic-bezier(.2,.9,.3,1.25) both;
+  }
+  .scale-track { display: flex; justify-content: space-between; align-items: center; position: relative; }
+  .scale-track::before {
+    content: ""; position: absolute; left: 22px; right: 22px; top: 50%;
+    border-top: 1.5px solid var(--ink); opacity: .35;
+  }
+  .scale-pt {
+    position: relative; width: 44px; height: 44px; border-radius: 50%;
+    background: var(--white); color: var(--ink); border: 1.5px solid var(--ink);
+    font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, background .12s, color .12s;
+  }
+  .scale-pt:hover { background: var(--banana-pastel); transform: translateY(-2px); box-shadow: 3px 3px 0 var(--ink); }
+  .scale-pt:active { background: var(--coral-site); border-color: var(--coral-site); color: var(--white); transform: none; box-shadow: none; }
+  .scale-pt:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
+  .scale-ends { display: flex; justify-content: space-between; gap: 16px; margin-top: 8px; font-size: .78rem; line-height: 1.25; opacity: .8; }
+  .scale-ends span { max-width: 46%; }
+  .scale-ends span:last-child { text-align: right; }
   .chip:focus-visible, .chip-next:focus-visible, #send:focus-visible, .done-card a:focus-visible { outline: 3px solid var(--forest); outline-offset: 2px; }
 
   /* ── Composer ── */
@@ -501,6 +524,39 @@ function showChips(options, multi) {
   scrollDown();
 }
 
+// A 1-5 rating drawn as one line: numbered points with the meaning of each
+// end underneath, so it reads as a scale rather than five unrelated choices.
+function showScale(options) {
+  clearChips();
+  const label = (opt) => opt.replace(/^\s*\d\s*-\s*/, "");
+  chipRow = document.createElement("div");
+  chipRow.className = "scale";
+  const track = document.createElement("div");
+  track.className = "scale-track";
+  track.setAttribute("role", "group");
+  track.setAttribute("aria-label", `1 = ${label(options[0])}, 5 = ${label(options[4])}`);
+  options.forEach((opt, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "scale-pt";
+    b.textContent = i + 1;
+    b.title = opt;
+    b.setAttribute("aria-label", opt);
+    b.onclick = () => sendAnswer(opt);
+    track.appendChild(b);
+  });
+  const ends = document.createElement("div");
+  ends.className = "scale-ends";
+  for (const opt of [options[0], options[4]]) {
+    const s = document.createElement("span");
+    s.textContent = label(opt);
+    ends.appendChild(s);
+  }
+  chipRow.append(track, ends);
+  chat.appendChild(chipRow);
+  scrollDown();
+}
+
 function showDone() {
   form.style.display = "none";
   const card = document.createElement("section");
@@ -558,7 +614,8 @@ async function callAI() {
     if (data.done) {
       showDone();
     } else if (Array.isArray(data.options) && data.options.length) {
-      showChips(data.options, data.multi);
+      if (data.scale) showScale(data.options);
+      else showChips(data.options, data.multi);
     }
   } catch (e) {
     typing.remove();
