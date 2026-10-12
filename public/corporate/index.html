@@ -8,18 +8,18 @@
 <!-- The SEO Framework by Sybre Waaijer -->
 <meta name="robots" content="max-snippet:-1,max-image-preview:large,max-video-preview:-1" />
 <link rel="canonical" href="/corporate/" />
-<meta name="description" content="Professionally guided mental health programs designed to reduce burnout, strengthen engagement, and support sustainable workforce performance." />
+<meta name="description" content="Creative expression therapy for corporate teams: a stress audit and 6-month wellbeing programme, a 4-hour Self-Discovery Assessment of personality and intelligence types, and a Corporate Training Dashboard that tracks programme effectiveness." />
 <meta name="theme-color" content="#c5fc00" />
 <meta property="og:type" content="website" />
 <meta property="og:locale" content="en_US" />
 <meta property="og:site_name" content="myWIPhealing" />
 <meta property="og:title" content="myWIPhealing for Corporate" />
-<meta property="og:description" content="Professionally guided mental health programs designed to reduce burnout, strengthen engagement, and support sustainable workforce performance. Sustained performance depends on engaged…" />
+<meta property="og:description" content="Creative expression therapy for corporate teams: a stress audit and 6-month wellbeing programme, a 4-hour Self-Discovery Assessment of personality and intelligence types, and a Corporate Training Dashboard that tracks programme effectiveness." />
 <meta property="og:url" content="/corporate/" />
 <meta property="og:image" content="/wp-content/uploads/2026/04/Corporate-Hero.webp" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="myWIPhealing for Corporate" />
-<meta name="twitter:description" content="Professionally guided mental health programs designed to reduce burnout, strengthen engagement, and support sustainable workforce performance. Sustained performance depends on engaged…" />
+<meta name="twitter:description" content="Creative expression therapy for corporate teams: a stress audit and 6-month wellbeing programme, a 4-hour Self-Discovery Assessment of personality and intelligence types, and a Corporate Training Dashboard that tracks programme effectiveness." />
 <meta name="twitter:image" content="/wp-content/uploads/2026/04/Corporate-Hero.webp" />
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"/#/schema/WebSite","url":"/","name":"myWIPhealing","description":"Lifestyle-based creative wellness","inLanguage":"en-US","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"/search/{search_term_string}/"},"query-input":"required name=search_term_string"},"publisher":{"@type":"Organization","@id":"/#/schema/Organization","name":"myWIPhealing","url":"/","logo":{"@type":"ImageObject","url":"/wp-content/uploads/2025/12/cropped-mywiphealing-logo-nav.png","contentUrl":"/wp-content/uploads/2025/12/cropped-mywiphealing-logo-nav.png","width":48,"height":70,"contentSize":"4255"}}},{"@type":"WebPage","@id":"/corporate/","url":"/corporate/","name":"myWIPhealing for Corporate | myWIPhealing","description":"Professionally guided mental health programs designed to reduce burnout, strengthen engagement, and support sustainable workforce performance.","inLanguage":"en-US","isPartOf":{"@id":"/#/schema/WebSite"},"breadcrumb":{"@type":"BreadcrumbList","@id":"/#/schema/BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":"/","name":"myWIPhealing"},{"@type":"ListItem","position":2,"name":"myWIPhealing for Corporate"}]},"potentialAction":{"@type":"ReadAction","target":"/corporate/"}}]}</script>
 <!-- / The SEO Framework by Sybre Waaijer | 11.32ms meta | 5.28ms boot -->
@@ -327,7 +327,7 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 
 
 
-<p class="kt-adv-heading873_e61250-4e wp-block-kadence-advancedheading has-kb-palette-6-color has-text-color" data-kb-block="kb-adv-heading873_e61250-4e">Professionally guided mental health programs designed to reduce burnout, strengthen engagement, and support sustainable workforce performance.</p>
+<p class="kt-adv-heading873_e61250-4e wp-block-kadence-advancedheading has-kb-palette-6-color has-text-color" data-kb-block="kb-adv-heading873_e61250-4e">Creative expression therapy that lowers stress, lifts productivity and helps every employee understand how they work best, with a training dashboard that shows you it&rsquo;s working.</p>
 
 
 
@@ -422,176 +422,467 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 </div></div></div></div>
 
 </div></div>
+<!--wip:add:corporate-sections-->
+<!-- /corporate/ narrative: creative expression therapy, the two corporate
+     programmes (Stress Audit + 6-Month Wellbeing Programme, Self-Discovery
+     Assessment), how it works (the six-month journey and the three-module
+     curriculum that replaced WordPress's "How myWIPHealing supports" rows) and
+     the Corporate Training Dashboard. Injected after the "Well-being as risk
+     mitigation" cards by scripts/site-additions.js; edit here, not in the
+     mirrored page. The dashboard is a static preview with illustrative
+     numbers, labelled as such. -->
+<style>
+/* One small system for every section: corporate page palette (indigo hero,
+   near-black band, lime buttons), one type scale, two box styles (outlined
+   card, soft inner panel) and one radius per level. */
+.wipc{
+  --c-ink:#1d1d1f;--c-body:#3d3d3b;--c-muted:#62625e;--c-line:#e2e2dd;
+  --c-indigo:#4f55e2;--c-indigo-soft:#eef0fd;--c-lime:#d5fc4b;--c-pastel:#DEFFA9;
+  --c-green:#204825;--c-coral:#E8794A;--c-cream:#fafbfd;
+  --c-r-lg:20px;--c-r-md:12px;--c-pad:32px;
+  --c-head:var(--global-heading-font-family,'Bricolage Grotesque',sans-serif);
+  font-family:var(--global-body-font-family,sans-serif);color:var(--c-ink);text-align:left}
+.wipc *{box-sizing:border-box}
+.wipc section{padding:96px 24px}
+.wipc__inner{max-width:1200px;margin:0 auto}
+.wipc img{display:block;max-width:100%;height:auto}
+/* The theme indents lists inside .entry-content; these are layout lists */
+.wipc ul,.wipc ol{list-style:none;margin:0;padding:0}
+.wipc li{margin:0}
+
+/* Type scale */
+.wipc__eyebrow,.wipc__label{display:block;font-family:var(--c-head);font-size:13px;font-weight:700;line-height:1.2;letter-spacing:.08em;text-transform:uppercase;color:var(--c-indigo)}
+.wipc__eyebrow{margin:0 0 14px}
+.wipc__label{margin:0 0 6px}
+.wipc h2{font-family:var(--c-head);font-weight:500;font-size:48px;line-height:1.06;letter-spacing:-1px;margin:0 0 20px;color:inherit}
+.wipc h2 em{font-style:normal;color:var(--c-indigo)}
+.wipc h3{font-family:var(--c-head);font-weight:500;font-size:24px;line-height:1.2;margin:0 0 10px;color:inherit}
+.wipc h4{font-family:var(--c-head);font-weight:500;font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;color:inherit}
+.wipc p{font-size:16px;line-height:1.6;margin:0 0 16px;color:var(--c-body)}
+.wipc p:last-child{margin-bottom:0}
+
+/* Section header: centred, same width and spacing everywhere */
+.wipc__head{max-width:760px;margin:0 auto 56px;text-align:center}
+.wipc__head p{font-size:18px}
+.wipc__note{max-width:760px;margin:32px auto 0!important;text-align:center;font-size:15px!important;color:var(--c-muted)!important}
+
+/* Boxes: outlined card (on page backgrounds), soft panel (inside cards) */
+.wipc__card{background:#fff;border:1px solid var(--c-ink);border-radius:var(--c-r-lg);padding:var(--c-pad)}
+.wipc__panel{background:var(--c-cream);border:1px solid var(--c-line);border-radius:var(--c-r-md);padding:20px}
+
+/* Bulleted lists: one bullet, one indent */
+.wipc__ticks li{position:relative;padding-left:24px;font-size:15px;line-height:1.5;color:var(--c-body)}
+.wipc__ticks li + li{margin-top:10px}
+.wipc__ticks li::before{content:"";position:absolute;left:0;top:.42em;width:10px;height:10px;border-radius:50%;background:var(--c-lime);border:1px solid var(--c-ink)}
+
+.wipc__chip{display:inline-block;font-family:var(--c-head);font-size:13px;font-weight:500;line-height:1;padding:7px 12px;border-radius:100px;background:var(--c-pastel);color:var(--c-green);white-space:nowrap}
+.wipc__icon{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--c-pastel);color:var(--c-green);margin-bottom:20px}
+.wipc__icon svg{width:22px;height:22px}
+
+.wipc__btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.wipc__btn{display:inline-block;font-family:var(--c-head);font-size:16px;font-weight:500;line-height:1;padding:14px 26px;border-radius:100px;border:1px solid var(--c-lime);background:var(--c-lime);color:var(--c-ink);text-decoration:none;transition:background .2s,color .2s,border-color .2s}
+.wipc__btn:hover,.wipc__btn:focus-visible{background:var(--c-coral);border-color:var(--c-coral);color:#fff}
+.wipc__btn--ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.6)}
+.wipc__btn--ghost:hover,.wipc__btn--ghost:focus-visible{background:#fff;border-color:#fff;color:var(--c-ink)}
+
+/* 1. Method */
+.wipc__method{background:#fff}
+.wipc__grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.wipc__pillar{background:var(--c-cream)}
+
+/* 2. Programmes */
+.wipc__programmes{background:var(--c-indigo-soft)}
+.wipc__grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+/* Subgrid: label, title, intro, panels and outcome line up across both cards */
+.wipc__grid2--progs{grid-template-rows:repeat(5,auto)}
+.wipc__prog{display:grid;grid-row:span 5;grid-template-rows:subgrid;row-gap:0;scroll-margin-top:100px}
+.wipc__meta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+.wipc__meta .wipc__label{margin:0}
+.wipc__prog h3{font-size:28px}
+.wipc__gets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:8px 0 24px}
+.wipc__outcome{margin:0!important;align-self:end;padding-top:20px;border-top:1px solid var(--c-line);font-family:var(--c-head);font-size:20px!important;line-height:1.3!important;color:var(--c-indigo)!important}
+
+/* 3. How it works: journey + curriculum */
+.wipc__how{background:var(--c-cream)}
+.wipc__steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:24px}
+.wipc__step{position:relative}
+.wipc__step::before{content:"";position:absolute;left:24px;right:-24px;top:23px;height:2px;background:var(--c-ink)}
+.wipc__step:last-child::before{display:none}
+.wipc__dot{position:relative;z-index:1;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--c-lime);border:1px solid var(--c-ink);font-family:var(--c-head);font-weight:500;font-size:18px;line-height:1;color:var(--c-ink);margin-bottom:18px}
+.wipc__step--key .wipc__dot{background:var(--c-indigo);border-color:var(--c-indigo);color:#fff}
+.wipc__step h3{font-size:20px;margin-bottom:6px}
+.wipc__step p{font-size:15px;line-height:1.5}
+.wipc__step a{color:var(--c-indigo);font-weight:600}
+
+.wipc__curriculum{margin-top:72px;scroll-margin-top:100px}
+.wipc__subhead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 32px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--c-line)}
+.wipc__subhead h3{font-size:30px;margin:0}
+.wipc__subhead p{max-width:440px;margin:0;font-size:15px}
+/* Subgrid: image, meta, name, focus line and skills share rows across the
+   three cards, so headings line up whatever their length */
+.wipc__grid3--modules{grid-template-rows:repeat(5,auto)}
+.wipc__module{display:grid;grid-row:span 5;grid-template-rows:subgrid;row-gap:0;align-content:start;padding:24px}
+.wipc__module img{width:100%;aspect-ratio:600/435;object-fit:contain;margin:0 0 20px}
+.wipc__module .wipc__meta{margin-bottom:12px}
+.wipc__module h3{font-size:24px;margin-bottom:6px}
+.wipc .wipc__focus{font-size:15px;line-height:1.45;color:var(--c-muted);margin:0 0 18px}
+.wipc__skills{border-top:1px solid var(--c-line)}
+.wipc__skills details{border-bottom:1px solid var(--c-line)}
+.wipc__skills summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;cursor:pointer;list-style:none;font-family:var(--c-head);font-weight:500;font-size:16px;line-height:1.3;color:var(--c-ink)}
+.wipc__skills summary::-webkit-details-marker{display:none}
+.wipc__skills summary::after{content:"";flex:0 0 9px;height:9px;margin-right:4px;border-right:2px solid var(--c-indigo);border-bottom:2px solid var(--c-indigo);transform:rotate(45deg) translateY(-3px);transition:transform .2s}
+.wipc__skills details[open] summary::after{transform:rotate(225deg) translateY(-2px)}
+.wipc__skills summary:focus-visible{outline:2px solid var(--c-indigo);outline-offset:2px}
+.wipc__skills details p{font-size:15px;line-height:1.55;margin:0;padding:0 0 14px}
+
+/* 4. Dashboard */
+.wipc__dash{background:var(--c-ink);color:#fff}
+.wipc__dash .wipc__eyebrow{color:var(--c-lime)}
+.wipc__dash h2 em{color:var(--c-lime)}
+.wipc__dash .wipc__head p{color:rgba(255,255,255,.82)}
+.wipc__dashgrid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:48px;align-items:start}
+.wipc__features li{display:grid;grid-template-columns:32px 1fr;gap:14px;align-items:start}
+.wipc__features li + li{margin-top:20px}
+.wipc__features i{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--c-lime);color:var(--c-ink)}
+.wipc__features i svg{width:16px;height:16px}
+.wipc__features b{display:block;font-family:var(--c-head);font-weight:500;font-size:18px;line-height:1.25;margin:4px 0 4px}
+.wipc__features span{display:block;font-size:15px;line-height:1.5;color:rgba(255,255,255,.75)}
+.wipc__fine{max-width:760px;margin:40px auto 0!important;text-align:center;font-size:13px!important;color:rgba(255,255,255,.6)!important}
+
+/* The mock dashboard: a light app window on the dark band */
+.wipc__app{margin:0;background:#f4f4f1;color:var(--c-ink);border-radius:var(--c-r-lg);overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.wipc__appbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 18px;background:#fff;border-bottom:1px solid var(--c-line)}
+.wipc__lights{display:flex;gap:6px}
+.wipc__lights span{width:10px;height:10px;border-radius:50%;background:#dcdcd8}
+.wipc__apptitle{font-family:var(--c-head);font-weight:500;font-size:15px;line-height:1.3}
+.wipc__apptitle small{display:block;font-family:var(--global-body-font-family,sans-serif);font-size:12px;color:var(--c-muted)}
+.wipc__sample{margin-left:auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:100px;background:#fff1e9;color:#a24a22;border:1px solid #f3c4ad;white-space:nowrap}
+.wipc__appbody{display:grid;gap:12px;padding:18px}
+.wipc__kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.wipc__tile{background:#fff;border:1px solid var(--c-line);border-radius:var(--c-r-md);padding:14px}
+.wipc__kpi small{display:block;font-size:12px;line-height:1.3;color:var(--c-muted);margin-bottom:8px}
+.wipc__kpi strong{display:block;font-family:var(--c-head);font-weight:500;font-size:26px;line-height:1;letter-spacing:-.5px}
+.wipc__kpi strong sup{font-size:13px;vertical-align:baseline;color:var(--c-muted);margin-left:2px}
+.wipc__delta{display:inline-block;margin-top:10px;font-size:11.5px;font-weight:600;line-height:1;padding:4px 8px;border-radius:100px;background:#e8f6d8;color:#2f6b12}
+.wipc__charts{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:12px}
+.wipc__tile h5{font-family:var(--c-head);font-weight:500;font-size:14px;line-height:1.3;margin:0 0 2px}
+.wipc__tile > small{display:block;font-size:12px;color:var(--c-muted);margin-bottom:12px}
+.wipc__chart{display:block;width:100%;height:auto}
+.wipc__chart text{font-family:var(--global-body-font-family,sans-serif);font-size:10px;fill:#8a8a85}
+.wipc__legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--c-muted);margin-top:6px}
+.wipc__legend span::before{content:"";display:inline-block;width:12px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle;background:var(--c-indigo)}
+.wipc__legend span + span::before{background:#b9b9b4}
+.wipc .wipc__minor{font-family:var(--c-head);font-weight:500;font-size:12.5px;margin:0 0 8px}
+.wipc__minor + .wipc__bars{margin-bottom:14px}
+.wipc__bars li{display:grid;grid-template-columns:92px 1fr 32px;gap:8px;align-items:center;font-size:12px}
+.wipc__bars li + li{margin-top:7px}
+.wipc__bars div{height:8px;border-radius:8px;background:#eeeeea;overflow:hidden}
+.wipc__bars div span{display:block;height:100%;border-radius:8px;background:var(--c-indigo)}
+.wipc__bars em{font-style:normal;text-align:right;color:var(--c-muted)}
+.wipc__bars--comm div span{background:var(--c-green)}
+.wipc__insight{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start;background:var(--c-pastel);border:1px solid #c6e88c;border-radius:var(--c-r-md);padding:14px;font-size:13px;line-height:1.5}
+.wipc__insight b{font-family:var(--c-head);font-weight:500}
+.wipc__insight i{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--c-ink);color:var(--c-lime);font-style:normal;font-size:13px}
+
+@media (max-width:1024px){
+  .wipc__grid2,.wipc__dashgrid{grid-template-columns:minmax(0,1fr)}
+  .wipc__grid2--progs{grid-template-rows:none}
+  .wipc__prog{grid-row:auto;grid-template-rows:none}
+  .wipc__grid3--modules{grid-template-columns:minmax(0,1fr)}
+  .wipc__grid3--modules{grid-template-rows:none}
+  .wipc__module{grid-row:auto;grid-template-rows:none;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);column-gap:28px}
+  .wipc__module img{grid-row:1 / span 4;margin:0}
+  .wipc__module > :not(img){grid-column:2}
+}
+@media (max-width:900px){
+  .wipc{--c-pad:24px}
+  .wipc section{padding:64px 16px}
+  .wipc h2{font-size:34px}
+  .wipc__head{margin-bottom:40px}
+  .wipc__head p{font-size:17px}
+  .wipc__grid3{grid-template-columns:minmax(0,1fr);gap:16px}
+  .wipc__prog h3{font-size:24px}
+  .wipc__gets{grid-template-columns:minmax(0,1fr)}
+  .wipc__steps{grid-template-columns:minmax(0,1fr);gap:28px}
+  .wipc__step{display:grid;grid-template-columns:48px 1fr;gap:0 18px}
+  .wipc__step::before{left:23px;right:auto;top:48px;bottom:-28px;width:2px;height:auto}
+  .wipc__dot{grid-row:span 3;margin:0}
+  .wipc__curriculum{margin-top:56px}
+  .wipc__subhead h3{font-size:26px}
+  .wipc__module{grid-template-columns:minmax(0,1fr)}
+  .wipc__module img{grid-row:auto;margin:0 0 20px}
+  .wipc__module > :not(img){grid-column:1}
+  .wipc__kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .wipc__charts{grid-template-columns:minmax(0,1fr)}
+  .wipc__sample{margin-left:0}
+}
+/* WordPress's "Built with security" cards (kept from the mirrored page): the
+   middle card sat lower and the three used different text weights. Same top,
+   same height, title at the top, body text at one weight. */
+.kb-row-layout-id873_57a431-7d > .kt-row-column-wrap{align-items:stretch}
+.kb-row-layout-id873_57a431-7d > .kt-row-column-wrap > .wp-block-kadence-column{align-self:stretch;margin:0!important;padding:0!important;transform:none!important}
+.kb-row-layout-id873_57a431-7d > .kt-row-column-wrap > .wp-block-kadence-column > .kt-inside-inner-col{height:100%;justify-content:flex-start!important;border-radius:20px!important;padding:0!important;margin:0!important;border:0!important}
+.kb-row-layout-id873_57a431-7d .wp-block-kadence-infobox{height:100%;margin:0!important}
+.kb-row-layout-id873_57a431-7d .kt-blocks-info-box-link-wrap{height:100%;display:flex!important;flex-direction:column;justify-content:flex-start;border-radius:20px!important;padding:32px!important;margin:0!important}
+.kb-row-layout-id873_57a431-7d .kt-infobox-textcontent{text-align:left}
+.kb-row-layout-id873_57a431-7d h4.kt-blocks-info-box-title{min-height:0!important;margin:0 0 14px!important;font-size:24px!important;line-height:1.2!important}
+.kb-row-layout-id873_57a431-7d .kt-blocks-info-box-text{font-size:17px!important;line-height:1.55!important;font-weight:400!important}
+.kb-row-layout-id873_57a431-7d .kt-blocks-info-box-text strong{font-weight:600}
+</style>
+
+<div class="wipc">
+
+<section class="wipc__method" id="creative-expression-therapy" aria-labelledby="wipc-method-title">
+  <div class="wipc__inner">
+    <div class="wipc__head">
+      <span class="wipc__eyebrow">Our method &middot; Creative expression therapy</span>
+      <h2 id="wipc-method-title">When words run out, <em>creativity speaks.</em></h2>
+      <p>Few employees will say &ldquo;I&rsquo;m burning out&rdquo; in a team meeting. But they can draw it, shape it, write it or move it. myWIPhealing&rsquo;s creative expression therapy uses guided art, writing, movement and sound, led by mental health professionals, to help people name what they&rsquo;re carrying, settle it, and turn it into skills they bring back to work.</p>
+    </div>
+    <ul class="wipc__grid3">
+      <li class="wipc__card wipc__pillar">
+        <span class="wipc__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5C21 6.6 17 3 12 3Z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="15.5" cy="7.5" r="1"/></svg></span>
+        <span class="wipc__label">Express</span>
+        <h3>Say what&rsquo;s hard to say</h3>
+        <p>Art gives stress a shape, so it can be spotted and talked about before it turns into burnout, conflict or a resignation letter.</p>
+      </li>
+      <li class="wipc__card wipc__pillar">
+        <span class="wipc__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2.5-5 4 10 2.5-5H21"/></svg></span>
+        <span class="wipc__label">Regulate</span>
+        <h3>Calm the nervous system</h3>
+        <p>Hands-on, sensory activities quiet the stress response and restore focus, with micro-practices employees can use at their desks.</p>
+      </li>
+      <li class="wipc__card wipc__pillar">
+        <span class="wipc__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+        <span class="wipc__label">Understand</span>
+        <h3>Turn insight into evidence</h3>
+        <p>Every module captures short, validated self-assessments, so your organisation can measure wellbeing instead of guessing at it.</p>
+      </li>
+    </ul>
+    <p class="wipc__note">No artistic talent needed. Engineers, sales teams and senior leaders take part on equal footing, because the focus is the person, not the picture.</p>
+  </div>
+</section>
+
+<section class="wipc__programmes" id="programmes" aria-labelledby="wipc-prog-title">
+  <div class="wipc__inner">
+    <div class="wipc__head">
+      <span class="wipc__eyebrow">Corporate programmes</span>
+      <h2 id="wipc-prog-title">Measure the stress. Build the strengths. <em>Prove the change.</em></h2>
+      <p>Two programmes that work on their own and work better together: one lifts productivity by lowering stress, the other shows you how each person on your team thinks, communicates and copes.</p>
+    </div>
+    <div class="wipc__grid2 wipc__grid2--progs">
+
+      <article class="wipc__card wipc__prog" id="stress-audit">
+        <div class="wipc__meta"><span class="wipc__label">01 &middot; Productivity</span><span class="wipc__chip">6 months &middot; whole team</span></div>
+        <h3>Stress Audit + 6-Month Wellbeing Programme</h3>
+        <p>We start with a confidential stress audit that shows where pressure is building up: workload, focus, relationships and recovery. A six-month creative expression therapy programme then works on those pressure points, and every checkpoint is tracked in your dashboard.</p>
+        <div class="wipc__gets">
+          <div class="wipc__panel">
+            <h4>Your employees get</h4>
+            <ul class="wipc__ticks">
+              <li>Three creative expression modules over six months</li>
+              <li>Practical tools to manage stress on busy days</li>
+              <li>Peer circles that build trust across teams</li>
+            </ul>
+          </div>
+          <div class="wipc__panel">
+            <h4>You get</h4>
+            <ul class="wipc__ticks">
+              <li>A baseline PSS (Perceived Stress Scale) assessment in week 0</li>
+              <li>PSS re-assessment at month 3 and month 6</li>
+              <li>A dashboard that tracks whether the programme is working</li>
+            </ul>
+          </div>
+        </div>
+        <p class="wipc__outcome">Less stress, sharper focus, steadier output.</p>
+      </article>
+
+      <article class="wipc__card wipc__prog" id="self-discovery">
+        <div class="wipc__meta"><span class="wipc__label">02 &middot; Team intelligence</span><span class="wipc__chip">4 hours &middot; per employee</span></div>
+        <h3>Self-Discovery Assessment</h3>
+        <p>A four-hour personal analysis in which each employee works through creative expression modules to explore their personality type and intelligence type: what energises them, where they get stuck, how they communicate and how they process emotions under pressure.</p>
+        <div class="wipc__gets">
+          <div class="wipc__panel">
+            <h4>Your employees get</h4>
+            <ul class="wipc__ticks">
+              <li>A personal profile of their strengths and weaknesses</li>
+              <li>Insight into how they communicate and handle emotions</li>
+              <li>A reflection guide to keep using at work</li>
+            </ul>
+          </div>
+          <div class="wipc__panel">
+            <h4>You get</h4>
+            <ul class="wipc__ticks">
+              <li>A team-level map of personality and intelligence types</li>
+              <li>Where communication clashes, and which pairings click</li>
+              <li>Clear guidance on how to manage and develop each team</li>
+            </ul>
+          </div>
+        </div>
+        <p class="wipc__outcome">Know your people. Lead them the way they work best.</p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="wipc__how" id="how-it-works" aria-labelledby="wipc-how-title">
+  <div class="wipc__inner">
+    <div class="wipc__head">
+      <span class="wipc__eyebrow">How it works</span>
+      <h2 id="wipc-how-title">Six months, from <em>baseline to business case.</em></h2>
+      <p>We partner with organisations to design structured, engaging and scalable wellbeing programmes, aligned with your business and people goals and built for long-term success.</p>
+    </div>
+
+    <ol class="wipc__steps">
+      <li class="wipc__step"><span class="wipc__dot">1</span><span class="wipc__label">Week 0</span><h3>PSS assessment</h3><p>Every employee answers the Perceived Stress Scale (PSS), giving each team a confidential baseline so you know where you&rsquo;re starting from.</p></li>
+      <li class="wipc__step"><span class="wipc__dot">2</span><span class="wipc__label">Month 1</span><h3>Self-Discovery Assessment</h3><p>Four-hour personal profiles, rolled up into one team dynamics map.</p></li>
+      <li class="wipc__step wipc__step--key"><span class="wipc__dot">3</span><span class="wipc__label">Months 1&ndash;6</span><h3>Three creative expression modules</h3><p>Stress, communication and collaboration, with short pulse checks that feed the dashboard. <a href="#curriculum">See the modules</a></p></li>
+      <li class="wipc__step"><span class="wipc__dot">4</span><span class="wipc__label">Month 3</span><h3>Mid-point review</h3><p>We go through the dashboard with HR and adjust the programme where it&rsquo;s needed.</p></li>
+      <li class="wipc__step"><span class="wipc__dot">5</span><span class="wipc__label">Month 6</span><h3>PSS re-assessment and impact report</h3><p>Before-and-after PSS results, what changed, and recommended next steps for leadership.</p></li>
+    </ol>
+
+    <div class="wipc__curriculum" id="curriculum">
+      <div class="wipc__subhead">
+        <div>
+          <span class="wipc__label">Months 1&ndash;6 &middot; The curriculum</span>
+          <h3>What your teams build, module by module</h3>
+        </div>
+        <p>Each module pairs creative expression activities with psychology education, so every session ends with a skill people can use at work the next day.</p>
+      </div>
+
+      <div class="wipc__grid3 wipc__grid3--modules">
+
+        <article class="wipc__card wipc__module">
+          <img src="/wp-content/uploads/2026/04/stress-management.webp" width="601" height="436" loading="lazy" alt="Colleagues laughing together in a group session">
+          <div class="wipc__meta"><span class="wipc__label">Module 1</span><span class="wipc__chip">Months 1&ndash;2</span></div>
+          <h3>Stress management</h3>
+          <p class="wipc__focus">Sustainable performance &amp; emotional regulation</p>
+          <div class="wipc__skills">
+            <details><summary>Cognitive emotional awareness</summary><p>Recognise bottleneck stress and the emotional strain of inefficient workload management.</p></details>
+            <details><summary>Adaptive coping strategies</summary><p>Build adaptive coping skills that prepare employees for resilience and effective self-expression.</p></details>
+            <details><summary>Mindfulness practice</summary><p>Sharpen focus by cutting multitasking and task-switching, for clearer thinking.</p></details>
+            <details><summary>Somatic &amp; sensory regulation skills</summary><p>Practical micro-activities that help employees regulate their nervous system under pressure.</p></details>
+            <details><summary>Reflection &amp; thought journaling</summary><p>Self-reflection and intrapersonal analysis that strengthen a sense of purpose at work and support positive thought reframing.</p></details>
+          </div>
+        </article>
+
+        <article class="wipc__card wipc__module">
+          <img src="/wp-content/uploads/2026/04/trust-centered-communication.webp" width="601" height="436" loading="lazy" alt="Two colleagues in conversation">
+          <div class="wipc__meta"><span class="wipc__label">Module 2</span><span class="wipc__chip">Months 3&ndash;4</span></div>
+          <h3>Trust-centred communication</h3>
+          <p class="wipc__focus">Conflict resolution, built into everyday work</p>
+          <div class="wipc__skills">
+            <details><summary>Empathic listening &amp; reflective responding</summary><p>Build trust and mutual understanding by acknowledging emotions instead of jumping to solutions, easing tension and strengthening working relationships.</p></details>
+            <details><summary>Conflict de-escalation techniques</summary><p>Turn workplace tension into constructive, solution-focused dialogue through curiosity, active listening and shared goals.</p></details>
+            <details><summary>Assertive communication practice</summary><p>Give employees the confidence to speak up while keeping respect, boundaries and accountability.</p></details>
+            <details><summary>Positive &amp; open feedback loops</summary><p>Embed a culture where feedback drives growth, alignment and performance.</p></details>
+            <details><summary>Psychological safety</summary><p>Build teams where people feel comfortable speaking up, contributing and putting forward new ideas.</p></details>
+          </div>
+        </article>
+
+        <article class="wipc__card wipc__module">
+          <img src="/wp-content/uploads/2026/04/collaboration-across-function.webp" width="600" height="434" loading="lazy" alt="A team working together around a table">
+          <div class="wipc__meta"><span class="wipc__label">Module 3</span><span class="wipc__chip">Months 5&ndash;6</span></div>
+          <h3>Collaboration across functions</h3>
+          <p class="wipc__focus">Team dynamics &amp; flow</p>
+          <div class="wipc__skills">
+            <details><summary>Personality-driven workflows</summary><p>Align each person&rsquo;s personality and working style with team goals to reduce day-to-day friction, using insights from the Self-Discovery Assessment.</p></details>
+            <details><summary>Collective problem-solving &amp; decision-making</summary><p>Structured thinking tools that help teams make aligned, high-quality decisions together.</p></details>
+            <details><summary>Co-creative team practice</summary><p>Drive innovation through shared ideation, reflective dialogue and hands-on collaboration.</p></details>
+            <details><summary>Shared accountability &amp; purpose</summary><p>Build ownership and collective responsibility, anchored in clear, values-driven team dynamics.</p></details>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wipc__dash" id="dashboard" aria-labelledby="wipc-dash-title">
+  <div class="wipc__inner">
+    <div class="wipc__head">
+      <span class="wipc__eyebrow">Corporate Training Dashboard</span>
+      <h2 id="wipc-dash-title">See your programme working, <em>month by month.</em></h2>
+      <p>Spending on wellbeing shouldn&rsquo;t be a leap of faith. Your HR team gets a private dashboard that follows the programme from the first PSS assessment to the final report: who&rsquo;s taking part, what&rsquo;s changing, and where to act next.</p>
+    </div>
+
+    <div class="wipc__dashgrid">
+      <figure class="wipc__app" aria-label="Sample Corporate Training Dashboard with illustrative data">
+        <div class="wipc__appbar">
+          <div class="wipc__lights" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div class="wipc__apptitle">Team Wellbeing Dashboard<small>Example company &middot; 6-month programme &middot; 120 employees</small></div>
+          <span class="wipc__sample">Illustrative data</span>
+        </div>
+        <div class="wipc__appbody">
+          <div class="wipc__kpis">
+            <div class="wipc__tile wipc__kpi"><small>Perceived stress (PSS)</small><strong>17.8<sup>/40</sup></strong><span class="wipc__delta">&darr; 26% vs baseline</span></div>
+            <div class="wipc__tile wipc__kpi"><small>Wellbeing index</small><strong>7.6<sup>/10</sup></strong><span class="wipc__delta">&uarr; from 6.2</span></div>
+            <div class="wipc__tile wipc__kpi"><small>Session attendance</small><strong>87<sup>%</sup></strong><span class="wipc__delta">3 of 3 modules run</span></div>
+            <div class="wipc__tile wipc__kpi"><small>Focus at work</small><strong>4.1<sup>/5</sup></strong><span class="wipc__delta">&uarr; from 2.9</span></div>
+          </div>
+          <div class="wipc__charts">
+            <div class="wipc__tile">
+              <h5>Stress over the programme</h5>
+              <small>Average Perceived Stress Scale score (lower is better)</small>
+              <svg class="wipc__chart" viewBox="0 0 320 150" role="img" aria-label="Line chart: team stress falls from 24.1 at baseline to 17.8 at month 6, while the benchmark stays near 23.">
+                <g stroke="#eeeeea" stroke-width="1">
+                  <line x1="28" y1="16" x2="312" y2="16"/><line x1="28" y1="52" x2="312" y2="52"/><line x1="28" y1="88" x2="312" y2="88"/><line x1="28" y1="124" x2="312" y2="124"/>
+                </g>
+                <text x="2" y="19">26</text><text x="2" y="55">22</text><text x="2" y="91">18</text><text x="2" y="127">14</text>
+                <polyline fill="none" stroke="#b9b9b4" stroke-width="2" stroke-dasharray="4 4" points="34,42.1 80,44.8 126,41.2 172,43.9 218,43.0 264,45.7 306,43.9"/>
+                <polyline fill="none" stroke="#4f55e2" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" points="34,33.1 80,41.2 126,55.6 172,66.4 218,79.0 264,82.6 306,89.8"/>
+                <g fill="#4f55e2"><circle cx="34" cy="33.1" r="3.5"/><circle cx="80" cy="41.2" r="3.5"/><circle cx="126" cy="55.6" r="3.5"/><circle cx="172" cy="66.4" r="3.5"/><circle cx="218" cy="79.0" r="3.5"/><circle cx="264" cy="82.6" r="3.5"/><circle cx="306" cy="89.8" r="5" stroke="#fff" stroke-width="2"/></g>
+                <text x="282" y="110" style="fill:#4f55e2;font-weight:700">17.8</text>
+                <text x="24" y="144">Base</text><text x="74" y="144">M1</text><text x="120" y="144">M2</text><text x="166" y="144">M3</text><text x="212" y="144">M4</text><text x="258" y="144">M5</text><text x="298" y="144">M6</text>
+              </svg>
+              <div class="wipc__legend"><span>Your team</span><span>Comparison benchmark</span></div>
+            </div>
+            <div class="wipc__tile">
+              <h5>Team dynamics</h5>
+              <small>From the Self-Discovery Assessment, team level only</small>
+              <p class="wipc__minor">Strongest intelligence types</p>
+              <ul class="wipc__bars">
+                <li>Interpersonal<div><span style="width:32%"></span></div><em>32%</em></li>
+                <li>Logical<div><span style="width:26%"></span></div><em>26%</em></li>
+                <li>Visual-spatial<div><span style="width:18%"></span></div><em>18%</em></li>
+                <li>Intrapersonal<div><span style="width:14%"></span></div><em>14%</em></li>
+              </ul>
+              <p class="wipc__minor">How the team communicates</p>
+              <ul class="wipc__bars wipc__bars--comm">
+                <li>Reflective<div><span style="width:38%"></span></div><em>38%</em></li>
+                <li>Direct<div><span style="width:27%"></span></div><em>27%</em></li>
+                <li>Supportive<div><span style="width:23%"></span></div><em>23%</em></li>
+              </ul>
+            </div>
+          </div>
+          <div class="wipc__insight"><i aria-hidden="true">&#10022;</i><div><b>Suggested action for managers:</b> Operations reported the highest stress at month 3 and leans towards reflective communication. Share meeting agendas a day ahead and leave room for written input.</div></div>
+        </div>
+      </figure>
+
+      <div>
+        <ul class="wipc__features">
+          <li><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><div><b>Programme effectiveness</b><span>Before-and-after results on validated measures such as the Perceived Stress Scale, by team and by month.</span></div></li>
+          <li><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><div><b>Engagement</b><span>Attendance and completion for every session, so you can see whether people are taking part.</span></div></li>
+          <li><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><div><b>Team dynamics</b><span>The personality, intelligence and communication mix of each team, from the Self-Discovery Assessment.</span></div></li>
+          <li><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><div><b>Manager playbook</b><span>Plain-language suggestions for how to lead, pair and support each team.</span></div></li>
+          <li><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><div><b>Board-ready reports</b><span>A month-6 impact report your leadership team can act on.</span></div></li>
+          <li><i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i><div><b>Private by design</b><span>Anonymised, team-level results only, run under Malaysia&rsquo;s PDPA 2010. No one, including managers, sees an individual&rsquo;s answers.</span></div></li>
+        </ul>
+        <div class="wipc__btns">
+          <a class="wipc__btn" href="#tally-open=Y5GB6q&amp;tally-layout=modal&amp;tally-width=390&amp;tally-emoji-text=👋&amp;tally-emoji-animation=wave">Request a proposal &amp; demo</a>
+          <a class="wipc__btn wipc__btn--ghost" href="#programmes">Compare programmes</a>
+        </div>
+      </div>
+    </div>
+    <p class="wipc__fine">Sample view with illustrative numbers, not results from a real client. Your dashboard shows your own organisation&rsquo;s data.</p>
+  </div>
+</section>
+
+</div>
+<!--/wip:add:corporate-sections-->
 
-<div class="kb-row-layout-wrap kb-row-layout-id873_b11d08-49 aligncenter kt-row-has-bg wp-block-kadence-rowlayout"><div class="kt-row-column-wrap kt-has-2-columns kt-row-layout-row kt-tab-layout-inherit kt-mobile-layout-row kt-row-valign-middle kb-theme-content-width">
 
-<div class="wp-block-kadence-column kadence-column873_4393d9-59"><div class="kt-inside-inner-col">
-<h2 class="kt-adv-heading873_aa1277-3c wp-block-kadence-advancedheading has-kb-palette-10-color has-text-color" data-kb-block="kb-adv-heading873_aa1277-3c">How <mark true="true" class="kt-highlight">myWIPHealing</mark> supports long-term organizational success.</h2>
-
-
-
-<p class="kt-adv-heading873_a1e6da-29 wp-block-kadence-advancedheading" data-kb-block="kb-adv-heading873_a1e6da-29">We partner with organizations to design structured, engaging, and scalable wellbeing strategies aligned with business and people goals.</p>
-</div></div>
-
-
-
-<div class="wp-block-kadence-column kadence-column873_611125-c6"><div class="kt-inside-inner-col"><div class="kb-row-layout-wrap kb-row-layout-id873_178e15-33 alignnone wp-block-kadence-rowlayout"><div class="kt-row-column-wrap kt-has-2-columns kt-row-layout-equal kt-tab-layout-inherit kt-mobile-layout-row kt-row-valign-middle kt-inner-column-height-full kb-theme-content-width">
-
-<div class="wp-block-kadence-column kadence-column873_ffeb36-62 kb-section-dir-horizontal"><div class="kt-inside-inner-col">
-<figure class="wp-block-kadence-image kb-image873_fcff22-ee alignwide size-full"><img decoding="async" width="601" height="436" src="/wp-content/uploads/2026/04/stress-management.webp" alt="" class="kb-img wp-image-6545" srcset="/wp-content/uploads/2026/04/stress-management.webp 601w, /wp-content/uploads/2026/04/stress-management-300x218.webp 300w" sizes="(max-width: 601px) 100vw, 601px" /></figure>
-</div></div>
-
-
-
-<div class="wp-block-kadence-column kadence-column873_d4cbf4-84 kb-section-dir-vertical"><div class="kt-inside-inner-col">
-<div class="wp-block-kadence-column kadence-column873_a92782-b9"><div class="kt-inside-inner-col">
-<h6 class="kt-adv-heading873_6fbf16-6f wp-block-kadence-advancedheading" data-kb-block="kb-adv-heading873_6fbf16-6f">Stress Management</h6>
-
-
-
-<h3 class="kt-adv-heading873_9f0689-60 wp-block-kadence-advancedheading has-kb-palette-10-color has-text-color" data-kb-block="kb-adv-heading873_9f0689-60">Sustainable Performance &amp; Emotional Regulation</h3>
-</div></div>
-
-
-
-<div class="wp-block-kadence-column kadence-column873_0f0371-4a"><div class="kt-inside-inner-col">
-<div class="wp-block-kadence-accordion alignwide"><div class="kt-accordion-wrap kt-accordion-id873_a567f4-d6 kt-accordion-has-9-panes kt-active-pane-0 kt-accordion-block kt-pane-header-alignment-left kt-accodion-icon-style-arrow kt-accodion-icon-side-right" style="max-width:1200px"><div class="kt-accordion-inner-wrap" data-allow-multiple-open="false" data-start-open="none">
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-1 kt-pane873_4e2612-74"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Cognitive emotional awareness</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_869ddf-6c wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_869ddf-6c">Recognize bottleneck stress and emotional strains on inefficient workload management.</p>
-</div></div></div>
-
-
-
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-9 kt-pane873_bbead9-9b"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Adaptive coping strategy</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_b30b95-be wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_b30b95-be">Enhance adaptive coping skills to prepare employees for resilience and effective self-expression.</p>
-</div></div></div>
-
-
-
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-2 kt-pane873_7655a4-64"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Mindfulness practice</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_483376-53 wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_483376-53">Enhance focus by limiting multitasking habits and minimizing task-switching to achieve mental clarity.</p>
-</div></div></div>
-
-
-
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-6 kt-pane873_f966f0-66"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Somatic &amp; sensory regulation skills</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_d551af-07 wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_d551af-07">Equip employees with practical micro-activities to regulate nervous systems under pressure.</p>
-</div></div></div>
-
-
-
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-7 kt-pane873_56c5af-ef"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Reflection &amp; Thought Journaling</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_aaae93-5b wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_aaae93-5b">Encourage self-reflection and intrapersonal analysis to enhance work purpose and foster positive thought reframing.</p>
-</div></div></div>
-</div></div></div>
-</div></div>
-</div></div>
-
-</div></div>
-
-<div class="kb-row-layout-wrap kb-row-layout-id873_c79218-bc alignnone wp-block-kadence-rowlayout"><div class="kt-row-column-wrap kt-has-2-columns kt-row-layout-equal kt-tab-layout-inherit kt-mobile-layout-row kt-row-valign-middle kt-inner-column-height-full kb-theme-content-width">
-
-<div class="wp-block-kadence-column kadence-column873_45397b-88 kb-section-dir-vertical"><div class="kt-inside-inner-col">
-<div class="wp-block-kadence-column kadence-column873_c23f0d-a8"><div class="kt-inside-inner-col">
-<h6 class="kt-adv-heading873_cf8d3a-69 wp-block-kadence-advancedheading" data-kb-block="kb-adv-heading873_cf8d3a-69">Trust-Centered Communication</h6>
-
-
-
-<h3 class="kt-adv-heading873_c52ae3-60 wp-block-kadence-advancedheading has-kb-palette-10-color has-text-color" data-kb-block="kb-adv-heading873_c52ae3-60">Professionalize conflict resolution embedment</h3>
-</div></div>
-
-
-
-<div class="wp-block-kadence-column kadence-column873_610153-93"><div class="kt-inside-inner-col">
-<div class="wp-block-kadence-accordion alignwide"><div class="kt-accordion-wrap kt-accordion-id873_89db03-c4 kt-accordion-has-9-panes kt-active-pane-0 kt-accordion-block kt-pane-header-alignment-left kt-accodion-icon-style-arrow kt-accodion-icon-side-right" style="max-width:1200px"><div class="kt-accordion-inner-wrap" data-allow-multiple-open="false" data-start-open="none">
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-1 kt-pane873_164b30-38"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Empathic listening &amp; reflective responding</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_a074e2-c7 wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_a074e2-c7">Cultivate deep trust and encourage mutual understanding by acknowledging emotions instead of merely providing solutions. Demonstrate sincere concern for conflict resolution, alleviating tension, and enhancing professional relationships.</p>
-</div></div></div>
-
-
-
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-9 kt-pane873_def0c2-bc"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Conflict de-escalation techniques</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_adfd50-26 wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_adfd50-26">Turn workplace tension into constructive, solution-focused dialogue by embracing curiosity, practicing active listening, and concentrating on shared goals.</p>
-</div></div></div>
-
-
-
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-2 kt-pane873_51f21c-60"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Assertive communication practice</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_4f2cf6-41 wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_4f2cf6-41">Equip employees with self-confidence while maintaining respect , boundaries and accountability.</p>
-</div></div></div>
-
-
-
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-6 kt-pane873_6645d0-51"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Positive &amp; open feedback loops</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_2a2a4b-9d wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_2a2a4b-9d">Embed a culture where feedback drives growth, alignment, and performance.</p>
-</div></div></div>
-
-
-
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-7 kt-pane873_07b1ac-aa"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Psychological Safety</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_5efc00-cb wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_5efc00-cb">Improve organizational human performance, build teams where individuals feel comfortable speaking up, contributing, and coming up with new ideas.</p>
-</div></div></div>
-</div></div></div>
-</div></div>
-</div></div>
-
-
-
-<div class="wp-block-kadence-column kadence-column873_222bd3-a9 kb-section-dir-horizontal"><div class="kt-inside-inner-col">
-<figure class="wp-block-kadence-image kb-image873_13850a-97 alignwide size-full"><img decoding="async" width="601" height="436" src="/wp-content/uploads/2026/04/trust-centered-communication.webp" alt="" class="kb-img wp-image-6546" srcset="/wp-content/uploads/2026/04/trust-centered-communication.webp 601w, /wp-content/uploads/2026/04/trust-centered-communication-300x218.webp 300w" sizes="(max-width: 601px) 100vw, 601px" /></figure>
-</div></div>
-
-</div></div>
-
-<div class="kb-row-layout-wrap kb-row-layout-id873_a89ede-2a alignnone wp-block-kadence-rowlayout"><div class="kt-row-column-wrap kt-has-2-columns kt-row-layout-equal kt-tab-layout-inherit kt-mobile-layout-row kt-row-valign-middle kt-inner-column-height-full kb-theme-content-width">
-
-<div class="wp-block-kadence-column kadence-column873_bea582-de kb-section-dir-horizontal"><div class="kt-inside-inner-col">
-<figure class="wp-block-kadence-image kb-image873_455e40-c6 alignwide size-full"><img loading="lazy" decoding="async" width="600" height="434" src="/wp-content/uploads/2026/04/collaboration-across-function.webp" alt="" class="kb-img wp-image-6548" srcset="/wp-content/uploads/2026/04/collaboration-across-function.webp 600w, /wp-content/uploads/2026/04/collaboration-across-function-300x217.webp 300w" sizes="auto, (max-width: 600px) 100vw, 600px" /></figure>
-</div></div>
-
-
-
-<div class="wp-block-kadence-column kadence-column873_24e1ae-37 kb-section-dir-vertical"><div class="kt-inside-inner-col">
-<div class="wp-block-kadence-column kadence-column873_f98bf0-74"><div class="kt-inside-inner-col">
-<h6 class="kt-adv-heading873_af1bb7-9b wp-block-kadence-advancedheading" data-kb-block="kb-adv-heading873_af1bb7-9b">Collaboration across functions</h6>
-
-
-
-<h3 class="kt-adv-heading873_9fda7e-31 wp-block-kadence-advancedheading has-kb-palette-10-color has-text-color" data-kb-block="kb-adv-heading873_9fda7e-31">Optimize team dynamics &amp; flow.</h3>
-</div></div>
-
-
-
-<div class="wp-block-kadence-column kadence-column873_a0e0cd-1c"><div class="kt-inside-inner-col">
-<div class="wp-block-kadence-accordion alignwide"><div class="kt-accordion-wrap kt-accordion-id873_a37d05-4b kt-accordion-has-9-panes kt-active-pane-0 kt-accordion-block kt-pane-header-alignment-left kt-accodion-icon-style-arrow kt-accodion-icon-side-right" style="max-width:1200px"><div class="kt-accordion-inner-wrap" data-allow-multiple-open="false" data-start-open="none">
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-1 kt-pane873_9c9890-6c"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Personality-driven workflows</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_ad3955-99 wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_ad3955-99">Aligning employees&#8217; personality &amp; working styles with team goals to reduce friction in daily operations.</p>
-</div></div></div>
-
-
-
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-9 kt-pane873_d9fe86-3a"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Collective Problem-solving &amp; Decision-making</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_40328b-b7 wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_40328b-b7">Equipping teams with structured thinking tools to make aligned, high-quality decisions collaboratively.</p>
-</div></div></div>
-
-
-
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-2 kt-pane873_68adcc-06"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Co-creative team practice</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_610849-23 wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_610849-23">Fostering innovation through shared ideation, reflective dialogue, and experiential collaboration.</p>
-</div></div></div>
-
-
-
-<div class="wp-block-kadence-pane kt-accordion-pane kt-accordion-pane-6 kt-pane873_7b6f12-57"><h4 class="kt-accordion-header-wrap"><button class="kt-blocks-accordion-header kt-acccordion-button-label-show" type="button"><span class="kt-blocks-accordion-title-wrap"><span class="kt-blocks-accordion-title">Shared accountability &amp; purpose</span></span><span class="kt-blocks-accordion-icon-trigger"></span></button></h4><div class="kt-accordion-panel kt-accordion-panel-hidden"><div class="kt-accordion-panel-inner">
-<p class="kt-adv-heading873_824d45-15 wp-block-kadence-advancedheading has-kb-palette-11-color has-text-color" data-kb-block="kb-adv-heading873_824d45-15">Building ownership and collective responsibility anchored in a clear, values-driven team dynamic.</p>
-</div></div></div>
-</div></div></div>
-</div></div>
-</div></div>
-
-</div></div></div></div>
-
-</div></div>
 
 <div class="kb-row-layout-wrap kb-row-layout-id873_cd989c-e9 aligncenter wp-block-kadence-rowlayout" id="comparison"><div class="kt-row-layout-top-sep kt-row-sep-type-crv"><svg viewBox="0 0 1000 100" preserveAspectRatio="none"><path d="M1000,100c0,0 -270.987,-98 -500,-98c-229.013,0 -500,98 -500,98l1000,0Z" /></svg></div><div class="kt-row-column-wrap kt-has-3-columns kt-row-layout-row kt-tab-layout-inherit kt-mobile-layout-row kt-row-valign-middle kb-theme-content-width">
 
