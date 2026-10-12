@@ -1,0 +1,2 @@
+cd braingym
+git remote set-url origin https://github.com/mywiphealing/braingym.git

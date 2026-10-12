@@ -1,0 +1,334 @@
+<!-- The Art of Healing '26 (#back2roots) event details, from the Canva deck
+     "Art of Healing SHIPS narrative". Injected after the hero of
+     /the-art-of-healing-2026/ by scripts/site-additions.js, in place of the old
+     Canva slideshow embed; edit here, not in the mirrored page. Photos are cropped
+     from the deck into public/img/art-of-healing-2026/. -->
+<style>
+/* Festival palette from the deck (deep green, lime, batik florals) mapped onto
+   the myWIPhealing Color System tokens used by the homepage sections. */
+.aoh{
+  --aoh-ink:#2C2C2A;--aoh-forest:#0F4A12;--aoh-myrtle:#174509;--aoh-lime:#D5FC4C;
+  --aoh-banana:#C9EE21;--aoh-pastel:#DEFFA9;--aoh-cream:#FFFBF4;--aoh-coral:#E8794A;
+  --aoh-head:var(--global-heading-font-family,'Bricolage Grotesque',sans-serif);
+  font-family:var(--global-body-font-family,sans-serif);color:var(--aoh-ink)}
+.aoh *{box-sizing:border-box}
+.aoh section{padding:80px 24px}
+.aoh__inner{max-width:1200px;margin:0 auto}
+.aoh__eyebrow{display:block;font-family:var(--aoh-head);font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:0 0 14px}
+.aoh h2{font-family:var(--aoh-head);font-weight:500;font-size:44px;line-height:1.05;letter-spacing:-1px;margin:0 0 24px;color:inherit}
+.aoh h3{font-family:var(--aoh-head);font-weight:500;font-size:26px;line-height:1.15;margin:0 0 6px;color:inherit}
+.aoh p{font-size:17px;line-height:1.55;margin:0 0 18px;color:inherit}
+.aoh img{display:block;max-width:100%;height:auto}
+/* The theme indents lists inside .entry-content; these are layout lists */
+.aoh .aoh__facts,.aoh .aoh__tags,.aoh .aoh__questions,.aoh .aoh__ways,.aoh .aoh__timeline,.aoh .aoh__logos,.aoh__quote ul{padding-left:0;margin-left:0}
+.aoh em{font-style:italic}
+.aoh__btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.aoh__btn{display:inline-block;font-family:var(--aoh-head);font-size:16px;font-weight:500;line-height:1;padding:12px 24px;border-radius:100px;border:1px solid var(--aoh-lime);background:var(--aoh-lime);color:var(--aoh-ink);text-decoration:none;transition:background .2s,color .2s,border-color .2s}
+.aoh__btn:hover,.aoh__btn:focus-visible{background:var(--aoh-coral);border-color:var(--aoh-coral);color:#fff}
+.aoh__btn--ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.7)}
+.aoh__btn--ghost:hover,.aoh__btn--ghost:focus-visible{background:#fff;border-color:#fff;color:var(--aoh-ink)}
+
+/* 1. Event at a glance: dark forest band with the poster */
+.aoh__event{background:var(--aoh-forest);color:#fff}
+.aoh__event .aoh__inner{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+.aoh__event .aoh__eyebrow{color:var(--aoh-banana)}
+.aoh__event h2{font-size:56px}
+.aoh__event h2 span{color:var(--aoh-lime)}
+.aoh__facts{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:14px}
+.aoh__facts li{display:flex;gap:14px;align-items:flex-start;font-size:17px;line-height:1.4}
+.aoh__facts b{display:block;font-family:var(--aoh-head);font-weight:500;font-size:20px}
+.aoh__facts div span{color:rgba(255,255,255,.8)}
+.aoh__icon{flex:0 0 40px;height:40px;border-radius:50%;background:var(--aoh-lime);color:var(--aoh-forest);display:grid;place-items:center;font-size:18px}
+.aoh__poster{border-radius:14px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.aoh__tags{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 0;padding:0;list-style:none}
+.aoh__tags li{font-family:var(--aoh-head);font-size:14px;padding:6px 14px;border-radius:100px;border:1px solid rgba(213,252,76,.55);color:var(--aoh-pastel)}
+
+/* 2. The #back2roots story */
+.aoh__story{background:var(--aoh-cream)}
+.aoh__story .aoh__eyebrow{color:var(--aoh-myrtle)}
+.aoh__lead{max-width:820px}
+.aoh__lead h2{font-size:48px}
+.aoh__row{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:56px}
+.aoh__row--flip .aoh__media{order:2}
+.aoh__media img{border-radius:14px;width:100%;aspect-ratio:16/9;object-fit:cover}
+.aoh__questions{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+.aoh__questions li{font-family:var(--aoh-head);font-size:24px;line-height:1.2;color:var(--aoh-myrtle)}
+.aoh__ways{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.aoh__ways li{font-family:var(--aoh-head);font-size:16px;font-weight:500;padding:8px 16px;border-radius:100px;background:var(--aoh-pastel);color:var(--aoh-myrtle)}
+.aoh__quote{margin:56px auto 0;max-width:900px;text-align:center;background:var(--aoh-myrtle);color:#fff;border-radius:16px;padding:48px 32px}
+.aoh__quote p{font-family:var(--aoh-head);font-size:28px;line-height:1.25;margin:0 0 20px}
+.aoh__quote p span{color:var(--aoh-lime)}
+.aoh__quote ul{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:19px;color:var(--aoh-pastel)}
+
+/* 3. Schedule */
+.aoh__schedule{background:var(--aoh-forest);color:#fff}
+.aoh__schedule .aoh__eyebrow{color:var(--aoh-banana)}
+.aoh__timeline{list-style:none;margin:0;padding:0;display:grid;gap:12px;max-width:900px}
+.aoh__timeline li{display:grid;grid-template-columns:210px 1fr;border:1px solid rgba(213,252,76,.55);border-radius:12px;overflow:hidden}
+.aoh__timeline time{font-family:var(--aoh-head);font-size:18px;padding:16px 20px;background:rgba(213,252,76,.1);color:var(--aoh-lime)}
+.aoh__timeline a{font-family:var(--aoh-head);font-size:19px;padding:16px 20px;color:#fff;text-decoration:none}
+.aoh__timeline a:hover,.aoh__timeline a:focus-visible{color:var(--aoh-lime);text-decoration:underline}
+
+/* 4. Activities */
+.aoh__activities{background:#fff}
+.aoh__activities .aoh__eyebrow{color:var(--aoh-myrtle)}
+.aoh__cards{display:grid;gap:40px;margin-top:16px}
+.aoh__card{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:start;border:1px solid var(--aoh-ink);border-radius:14px;padding:28px;background:#FAFBFD;scroll-margin-top:100px}
+.aoh__card .aoh__media img{aspect-ratio:4/3}
+.aoh__card--text{grid-template-columns:1fr}
+.aoh__card--text p{max-width:52em}
+.aoh__time{display:inline-block;font-family:var(--aoh-head);font-size:15px;font-weight:500;padding:5px 12px;border-radius:100px;background:var(--aoh-pastel);color:var(--aoh-myrtle);margin:0 0 12px}
+.aoh__by{font-size:15px;color:#5f5f5b;margin:0 0 16px}
+.aoh__card p{font-size:16px}
+.aoh__card ul{margin:0 0 18px;padding-left:20px;font-size:16px;line-height:1.6}
+.aoh__panel{list-style:none!important;padding:0!important;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0 0!important}
+.aoh__panel li{border-radius:10px;background:var(--aoh-pastel);padding:14px;line-height:1.35!important}
+.aoh__panel b{display:block;font-family:var(--aoh-head);font-weight:500;font-size:18px;color:var(--aoh-myrtle)}
+.aoh__panel i{display:block;font-style:normal;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:2px 0 4px}
+.aoh__panel span{font-size:14px;color:#4a4a4a}
+
+/* 5. Partners + closing call */
+/* Partner logos as in the deck: white marks (and ASWARA's cream badge) on the
+   festival's deep green */
+.aoh__partners{background:var(--aoh-forest);color:#fff;text-align:center}
+.aoh__partners .aoh__eyebrow{color:var(--aoh-banana)}
+.aoh .aoh__logos{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;justify-items:center;gap:28px 32px}
+.aoh__logos li{margin:0}
+.aoh__logos img{width:auto;max-width:100%}
+.aoh__logos .aoh__logo--suritma{height:44px}
+.aoh__logos .aoh__logo--mika{height:84px}
+.aoh__logos .aoh__logo--diced{height:68px}
+.aoh__logos .aoh__logo--aswara{height:80px;border-radius:6px}
+.aoh__partners .aoh__btns{justify-content:center;margin-top:44px}
+.aoh__social{margin-top:24px!important;font-size:15px!important;color:rgba(255,255,255,.85)!important}
+.aoh__social a{color:var(--aoh-lime)}
+
+@media (max-width:900px){
+  .aoh section{padding:56px 16px}
+  .aoh h2,.aoh__lead h2{font-size:34px}
+  .aoh__event h2{font-size:40px}
+  .aoh__event .aoh__inner,.aoh__row,.aoh__card{grid-template-columns:1fr;gap:28px}
+  .aoh__row--flip .aoh__media{order:0}
+  .aoh__poster{max-width:420px;margin:0 auto}
+  .aoh__card{padding:20px}
+  .aoh__panel{grid-template-columns:1fr}
+  .aoh__timeline li{grid-template-columns:1fr}
+  .aoh__timeline time{padding:10px 16px 0;background:none}
+  .aoh__timeline a{padding:4px 16px 14px}
+  .aoh__quote p{font-size:22px}
+  .aoh .aoh__logos{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 24px}
+  .aoh__logos .aoh__logo--suritma{height:32px}
+  .aoh__logos .aoh__logo--mika{height:64px}
+  .aoh__logos .aoh__logo--diced{height:52px}
+  .aoh__logos .aoh__logo--aswara{height:60px}
+}
+</style>
+
+<div class="aoh">
+
+<section class="aoh__event" id="event" aria-labelledby="aoh-event-title">
+  <div class="aoh__inner">
+    <div>
+      <span class="aoh__eyebrow">myWIPhealing presents &middot; #back2roots</span>
+      <h2 id="aoh-event-title">The Art of Healing <span>&rsquo;26</span></h2>
+      <ul class="aoh__facts">
+        <li><span class="aoh__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg></span><div><b>Saturday, 10 October 2026</b><span>11:00 AM &ndash; 5:00 PM</span></div></li>
+        <li><span class="aoh__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><div><b>Mika Coffee Roaster</b><span>Ara Damansara, Petaling Jaya</span></div></li>
+        <li><span class="aoh__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a2 2 0 0 1 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z"/><path d="M14 5v14" stroke-dasharray="2 2"/></svg></span><div><b>Free entry</b><span>with paid activities</span></div></li>
+      </ul>
+      <ul class="aoh__tags" aria-label="What's on">
+        <li>Community art</li><li>Mental health talk</li><li>Congkak competition</li>
+        <li>Art performance</li><li>Booth</li><li>Acoustic singing</li><li>Poetry</li>
+      </ul>
+      <div class="aoh__btns">
+        <a class="aoh__btn" href="https://luma.com/jh9c5vkj" target="_blank" rel="noopener">Register here</a>
+        <a class="aoh__btn aoh__btn--ghost" href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=The%20Art%20of%20Healing%20%2726%20%23back2roots&amp;dates=20261010T030000Z%2F20261010T090000Z&amp;location=Mika%20Coffee%20Roaster%2C%20Ara%20Damansara&amp;details=myWIPhealing%20presents%20The%20Art%20of%20Healing%20%2726%20with%20Suritma%20Collective.%20https%3A%2F%2Fwww.mywiphealing.com%2Fthe-art-of-healing-2026%2F" target="_blank" rel="noopener">Add to calendar</a>
+        <a class="aoh__btn aoh__btn--ghost" href="https://www.google.com/maps/search/?api=1&amp;query=Mika%20Coffee%20Roaster%20Ara%20Damansara" target="_blank" rel="noopener">Get directions</a>
+      </div>
+    </div>
+    <div class="aoh__poster">
+      <img src="/img/art-of-healing-2026/poster.webp" width="900" height="1125" loading="lazy" decoding="async"
+        alt="Poster: myWIPhealing presents The Art of Healing '26, #back2roots. Saturday 10.10.26, Mika Coffee Roaster, Ara Damansara, 11 a.m. until 5 p.m. Free entry with paid activities. In collaboration with Suritma, Mika Coffee and Diced Out.">
+    </div>
+  </div>
+</section>
+
+<section class="aoh__story" id="back2roots" aria-labelledby="aoh-story-title">
+  <div class="aoh__inner">
+    <div class="aoh__lead">
+      <span class="aoh__eyebrow">SHIPS &middot; Social Healing Impact Peer Support</span>
+      <h2 id="aoh-story-title">What if our <em>adat</em> &amp; <em>budaya</em> already knew how to heal us?</h2>
+    </div>
+
+    <div class="aoh__row">
+      <div class="aoh__media"><img src="/img/art-of-healing-2026/memories.webp" width="1200" height="525" loading="lazy" decoding="async" alt="A wooden wall with an old family portrait, a gilded mirror and a board of photos, postcards and keepsakes"></div>
+      <div>
+        <p>For many Southeast Asian cultures, generational trauma leaves marks. Modern urbanised life isolates us from community, family and human protection.</p>
+        <p>People move away from hometowns, work becomes more isolating, and care becomes something an individual is expected to manage alone. Hyper-individualism has become the new rooted practice.</p>
+      </div>
+    </div>
+
+    <div class="aoh__row aoh__row--flip">
+      <div class="aoh__media"><img src="/img/art-of-healing-2026/gamelan.webp" width="1200" height="525" loading="lazy" decoding="async" alt="Musicians playing guitar and cajón in front of swirling projected colours, with a gamelan in the foreground"></div>
+      <div>
+        <p>We are told to find who we truly are. But modern mental-health language doesn&rsquo;t always answer deeper questions like:</p>
+        <ul class="aoh__questions">
+          <li>Where do I belong?</li>
+          <li>Who am I connected to?</li>
+          <li>What gives life meaning?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="aoh__row">
+      <div class="aoh__media"><img src="/img/art-of-healing-2026/jamming.webp" width="1200" height="629" loading="lazy" decoding="async" alt="Two friends sharing food while one plays a painted traditional lute"></div>
+      <div>
+        <p>We were taught to become more independent. Handle it ourselves. Set boundaries. Move away. Keep going. But humans were never meant to heal completely alone.</p>
+        <p>Modern mental health language helps us name what we feel: anxiety, depression, PTSD, neurodivergence, autism, ADHD, burnout. But naming something is not always the same as feeling whole again.</p>
+        <p><strong>Have we ever thought that healing is rooted back in our own Nusantara culture?</strong></p>
+        <ul class="aoh__ways" aria-label="Ways our culture heals">
+          <li>Food</li><li>Craft</li><li>Music</li><li>Storytelling</li><li>Spirituality</li><li>Ritual</li><li>Community</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="aoh__quote">
+      <p>Community ritual, art, crafts, peer support presence and ancient wisdom is how we reverse <span>genetic healing</span>.</p>
+      <ul aria-label="It is a feeling of">
+        <li>&ldquo;I belong somewhere.&rdquo;</li>
+        <li>&ldquo;I come from somewhere.&rdquo;</li>
+        <li>&ldquo;I am not carrying this alone.&rdquo;</li>
+      </ul>
+    </div>
+
+    <div class="aoh__lead" style="margin-top:56px">
+      <p>Going back to our roots does not mean rejecting therapy, psychology or modern medicine. It can mean bringing them together.</p>
+      <p>This Mental Health Awareness Month, SHIPS is opening the conversation through the <strong>#back2roots</strong> theme. Join our <strong>Art of Healing &rsquo;26</strong> together with Suritma Collective at Mika Coffee, Ara Damansara.</p>
+    </div>
+  </div>
+</section>
+
+<section class="aoh__schedule" id="schedule" aria-labelledby="aoh-schedule-title">
+  <div class="aoh__inner">
+    <span class="aoh__eyebrow">10 Oct 2026 &middot; Mika Coffee Roaster, Ara Damansara</span>
+    <h2 id="aoh-schedule-title">Your guideline for the day</h2>
+    <ol class="aoh__timeline">
+      <li><time datetime="2026-10-10T11:00+08:00">11:00 AM &ndash; 5:00 PM</time><a href="#ships-booth">SHIPS booth by myWIPhealing</a></li>
+      <li><time datetime="2026-10-10T11:00+08:00">11:00 AM &ndash; 1:00 PM</time><a href="#weaving">Gotong-Royong Weaving Community Art</a></li>
+      <li><time datetime="2026-10-10T13:00+08:00">1:00 PM &ndash; 2:00 PM</time><a href="#coffee-talk">Mental Health Coffee Talk</a></li>
+      <li><time datetime="2026-10-10T14:00+08:00">2:00 PM &ndash; 3:00 PM</time><a href="#congkak">Congkak competition by Diced Out</a></li>
+      <li><time datetime="2026-10-10T15:00+08:00">3:00 PM &ndash; 3:30 PM</time><a href="#aswara">ASWARA Art of Healing Performance</a></li>
+      <li><time datetime="2026-10-10T15:30+08:00">3:30 PM &ndash; 4:00 PM</time><a href="#open-mic">Open Mic: Pass the Mic!</a></li>
+    </ol>
+  </div>
+</section>
+
+<section class="aoh__activities" aria-labelledby="aoh-activities-title">
+  <div class="aoh__inner">
+    <span class="aoh__eyebrow">What&rsquo;s happening</span>
+    <h2 id="aoh-activities-title">Come for one, stay for all</h2>
+    <div class="aoh__cards">
+
+      <article class="aoh__card aoh__card--text" id="ships-booth">
+        <div>
+          <span class="aoh__time">11:00 AM &ndash; 5:00 PM &middot; all day</span>
+          <h3>SHIPS booth by myWIPhealing</h3>
+          <p class="aoh__by">Social Healing Impact Peer Support</p>
+          <p>Drop by any time to meet the SHIPS peer support community, hear how culture, creativity and peer support come together, and find out how to join a Harmoni Circle near you.</p>
+          <p><a href="/ships-social-healing-impact-peer-support/">Learn about SHIPS &rarr;</a></p>
+        </div>
+      </article>
+
+      <article class="aoh__card" id="weaving">
+        <div class="aoh__media"><img src="/img/art-of-healing-2026/weaving.webp" width="907" height="549" loading="lazy" decoding="async" alt="Many hands weaving yarn and wool together on a shared loom"></div>
+        <div>
+          <span class="aoh__time">11:00 AM &ndash; 1:00 PM</span>
+          <h3>Gotong-Royong Weaving Community Art</h3>
+          <p>There&rsquo;s something about weaving that mirrors how we heal. In Malay culture, gotong-royong isn&rsquo;t just about getting things done together &mdash; it&rsquo;s about showing up side by side. When your hands are busy and the person next to you is weaving their own thread, something shifts. The silence becomes safe. The space becomes shared.</p>
+          <p>There&rsquo;s psychology behind it: repetitive, rhythmic motion (like weaving) regulates the nervous system. It lowers the guard. And when the guard drops, real conversations begin.</p>
+          <p>That&rsquo;s the beauty of communal art. You start with a thread. You leave with a story &mdash; and maybe a new understanding of someone else&rsquo;s.</p>
+          <div class="aoh__btns" style="margin-top:8px"><a class="aoh__btn" href="https://luma.com/jh9c5vkj" target="_blank" rel="noopener">Register here</a></div>
+        </div>
+      </article>
+
+      <article class="aoh__card aoh__card--text" id="coffee-talk">
+        <div>
+          <span class="aoh__time">1:00 PM &ndash; 2:00 PM</span>
+          <h3>Mental Health Coffee Talk</h3>
+          <p>We&rsquo;ve never been more connected, but also more disconnected than ever. Scrolling gives us the illusion of closeness. But how many of us actually feel seen?</p>
+          <p>In this panel, we ask the hard question: <em>&ldquo;Why are we more disconnected than ever, and how can #back2roots restore our sense of belonging, identity, and self-discovery?&rdquo;</em></p>
+          <p>Our panellists come from community mental health, lived experience, and peer support &mdash; people who sit with this question every day.</p>
+          <ul class="aoh__panel" aria-label="Panel">
+            <li><b>Khairini</b><i>Moderator</i><span>Person with lived experience</span></li>
+            <li><b>Dr. Amiera</b><i>Panellist</i><span>Clinical practitioner</span></li>
+            <li><b>Dr. Natasha MH</b><i>Panellist</i><span>Board Governor, Malaysian Social Research Institute (MSRI), and co-founder of Retno Batik</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="aoh__card" id="congkak">
+        <div class="aoh__media"><img src="/img/art-of-healing-2026/congkak.webp" width="1000" height="375" loading="lazy" decoding="async" alt="Two people playing congkak on a wooden board filled with marbles"></div>
+        <div>
+          <span class="aoh__time">2:00 PM &ndash; 3:00 PM</span>
+          <h3>Congkak Match</h3>
+          <p class="aoh__by">by Diced Out</p>
+          <p>Remember congkak? Before screens. Before notifications. Just you, the board, and the quiet rhythm of moving one marble at a time.</p>
+          <p>Congkak teaches us something about strategy and patience: you can&rsquo;t rush it. One move at a time. One drop at a time. Trusting the journey, even when you can&rsquo;t see the end.</p>
+          <ul>
+            <li>1v1 matches, winner takes all per round</li>
+            <li>Show up, get paired randomly, play</li>
+            <li>Win a Diced Out voucher</li>
+            <li>Slots are first come, first served!</li>
+          </ul>
+          <p>Come take a break. Have fun. Play like you used to.</p>
+        </div>
+      </article>
+
+      <article class="aoh__card" id="aswara">
+        <div class="aoh__media"><img src="/img/art-of-healing-2026/aswara.webp" width="1000" height="362" loading="lazy" decoding="async" alt="ASWARA foundation students performing an expressive movement piece with raised fists"></div>
+        <div>
+          <span class="aoh__time">3:00 PM &ndash; 3:30 PM</span>
+          <h3>ASWARA Art of Healing Performance</h3>
+          <p class="aoh__by">Pusat Pengajian Asasi Seni Kreatif, ASWARA</p>
+          <p>The body remembers what words cannot say. <em>Kembali ke Akar</em> &mdash; Back to Roots.</p>
+          <p>15 foundation students from ASWARA present a 15-minute expressive movement performance born from a Creative Expression Therapy workshop exploring the psychology behind movement healing.</p>
+          <p>We asked: how do Nusantara art and movement help us express, regulate, and carry emotion forward?</p>
+          <p>Through abstract and literal movement exercises, these students translated complex emotions into physical storytelling &mdash; not to perform perfection, but to show what it means to move through pain, joy, grief, and release. Where art meets the body. Where the body meets healing.</p>
+        </div>
+      </article>
+
+      <article class="aoh__card" id="open-mic">
+        <div class="aoh__media"><img src="/img/art-of-healing-2026/open-mic.webp" width="1000" height="347" loading="lazy" decoding="async" alt="An acoustic guitarist and a singer performing to a small audience in a cosy room"></div>
+        <div>
+          <span class="aoh__time">3:30 PM &ndash; 4:00 PM</span>
+          <h3>Open Mic: Pass the Mic!</h3>
+          <p>Before social media, there were the pantun and syair &mdash; much like what we do now with acoustic singing and poetry. These aren&rsquo;t just performances; they are our oldest forms of expression. Long before TikTok and Instagram Reels, our ancestors passed down stories through voice, rhythm, and a live audience.</p>
+          <p>#back2roots means returning to that raw, unfiltered exchange &mdash; where you speak and the room feels you.</p>
+          <p><strong>Bring your voice. Bring your words. Bring your instrument.</strong> Poetry. Acoustic. Spoken word. No judgments. Just witness.</p>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="aoh__partners" aria-labelledby="aoh-partners-title">
+  <div class="aoh__inner">
+    <h2 id="aoh-partners-title">In collaboration with</h2>
+    <ul class="aoh__logos">
+      <li><img class="aoh__logo--suritma" src="/img/art-of-healing-2026/logo-suritma.png" width="728" height="152" loading="lazy" decoding="async" alt="Suritma Collective"></li>
+      <li><img class="aoh__logo--mika" src="/img/art-of-healing-2026/logo-mika-coffee.png" width="406" height="262" loading="lazy" decoding="async" alt="Mika Coffee Roaster"></li>
+      <li><img class="aoh__logo--diced" src="/img/art-of-healing-2026/logo-diced-out.png" width="498" height="198" loading="lazy" decoding="async" alt="Diced Out"></li>
+      <li><img class="aoh__logo--aswara" src="/img/art-of-healing-2026/logo-aswara.webp" width="524" height="178" loading="lazy" decoding="async" alt="Pusat Pengajian Asasi Seni Kreatif, ASWARA"></li>
+    </ul>
+    <div class="aoh__btns">
+      <a class="aoh__btn" href="https://luma.com/jh9c5vkj" target="_blank" rel="noopener">Register for The Art of Healing &rsquo;26</a>
+      <a class="aoh__btn aoh__btn--ghost" href="/contact/">Talk to us</a>
+    </div>
+    <p class="aoh__social">Follow the stories at <a href="https://www.instagram.com/myships.stories/" target="_blank" rel="noopener">@myships.stories</a></p>
+  </div>
+</section>
+
+</div>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Event","name":"The Art of Healing '26 #back2roots","description":"A creative expression festival by myWIPhealing and SHIPS with Suritma Collective: community weaving art, a mental health coffee talk, a congkak competition, an ASWARA movement performance and an open mic.","startDate":"2026-10-10T11:00:00+08:00","endDate":"2026-10-10T17:00:00+08:00","eventStatus":"https://schema.org/EventScheduled","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"Mika Coffee Roaster","address":{"@type":"PostalAddress","addressLocality":"Ara Damansara","addressRegion":"Selangor","addressCountry":"MY"}},"image":["https://www.mywiphealing.com/img/art-of-healing-2026/poster.webp"],"organizer":{"@type":"Organization","name":"myWIPhealing","url":"https://www.mywiphealing.com/"},"offers":{"@type":"Offer","price":"0","priceCurrency":"MYR","availability":"https://schema.org/InStock","url":"https://www.mywiphealing.com/the-art-of-healing-2026/"},"isAccessibleForFree":true}</script>

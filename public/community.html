@@ -10,9 +10,74 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/brand.css">
+<link rel="stylesheet" href="/sitebar.css">
 <link rel="stylesheet" href="/wip.css">
+<style>
+  .prog-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .prog-intro { font-size: 15.5px; color: var(--ink); margin-bottom: 18px; max-width: 68ch; line-height: 1.65; }
+  .prog-facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 12px 0 0; font-size: 14px; }
+  .prog-facts dt { font-weight: 700; color: var(--ink); }
+  .prog-facts dd { margin: 0; color: var(--muted-strong); }
+  .prog-head h2 { font-family: var(--font-display); font-size: 24px; line-height: 1.15; }
+  .prog-story { margin: 12px 0 0; padding-left: 1.2em; max-width: 68ch; font-size: 15.5px; line-height: 1.6; }
+  .prog-story li + li { margin-top: 6px; }
+  .prog-story li::marker { color: var(--accent); }
+  .hbar + .hbar { margin-top: 10px; }
+  .hbar-label { font-size: 12.5px; color: var(--muted-strong); font-weight: 600; margin-bottom: 5px; }
+  .hbar-row { display: flex; align-items: center; gap: 10px; }
+  .hbar-row .bar-track { height: 16px; }
+  .hbar-row .bar-fill { padding: 0; }
+  .hbar-val { font-family: var(--font-mono); font-size: 12px; font-weight: 600; min-width: 48px; text-align: right; }
+  .card h3 .avg { margin-left: auto; font-family: var(--font-mono); letter-spacing: 0; text-transform: none; color: var(--ink); }
+  .card-note { font-size: 11.5px; color: var(--muted); margin-top: auto; padding-top: 12px; }
+
+  /* Balance: cards in a row share a height and pin their footnote to the
+     bottom; programme charts flow into two columns of even height instead
+     of rows of mismatched pairs. */
+  .grid > .card { display: flex; flex-direction: column; }
+  .card-body { flex: 1; display: flex; flex-direction: column; }
+  .prog-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .prog-col { display: flex; flex-direction: column; gap: 16px; }
+  .prog-col > .card:last-child { flex: 1; }
+  .bar-row .tier.wide { width: 72px; }
+
+  /* What participants carry away: the programme's intended outcomes */
+  #wordsTitle .prog-name { color: var(--ink); text-transform: none; letter-spacing: 0; }
+  .impact-lead { font-size: 14px; margin-bottom: 6px; }
+  .word small { font-family: var(--font-mono); font-size: .55em; font-weight: 600; margin-left: 6px; opacity: .75; }
+  .word.s0 { color: var(--muted); opacity: .55; font-weight: 500; text-decoration: line-through dotted; text-decoration-thickness: 1px; }
+
+  /* Readability: larger, higher-contrast text; sentence-case labels instead
+     of small capitals; nothing tilted; one idea per line; steady spacing. */
+  body { font-size: 16px; line-height: 1.6; }
+  .card { padding: 24px 26px; }
+  .card h3 { font-size: 1.15rem; line-height: 1.35; align-items: flex-start; }
+  .card h3 .dot { margin-top: .35em; flex-shrink: 0; }
+  .card h3 .avg { font-size: 15px; }
+  .kpi .kpi-label { font-size: 13px; letter-spacing: 0; text-transform: none; font-weight: 600; }
+  .kpi .kpi-context { font-size: 14px; color: var(--muted-strong); line-height: 1.45; margin-top: 8px; }
+  .card-note, .muted { color: var(--muted-strong); }
+  .card-note { font-size: 13.5px; line-height: 1.5; padding-top: 14px; }
+  .hbar + .hbar { margin-top: 14px; }
+  .hbar-label, .bar-group-label { font-size: 14.5px; color: var(--ink); font-weight: 500; line-height: 1.4; }
+  .hbar-val { font-size: 14px; }
+  .bar-row .tier { font-size: 13.5px; color: var(--ink); }
+  .bar-fill { font-size: 13px; }
+  .prog-tabs .btn { font-size: 14.5px; padding: 9px 16px; }
+  .grid > .quote { transform: none; box-shadow: none; }
+  .quote .quote-text { font-style: normal; line-height: 1.65; }
+  .appbar .sticker { display: none; }
+  @media (max-width: 900px) { .prog-cols { grid-template-columns: 1fr; } }
+</style>
 </head>
 <body class="theme-community">
+<nav class="sitebar" aria-label="myWIPhealing site">
+  <a class="sb-home" href="/"><img src="/img/wip-logo.png" alt=""><span>myWIPhealing</span></a>
+  <div class="sb-links">
+    <a href="/community.html" aria-current="page">Our Impact</a>
+    <a href="/bot/">Impact Survey</a>
+  </div>
+</nav>
 <div class="wrap stack">
 
   <div class="appbar">
@@ -22,7 +87,7 @@
       <span class="logo-badge"><img src="/img/wip-logo.png" alt=""></span>
       <div>
         <h1>myWIPhealing <span class="swash">Community Health</span></h1>
-        <div class="subtitle">Aggregate, anonymised wellbeing across all Seni Scape &amp; Harmoni Circle sessions · Powered by Gym Brain</div>
+        <div class="subtitle">Aggregate, anonymised wellbeing across all myWIPhealing programmes · Powered by Gym Brain</div>
       </div>
     </div>
     <div class="bar-actions">
@@ -33,23 +98,37 @@
   <!-- Hero metrics -->
   <div class="grid grid-4" id="hero"></div>
 
-  <div class="grid grid-2">
+  <div class="grid grid-3">
     <!-- Before → After -->
     <div class="card">
       <h3><span class="dot"></span> The shift, in their own scores</h3>
-      <div id="shift"></div>
+      <div class="card-body" id="shift"></div>
     </div>
     <!-- Sentiment + booth -->
     <div class="card">
       <h3><span class="dot"></span> How sessions land</h3>
-      <div id="landing"></div>
+      <div class="card-body" id="landing"></div>
+    </div>
+    <!-- Program effectiveness -->
+    <div class="card">
+      <h3><span class="dot"></span> Program effectiveness</h3>
+      <div class="card-body" id="effectiveness"></div>
     </div>
   </div>
 
+  <!-- By programme: each programme asks its own questions, so each gets its
+       own story and charts. Built from /api/public/community `programs`. -->
+  <div class="card">
+    <h3><span class="dot"></span> Impact by programme</h3>
+    <p class="prog-intro" id="progIntro">Each programme asks its own questions, so each has its own story. Pick one to see what its participants told us.</p>
+    <div class="prog-tabs" id="progTabs" role="tablist"></div>
+  </div>
+  <div class="stack" id="progPanel"></div>
+
   <!-- Word cloud -->
   <div class="card">
-    <h3><span class="dot"></span> What participants carry away</h3>
-    <div class="word-cloud" id="words"></div>
+    <h3 id="wordsTitle"><span class="dot"></span> What participants carry away</h3>
+    <div class="card-body" id="words"></div>
   </div>
 
   <!-- Testimonials -->
@@ -87,6 +166,177 @@ function barPair(label, before, after, max, note) {
   </div>`;
 }
 
+// One labelled bar with its value at the end. `display` is what is printed.
+function hbar(label, value, max, display) {
+  const pct = value === null || !max ? 0 : Math.round((value / max) * 100);
+  return `<div class="hbar"><div class="hbar-label">${esc(label)}</div>
+    <div class="hbar-row"><div class="bar-track"><div class="bar-fill after" style="width:${pct}%"></div></div>
+    <div class="hbar-val">${esc(display)}</div></div></div>`;
+}
+
+// What sets each initiative apart, from the 3C Ecosystem Initiatives & Rate
+// Card (2026). Shown under "Impact by programme" for the selected tab. Keyed by
+// survey.js PROGRAMS ids; a programme missing here keeps the generic intro.
+const PROGRAM_INFO = {
+  "wip-harmoni-circle": {
+    text: "A gentle first step into support. Peers come together in a third space for art jams, sharing circles and open conversations about mental health, which builds social-emotional connection and helps people notice their struggles early.",
+    approach: "Creative expression · Social-emotional learning · Social healing",
+    forWho: "Individuals and communities with mental health struggles; government, corporate, NGO and social enterprise outreach",
+  },
+  "seni-scape": {
+    text: "Pop-up booths and curated wellness spaces with a mental health theme. Each one mixes multi-sensory art, cultural elements and public health stories, often giving people their first hands-on encounter with mental health through art.",
+    approach: "Creative expression · Multi-sensory learning · Wellness & awareness hub",
+    forWho: "Organisations creating a wellness space, or running creative, wellness or public health events",
+  },
+  "art-of-healing-festival": {
+    text: "A public wellbeing festival that brings art, culture and mental health dialogue together through community activations, exhibitions, performances and workshops. It makes mental health more visible to the public and builds psychosocial awareness.",
+    approach: "Creative expression · Social healing · Psychoeducation",
+    forWho: "The general public, creatives and community organisations; organisations supporting mental health awareness",
+  },
+  "art-of-healing-aswara": {
+    text: "Art of Healing's movement, dance and theatre art therapy programme with ASWARA. Participants use their bodies and performance to identify and express feelings, discover more about themselves as a group, and challenge stigma around mental health.",
+    approach: "Integrated art therapy · Creative expression · Social healing",
+    forWho: "Participants in the ASWARA art therapy programme",
+  },
+  "wip-nadi-workshop": {
+    text: "Our flagship Training of Trainers. It builds leadership and psychosocial facilitation skills through creative learning tools. It trains peer supporters, runs ongoing programmes for corporate teams, and helps community leaders and caregivers reduce burnout.",
+    approach: "Psychoeducation · Integrated art therapy",
+    forWho: "Corporate, government and social enterprise capacity building; SHIPS peer supporters moving into supportive employment",
+  },
+  "wip-ruang-discord": {
+    text: "A free, moderated online community hub for SHIPS members, with hangouts, guided reflection, creative activities and knowledge exchange. It opens our work to people who can't attend in person.",
+    approach: "Creative expression · Social healing · Digital mindfulness",
+    forWho: "Those unable to attend in person; people with disabilities, youths and the digital community",
+  },
+  "wip-rantau-retreat": {
+    text: "A transformative retreat that combines nature, creative reflection and a digital detox. Grounded in the Nusantara experience, it draws on heritage traditions and tropical landscapes, working alongside local artisans and wellness practitioners.",
+    approach: "Integrated art therapy · Nature therapy · Mindfulness",
+    forWho: "Organisations planning meaningful team retreats; travellers seeking a wellness experience",
+  },
+};
+const PROGRAM_INTRO = "Each programme asks its own questions, so each has its own story. Pick one to see what its participants told us.";
+
+function renderIntro(id) {
+  const i = PROGRAM_INFO[id];
+  $("progIntro").innerHTML = i
+    ? `${esc(i.text)}<dl class="prog-facts"><dt>Approach</dt><dd>${esc(i.approach)}</dd><dt>Who it's for</dt><dd>${esc(i.forWho)}</dd></dl>`
+    : esc(PROGRAM_INTRO);
+}
+
+// "What participants carry away" for the selected programme: the outcomes
+// it is designed for (impact.js), sized by how many participants used words
+// about each. Themes nobody has mentioned yet stay visible but faded.
+function renderImpactWords(p) {
+  $("wordsTitle").innerHTML = `<span class="dot"></span> What participants carry away <span class="prog-name">· ${esc(p.label)}</span>`;
+  const imp = p.impact || { n: 0, items: [] };
+  const items = imp.items.slice().sort((a, b) => b.count - a.count);
+  const max = items.length ? items[0].count : 0;
+  const top = items[0];
+  const pct = (c) => Math.round((c / imp.n) * 100);
+  const lead = imp.n && top && top.count
+    ? `<div class="impact-lead">Most heard: <strong>${esc(top.label)}</strong>, in the words of ${top.count} of ${imp.n} participants (${pct(top.count)}%).</div>`
+    : "";
+  $("words").innerHTML = `${lead}
+    <div class="word-cloud">${items.map((i) => i.count
+      ? `<span class="word ${wordClass(i.count, max)}" title="${i.count} of ${imp.n} participants (${pct(i.count)}%)">${esc(i.label)}<small>${i.count}</small></span>`
+      : `<span class="word s0" title="Not yet heard in participants' words">${esc(i.label)}</span>`).join("")}</div>
+    <div class="card-note">${imp.n
+      ? `The outcomes ${esc(p.label)} is designed for, sized by how many of the ${imp.n} participants who reflected used words about each, in English or Malay. Faded: not yet heard.`
+      : `The outcomes ${esc(p.label)} is designed for. They fill in as participants describe what they carry away.`}</div>`;
+}
+
+let PROGRAMS = [];
+
+function renderTabs(activeId) {
+  $("progTabs").innerHTML = PROGRAMS.map((p) => `
+    <button type="button" role="tab" aria-selected="${p.id === activeId}"
+      class="btn btn-sm ${p.id === activeId ? "btn-primary" : "btn-outline"}"
+      onclick="showProgram('${esc(p.id)}')">${esc(p.label)} · ${p.count}</button>`).join("");
+}
+
+// Split the programme's chart cards into two columns of near-equal height,
+// each keeping the original order. Cards are first laid out in the left
+// column so their real heights can be measured, then every split is tried
+// (up to 14 cards; beyond that each goes to the shorter side). The first card
+// always opens the left column. On a narrow screen there is one column and
+// the cards simply stay in order.
+function balanceColumns() {
+  const wrap = document.querySelector("#progPanel .prog-cols");
+  if (!wrap) return;
+  const [colA, colB] = wrap.children;
+  const cards = [...wrap.querySelectorAll(".prog-col > .card")].sort((x, y) => x.dataset.i - y.dataset.i);
+  cards.forEach((c) => colA.appendChild(c));
+  if (getComputedStyle(wrap).gridTemplateColumns.split(" ").length < 2 || cards.length < 2) return;
+  const gap = parseFloat(getComputedStyle(colA).rowGap) || 0;
+  const h = cards.map((c) => { c.style.flex = "none"; const v = c.offsetHeight + gap; c.style.flex = ""; return v; });
+  const n = cards.length;
+  const total = h.reduce((t, v) => t + v, 0);
+  let left = 1;
+  if (n <= 14) {
+    let best = Infinity;
+    for (let m = 1; m < 1 << n; m += 2) {
+      let l = 0;
+      for (let i = 0; i < n; i++) if (m & (1 << i)) l += h[i];
+      if (Math.abs(total - 2 * l) < best) { best = Math.abs(total - 2 * l); left = m; }
+    }
+  } else {
+    let l = h[0], r = 0;
+    for (let i = 1; i < n; i++) if (l <= r) { left |= 1 << i; l += h[i]; } else r += h[i];
+  }
+  cards.forEach((c, i) => (left & (1 << i) ? colA : colB).appendChild(c));
+}
+let resizeTimer;
+window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(balanceColumns, 150); });
+// Web fonts change card heights once they arrive, so measure again then.
+if (document.fonts) document.fonts.ready.then(balanceColumns);
+
+function showProgram(id) {
+  const p = PROGRAMS.find((x) => x.id === id);
+  if (!p) return;
+  renderTabs(id);
+  renderIntro(id);
+  renderImpactWords(p);
+  const head = `<div class="card prog-head"><h2>${esc(p.label)}</h2><ul class="prog-story">${(p.narrativePoints || [p.narrative]).map((t) => `<li>${esc(t)}</li>`).join("")}</ul></div>`;
+  if (!p.count) { $("progPanel").innerHTML = head; return; }
+
+  const sent = p.sentiment || {};
+  const sentTotal = (sent.positive || 0) + (sent.mixed || 0) + (sent.negative || 0);
+  const posPct = sentTotal ? Math.round((sent.positive / sentTotal) * 100) : null;
+
+  const cards = [];
+  if (p.shift.length) {
+    cards.push(`<div class="card"><h3><span class="dot"></span> Before → after</h3>
+      <div class="bars">${p.shift.map((s) => barPair(s.label, s.before, s.after, 5, s.note)).join("")}</div>
+      <div class="card-note">Same-session scores, self-reported.</div></div>`);
+  }
+  for (const g of p.groups) {
+    cards.push(`<div class="card"><h3><span class="dot"></span> ${esc(g.title)}<span class="avg">${n1(g.average)} / 5</span></h3>
+      ${g.items.map((i) => hbar(i.label, i.average, 5, `${i.average} / 5`)).join("")}
+      <div class="card-note">Average rating, 1–5 · n = ${Math.max(...g.items.map((i) => i.count))}</div></div>`);
+  }
+  for (const c of p.charts) {
+    const max = Math.max(1, ...c.items.map((i) => i.count));
+    cards.push(`<div class="card"><h3><span class="dot"></span> ${esc(c.label)}</h3>
+      ${c.items.filter((i) => i.count).map((i) => hbar(i.label, i.count, max, i.count)).join("") || '<div class="muted">No answers yet.</div>'}
+      <div class="card-note">${c.n} ${c.n === 1 ? "person" : "people"} answered${c.multi ? " · more than one choice allowed" : ""}</div></div>`);
+  }
+  const quotes = (p.testimonials || []).slice(0, 2).map((q) => `
+    <div class="quote"><div class="mark">&ldquo;</div>
+      <div class="quote-text">${esc(q.text)}</div>
+      <div class="quote-author">— ${esc(q.author)}</div></div>`).join("");
+
+  $("progPanel").innerHTML = `${head}
+    <div class="grid grid-3">
+      ${kpi("Responses", p.count, "", "Completed surveys")}
+      ${kpi("Outcome score", p.outcome, "/5", "Mean of this programme's outcome ratings", p.outcome === null)}
+      ${kpi("Positive sessions", posPct, "%", "Share of sessions that felt positive", posPct === null)}
+    </div>
+    ${cards.length === 1 ? cards[0] : ""}
+    ${cards.length > 1 ? `<div class="prog-cols"><div class="prog-col">${cards.map((c, i) => c.replace('<div class="card">', `<div class="card" data-i="${i}">`)).join("")}</div><div class="prog-col"></div></div>` : ""}
+    ${quotes ? `<div class="grid grid-2">${quotes}</div>` : ""}`;
+  balanceColumns();
+}
+
 function wordClass(count, max) {
   const r = max ? count / max : 0;
   if (r > 0.75) return "s4";
@@ -116,9 +366,9 @@ async function load() {
 
   $("hero").innerHTML = [
     kpi("Community Wellbeing Index", s.wellbeingIndex10, "/10", "Mean of post-session wellbeing scales"),
-    kpi("Positive sessions", posPct, "%", "Share of responses read as positive"),
-    kpi("Net Promoter Score", null, "", "", true),
-    kpi("3-month engagement", null, "", "", true),
+    kpi("Positive sessions", posPct, "%", "Share of sessions that felt positive"),
+    kpi("Net Promoter Score", s.nps === null || s.nps === undefined ? null : Math.round(s.nps), "", s.npsCount ? `Would-recommend 0–10 · n=${s.npsCount}` : "", s.nps === null || s.nps === undefined),
+    kpi("Total responses", s.total, "", "All-time submissions"),
   ].join("");
 
   // Shift card
@@ -127,7 +377,7 @@ async function load() {
         ${barPair("Sense of self-worth (1–5)", s.preWorth, s.postWorth, 5)}
         ${barPair("Mind state (1–5)", s.preHeavy, s.postPeace, 5, "before = heaviness, after = calm")}
       </div>
-      <div class="muted" style="font-size:11.5px;margin-top:12px">Matched single-session pre/post scores. Self-reported.</div>`
+      <div class="card-note">Matched single-session pre/post scores. Self-reported.</div>`
     : `<div class="muted">No responses yet.</div>`;
 
   // Landing card: sentiment split + booth experience (A best → E)
@@ -135,21 +385,38 @@ async function load() {
   const boothOrder = ["A", "B", "C", "D", "E"];
   const boothMax = Math.max(1, ...boothOrder.map((k) => booth[k] || 0));
   const boothLabels = { A: "Love it", B: "Enjoyed", C: "Okay", D: "Not much", E: "Didn't enjoy" };
-  $("landing").innerHTML = `
-    <div class="bars">
-      ${boothOrder.filter((k) => booth[k]).map((k) => `
-        <div class="bar-row"><div class="tier" style="width:72px">${boothLabels[k]}</div>
-        <div class="bar-track"><div class="bar-fill after" style="width:${Math.round((booth[k]/boothMax)*100)}%">${booth[k]}</div></div></div>
-      `).join("") || '<div class="muted">No booth feedback yet.</div>'}
-    </div>
-    <div class="muted" style="font-size:11.5px;margin-top:12px">Booth experience rating · ${sent.positive || 0} positive / ${sent.mixed || 0} mixed / ${sent.negative || 0} negative (AI-read)</div>`;
+  const sentMax = Math.max(1, sent.positive || 0, sent.mixed || 0, sent.negative || 0);
+  const row = (label, v, max) => `<div class="bar-row"><div class="tier wide">${label}</div>
+    <div class="bar-track"><div class="bar-fill after" style="width:${Math.round((v / max) * 100)}%">${v}</div></div></div>`;
+  const boothRows = boothOrder.filter((k) => booth[k]).map((k) => row(boothLabels[k], booth[k], boothMax)).join("");
+  $("landing").innerHTML = sentTotal || boothRows
+    ? `<div class="bars">
+        <div class="bar-group-label">How it felt</div>
+        ${[["Positive", sent.positive || 0], ["Mixed", sent.mixed || 0], ["Negative", sent.negative || 0]].map(([l, v]) => row(l, v, sentMax)).join("")}
+        ${boothRows ? `<div class="bar-group-label" style="margin-top:6px">Booth experience</div>${boothRows}` : ""}
+      </div>
+      <div class="card-note">Overall feeling across ${sentTotal} ${sentTotal === 1 ? "response" : "responses"}${boothRows ? " · booth rating from Seni Scape & festival visitors" : ""}.</div>`
+    : `<div class="muted">No session feedback yet.</div>`;
 
-  // Word cloud
-  const words = s.words || [];
-  const wMax = words.length ? words[0].count : 0;
-  $("words").innerHTML = words.length
-    ? words.map((w) => `<span class="word ${wordClass(w.count, wMax)}">${esc(w.text)}</span>`).join("")
-    : '<div class="muted">Words appear as participants share how they feel.</div>';
+  // Program effectiveness: mean + 1–5 distribution (lights up at 3+ ratings)
+  const effDist = s.effectivenessDist || {};
+  const effOrder = [5, 4, 3, 2, 1];
+  const effLabels = { 1: "Not effective", 2: "Slightly", 3: "Moderately", 4: "Very", 5: "Extremely" };
+  const effMax = Math.max(1, ...effOrder.map((k) => effDist[k] || 0));
+  $("effectiveness").innerHTML = (s.effectivenessCount || 0) >= 3
+    ? `<div class="bars">` +
+        effOrder.filter((k) => effDist[k]).map((k) => `
+        <div class="bar-row"><div class="tier wide">${effLabels[k]}</div>
+        <div class="bar-track"><div class="bar-fill after" style="width:${Math.round((effDist[k]/effMax)*100)}%">${effDist[k]}</div></div></div>
+      `).join("") +
+      `</div>
+      <div class="card-note">Mean effectiveness: ${n1(s.effectiveness)} / 5 · n=${s.effectivenessCount}</div>`
+    : `<div class="muted">Awaiting effectiveness ratings. This metric lights up once 3+ participants rate the program.</div>`;
+
+  // Programme panels: open on the programme with the most responses.
+  PROGRAMS = s.programs || [];
+  const first = PROGRAMS.slice().sort((a, b) => b.count - a.count)[0];
+  if (first) showProgram(first.id);
 
   // Testimonials (approved only)
   const quotes = s.testimonials || [];

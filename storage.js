@@ -2,12 +2,13 @@ const fs = require("fs");
 const path = require("path");
 const supabase = require("./supabase");
 
-// On Vercel the filesystem is ephemeral, so responses live in Redis.
+// On Vercel the filesystem is ephemeral, so records live in Redis.
 // Two Redis flavours are supported, picked by which env vars exist:
 //   - Upstash REST (UPSTASH_REDIS_REST_URL/TOKEN or KV_REST_API_URL/TOKEN)
 //   - Standard Redis via TCP (REDIS_URL - what Vercel's "Redis" marketplace
 //     store injects)
-// Locally, without any Redis env vars, we fall back to a plain JSON file.
+// Locally, without any Redis env vars, we fall back to plain JSON files, one
+// per list (`data/responses.json`, `data/events.json`).
 
 const UPSTASH_URL =
   process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
@@ -29,7 +30,9 @@ const reason = ready
 // False when Supabase is the only store there is.
 const hasPrimary = useUpstash || useNodeRedis || !process.env.VERCEL;
 
-const KEY = "responses";
+// One Redis list per entity. The responses key predates the events feature;
+// its name is load-bearing (existing Redis stores hold data under it).
+const KEYS = { responses: "responses", events: "events", members: "members" };
 
 let upstash = null;
 if (useUpstash) {
@@ -56,20 +59,24 @@ function getNodeRedis() {
   return nodeRedisPromise;
 }
 
-const DATA_DIR = path.join(__dirname, "data");
-const DATA_FILE = path.join(DATA_DIR, "responses.json");
+// DATA_DIR lets a test run point the JSON-file fallback somewhere disposable.
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 
-function loadFile() {
+function fileFor(key) {
+  return path.join(DATA_DIR, `${key}.json`);
+}
+
+function loadFile(key) {
   try {
-    return JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+    return JSON.parse(fs.readFileSync(fileFor(key), "utf8"));
   } catch {
     return [];
   }
 }
 
-function saveFile(responses) {
+function saveFile(key, records) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(DATA_FILE, JSON.stringify(responses, null, 2));
+  fs.writeFileSync(fileFor(key), JSON.stringify(records, null, 2));
 }
 
 // Upstash SDK auto-parses JSON on read; node-redis returns raw strings.
@@ -82,17 +89,17 @@ function parseItem(item) {
   }
 }
 
-async function primaryLoad() {
+async function primaryLoad(key) {
   if (useUpstash) {
-    const items = await upstash.lrange(KEY, 0, -1);
+    const items = await upstash.lrange(key, 0, -1);
     return items.map(parseItem);
   }
   if (useNodeRedis) {
     const client = await getNodeRedis();
-    const items = await client.lRange(KEY, 0, -1);
+    const items = await client.lRange(key, 0, -1);
     return items.map(parseItem);
   }
-  return loadFile();
+  return loadFile(key);
 }
 
 // Reads prefer the primary store, but fall through to the Supabase mirror in
@@ -100,28 +107,28 @@ async function primaryLoad() {
 // the primary coming back empty because a Redis store was recycled, swapped or
 // never provisioned. An empty primary with a populated mirror means the mirror
 // is the truth.
-async function loadResponses() {
+async function loadList(key, mirrorLoad) {
   if (!hasPrimary) {
-    const mirrored = await supabase.loadResponses();
+    const mirrored = await mirrorLoad();
     return mirrored || [];
   }
 
   let primary = null;
   try {
-    primary = await primaryLoad();
+    primary = await primaryLoad(key);
   } catch (e) {
     console.error("Primary store read failed, trying Supabase:", e.message);
-    const mirrored = await supabase.loadResponses();
+    const mirrored = await mirrorLoad();
     if (mirrored) return mirrored;
     throw e;
   }
 
   if (primary && primary.length) return primary;
 
-  const mirrored = await supabase.loadResponses();
+  const mirrored = await mirrorLoad();
   if (mirrored && mirrored.length) {
     console.warn(
-      `Primary store empty but Supabase holds ${mirrored.length} response(s); serving the mirror.`
+      `Primary store empty but Supabase holds ${mirrored.length} record(s) in "${key}"; serving the mirror.`
     );
     return mirrored;
   }
@@ -130,26 +137,22 @@ async function loadResponses() {
 
 // Returns the index of the appended record so it can be updated later.
 // Mirrors to Supabase as well; the mirror keys on record.id, not the index.
-async function appendResponse(record) {
-  if (record && record.schema_version === undefined) {
-    record.schema_version = supabase.SCHEMA_VERSION;
-  }
-
+async function appendRecord(key, record, mirrorSave) {
   let index = -1;
   let primaryError = null;
   if (hasPrimary) {
     try {
-      index = await primaryAppend(record);
+      index = await primaryAppend(key, record);
     } catch (e) {
       primaryError = e;
       console.error("Primary store write failed:", e.message);
     }
   }
 
-  const mirrored = await supabase.saveResponse(record);
+  const mirrored = await mirrorSave(record);
 
-  // Only a total loss is fatal. If either store took the response, the
-  // participant's answers survive and the survey completes normally.
+  // Only a total loss is fatal. If either store took the record, it survives
+  // and the request completes normally.
   if (primaryError && !mirrored) throw primaryError;
   if (!hasPrimary && !mirrored) {
     throw new Error("Supabase write failed and no other store is configured.");
@@ -157,58 +160,87 @@ async function appendResponse(record) {
   return index;
 }
 
-async function primaryAppend(record) {
+async function primaryAppend(key, record) {
   if (useUpstash) {
-    const length = await upstash.rpush(KEY, record);
+    const length = await upstash.rpush(key, record);
     return length - 1;
   }
   if (useNodeRedis) {
     const client = await getNodeRedis();
-    const length = await client.rPush(KEY, JSON.stringify(record));
+    const length = await client.rPush(key, JSON.stringify(record));
     return length - 1;
   }
-  const all = loadFile();
+  const all = loadFile(key);
   all.push(record);
-  saveFile(all);
+  saveFile(key, all);
   return all.length - 1;
 }
 
 // index addresses the Redis list position; Supabase upserts on record.id, so
-// an index of -1 (primary write failed, or Supabase-only) still updates cleanly.
-async function updateResponse(index, record) {
+// an index of -1 (primary write failed, or Supabase-only) still updates
+// cleanly.
+async function updateRecord(key, index, record, mirrorSave) {
   if (hasPrimary && index >= 0) {
     try {
-      await primaryUpdate(index, record);
+      await primaryUpdate(key, index, record);
     } catch (e) {
       console.error("Primary store update failed:", e.message);
     }
   }
-  await supabase.saveResponse(record);
+  await mirrorSave(record);
 }
 
-async function primaryUpdate(index, record) {
+async function primaryUpdate(key, index, record) {
   if (useUpstash) {
-    await upstash.lset(KEY, index, record);
+    await upstash.lset(key, index, record);
     return;
   }
   if (useNodeRedis) {
     const client = await getNodeRedis();
-    await client.lSet(KEY, index, JSON.stringify(record));
+    await client.lSet(key, index, JSON.stringify(record));
     return;
   }
-  const all = loadFile();
+  const all = loadFile(key);
   if (index >= 0 && index < all.length) {
     all[index] = record;
-    saveFile(all);
+    saveFile(key, all);
   }
 }
 
-// Whether a response submitted right now could actually be stored. `ready` is a
+// ---------- survey responses ----------
+
+const loadResponses = () => loadList(KEYS.responses, supabase.loadResponses);
+const appendResponse = (record) => {
+  if (record && record.schema_version === undefined) {
+    record.schema_version = supabase.SCHEMA_VERSION;
+  }
+  return appendRecord(KEYS.responses, record, supabase.saveResponse);
+};
+const updateResponse = (index, record) =>
+  updateRecord(KEYS.responses, index, record, supabase.saveResponse);
+
+// ---------- Harmoni Circle events ----------
+
+const loadEvents = () => loadList(KEYS.events, supabase.events.load);
+const appendEvent = (record) =>
+  appendRecord(KEYS.events, record, supabase.events.save);
+const updateEvent = (index, record) =>
+  updateRecord(KEYS.events, index, record, supabase.events.save);
+
+// ---------- Harmoni Circle member accounts ----------
+
+const loadMembers = () => loadList(KEYS.members, supabase.members.load);
+const appendMember = (record) =>
+  appendRecord(KEYS.members, record, supabase.members.save);
+const updateMember = (index, record) =>
+  updateRecord(KEYS.members, index, record, supabase.members.save);
+
+// Whether a record submitted right now could actually be stored. `ready` is a
 // config-level check; this one confirms the store will really accept a write.
 // Without it, a Supabase-only deployment whose table is missing would look fine
-// until a participant finished all 26 questions and lost every answer at the
-// final step. Cached by supabase.preflight(), so this is cheap after the first
-// call. Returns null when there is nothing to add beyond `ready`.
+// until the final step lost every answer. Cached by supabase preflight per
+// table, so this is cheap after the first call. Returns null when there is
+// nothing to add beyond `ready`.
 async function writable() {
   if (hasPrimary) return null; // Redis or the local file will take the write.
   if (!supabase.enabled) return null; // `ready`/`reason` already covers this.
@@ -218,21 +250,38 @@ async function writable() {
     : "Supabase is the only configured store and its `responses` table is missing. Run supabase/schema.sql in that project, then redeploy.";
 }
 
+async function writableEvents() {
+  if (hasPrimary) return null;
+  if (!supabase.enabled) return null;
+  const ok = await supabase.events.preflight();
+  return ok
+    ? null
+    : "Supabase is the only configured store and its `events` table is missing. Run supabase/schema.sql in that project, then redeploy.";
+}
+
 // Counts held by each store, so a silently-empty primary is visible.
 async function health() {
   const info = backends();
   let primaryCount = null;
+  let eventsCount = null;
   if (hasPrimary) {
     try {
-      primaryCount = (await primaryLoad()).length;
+      primaryCount = (await primaryLoad(KEYS.responses)).length;
     } catch (e) {
       info.primaryError = e.message;
+    }
+    try {
+      eventsCount = (await primaryLoad(KEYS.events)).length;
+    } catch (e) {
+      info.eventsError = e.message;
     }
   }
   return {
     ...info,
     primaryCount,
+    eventsCount,
     supabaseCount: supabase.enabled ? await supabase.count() : null,
+    supabaseEventsCount: supabase.enabled ? await supabase.events.count() : null,
   };
 }
 
@@ -255,9 +304,16 @@ module.exports = {
   loadResponses,
   appendResponse,
   updateResponse,
+  loadEvents,
+  appendEvent,
+  updateEvent,
+  loadMembers,
+  appendMember,
+  updateMember,
   backends,
   health,
   writable,
+  writableEvents,
   SCHEMA_VERSION: supabase.SCHEMA_VERSION,
   ready,
   reason,
