@@ -64,3 +64,14 @@
     min-height: 54px; padding: 4px 8px 4px 18px;
   }
 }
+/* Scrolled (sticky) state: Kadence paints the whole stuck container white,
+   which turns the pill back into a full-width strip. Keep the container clear
+   so only the pill shows, with a soft shadow to lift it off white sections. */
+@media (max-width: 1024px) {
+  .wp-block-kadence-header .wp-block-kadence-header-tablet.item-is-stuck {
+    background: transparent !important; box-shadow: none !important;
+  }
+  .wp-block-kadence-header-tablet.item-is-stuck .wp-block-kadence-header-row {
+    background: #fff !important; box-shadow: 0 6px 24px rgba(29, 29, 31, .12);
+  }
+}
