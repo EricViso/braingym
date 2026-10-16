@@ -190,13 +190,23 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 @media (max-width:767px){.kb-navigation > .menu-item:not([class*="kb-nav-link-"]) > .kb-link-wrap.kb-link-wrap.kb-link-wrap.kb-link-wrap{--kb-nav-link-align:left;--kb-nav-link-flex-justify:start;--kb-nav-link-media-container-align-self:start}}
 </style><!--/wip:add:head-style-->
 <!--wip:add:tab-style--><style>
-.wip-tab-links{display:flex;align-items:center;gap:4px;margin-right:8px;font-family:var(--global-heading-font-family,inherit)}
-.wip-tab-links a{color:#1d1d1f;text-decoration:none;font-size:16px;padding:6px 10px;border-radius:100px;white-space:nowrap}
-.wip-tab-links a:hover{background:rgba(29,29,31,.06)}
+.wp-block-kadence-header-row .kadence-header-row-inner:has(.wip-tab-links){grid-template-columns:auto minmax(0,1fr) auto!important}
+.wp-block-kadence-header-row .kadence-header-row-inner>.wp-block-kadence-header-column-tablet-center:has(.wip-tab-links){display:flex!important;justify-content:center;align-items:center;min-width:0}
+.wip-tab-links{display:flex;align-items:center;justify-content:center;gap:4px;font-family:var(--global-heading-font-family,inherit)}
+.wip-tab-links a,.wip-tab-sol>summary{color:#1d1d1f;text-decoration:none;font-size:16px;line-height:1.2;padding:6px 10px;border-radius:100px;white-space:nowrap;cursor:pointer}
+.wip-tab-links a:hover,.wip-tab-sol>summary:hover,.wip-tab-sol[open]>summary{background:rgba(29,29,31,.06)}
 .wip-tab-links a.wip-tab-cta{background:#d5fc4b;border:1px solid #1d1d1f;padding:7px 16px;margin-left:6px}
 .wip-tab-links a.wip-tab-cta:hover{background:#ef6442;color:#fff}
-@media (max-width:767px){.wip-tab-links{gap:0;margin-right:6px}.wip-tab-links a{font-size:14px;padding:6px 8px}.wip-tab-links a.wip-tab-cta{padding:6px 12px;margin-left:2px}.wip-tab-links .wip-tab-wide{display:none}}
-@media (max-width:359px){.wip-tab-links a:not(.wip-tab-cta){display:none}}
+.wip-tab-sol{position:relative}
+.wip-tab-sol>summary{list-style:none;display:flex;align-items:center;gap:6px}
+.wip-tab-sol>summary::-webkit-details-marker{display:none}
+.wip-tab-sol>summary::after{content:"";width:6px;height:6px;border:solid currentColor;border-width:0 1.5px 1.5px 0;transform:translateY(-2px) rotate(45deg);transition:transform .15s}
+.wip-tab-sol[open]>summary::after{transform:translateY(1px) rotate(-135deg)}
+.wip-tab-menu{position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);z-index:1000;min-width:210px;padding:8px;background:#fff;border:1px solid rgba(29,29,31,.12);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.14)}
+.wip-tab-menu a{display:block;padding:10px 14px;border-radius:12px;font-size:15px}
+@media (max-width:767px){.kadence-header-row-inner:has(.wip-tab-links) .wp-block-site-logo{margin-right:0!important}.kadence-header-row-inner:has(.wip-tab-links) .wp-block-kadence-header-column{gap:0!important}.wip-tab-links{gap:2px}.wip-tab-links a,.wip-tab-sol>summary{font-size:14px;padding:6px 8px}.wip-tab-links a.wip-tab-cta{padding:6px 12px;margin-left:2px}.wip-tab-links .wip-tab-wide{display:none}.wip-tab-menu{left:0;transform:none}}
+@media (max-width:400px){.wip-tab-links a,.wip-tab-sol>summary{font-size:13px;padding:5px 6px}.wip-tab-links a.wip-tab-cta{padding:5px 10px}}
+@media (max-width:340px){.wip-tab-sol>summary::after{display:none}}
 </style><!--/wip:add:tab-style-->
 </head>
 
@@ -260,10 +270,9 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 </a></div>
 <div class="wp-block-kadence-header-column wp-block-kadence-header-column-center-left"></div></div>
 
-<div class="wp-block-kadence-header-column wp-block-kadence-header-column-tablet-center no-content no-content-column-center"></div>
+<div class="wp-block-kadence-header-column wp-block-kadence-header-column-tablet-center no-content no-content-column-center"><!--wip:add:tab-links--><nav class="wip-tab-links" aria-label="Quick links"><details class="wip-tab-sol"><summary>Our Solution</summary><div class="wip-tab-menu"><a href="/wip-harmoni-circle/">WIP Harmoni Circle</a><a href="/the-art-of-healing-2026/">The Art of Healing</a><a href="/corporate/">For Corporate</a></div></details><a class="wip-tab-wide" href="/ships-peer-stories/">Peer Stories</a><a class="wip-tab-wide" href="/about-us/">About</a><a class="wip-tab-wide" href="/contact/">Contact</a><a class="wip-tab-cta" href="#tally-open=Y5GB6q&#038;tally-layout=modal&#038;tally-width=390&#038;tally-emoji-text=👋&#038;tally-emoji-animation=wave">Request Proposal</a></nav><!--/wip:add:tab-links--></div>
 
 <div class="wp-block-kadence-header-column wp-block-kadence-header-column-tablet-right"><div class="wp-block-kadence-header-column wp-block-kadence-header-column-center-right"></div>
-<!--wip:add:tab-links--><nav class="wip-tab-links" aria-label="Quick links"><a class="wip-tab-wide" href="/ships-peer-stories/">Peer Stories</a><a href="/about-us/">About</a><a class="wip-tab-wide" href="/contact/">Contact</a><a class="wip-tab-cta" href="#tally-open=Y5GB6q&#038;tally-layout=modal&#038;tally-width=390&#038;tally-emoji-text=👋&#038;tally-emoji-animation=wave">Request Proposal</a></nav><!--/wip:add:tab-links-->
 <button class="wp-block-kadence-off-canvas-trigger wp-block-kadence-off-canvas-trigger3175_9e4214-e2" id="kadence-off-canvas-trigger3175_9e4214-e2" aria-label="Toggle Menu" aria-expanded="false" aria-haspopup="true"><svg viewBox="0 0 24 24"  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"  aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 </div>
 </div></div>
@@ -771,6 +780,10 @@ var kadence_blocks_parallax = {"speed":"-0.1"};
 var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof HTMLScriptElement))throw new Error("Element missing: "+e);const r=JSON.parse(t.text),s=(window._wpemojiSettings=r,"wpEmojiSettingsSupports"),o=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(s,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const r=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===r[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,r){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!r(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,r){let a;const s=(a="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),o=(s.textBaseline="top",s.font="600 32px Arial",{});return e.forEach(e=>{o[e]=t(s,e,n,r)}),o}function a(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}r.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(s));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(o),u.toString(),c.toString(),p.toString()].join(",")+"));",r=new Blob([e],{type:"text/javascript"});const a=new Worker(URL.createObjectURL(r),{name:"wpTestEmojiSupports"});return void(a.onmessage=e=>{i(n=e.data),a.terminate(),t(n)})}catch(e){}i(n=f(o,u,c,p))}t(n)}).then(e=>{for(const n in e)r.supports[n]=e[n],r.supports.everything=r.supports.everything&&r.supports[n],"flag"!==n&&(r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&r.supports[n]);var t;r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&!r.supports.flag,r.supports.everything||((t=r.source||{}).concatemoji?a(t.concatemoji):t.wpemoji&&t.twemoji&&(a(t.twemoji),a(t.wpemoji)))});
 //# sourceURL=/wp-includes/js/wp-emoji-loader.min.js
 </script>
+<!--wip:add:tab-script--><script>
+document.addEventListener("click",function(e){document.querySelectorAll(".wip-tab-sol[open]").forEach(function(d){if(!d.contains(e.target))d.removeAttribute("open")})});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")document.querySelectorAll(".wip-tab-sol[open]").forEach(function(d){d.removeAttribute("open")})});
+</script><!--/wip:add:tab-script-->
 </body>
 </html>
 
