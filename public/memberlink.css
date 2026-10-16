@@ -45,3 +45,22 @@
 .wip-member-icon:hover, .wip-member-icon:focus-visible { background: #ef6442; border-color: #ef6442; color: #fff; }
 /* Keep the label on the same line as Request Proposal. */
 .kb-buttons-wrap:has(> .wip-member-icon) { flex-wrap: nowrap; align-items: center; }
+
+/* Tablet & mobile header: the same floating rounded white pill as desktop,
+   instead of Kadence's flat full-width strip. Kadence swaps to the tablet
+   header at 1024px and zeroes the row's radius at 767px, hence !important. */
+@media (max-width: 1024px) {
+  .wp-block-kadence-header-tablet .wp-block-kadence-header-row {
+    margin: 0 16px; border-radius: 100px !important;
+  }
+  .wp-block-kadence-header-tablet .wp-block-kadence-header-row .kadence-header-row-inner {
+    min-height: 60px; padding: 6px 10px 6px 24px;
+  }
+}
+@media (max-width: 767px) {
+  .wp-block-kadence-header-tablet.kb-header-container { padding-top: 14px; }
+  .wp-block-kadence-header-tablet .wp-block-kadence-header-row { margin: 0 12px; }
+  .wp-block-kadence-header-tablet .wp-block-kadence-header-row .kadence-header-row-inner {
+    min-height: 54px; padding: 4px 8px 4px 18px;
+  }
+}
