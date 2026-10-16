@@ -91,6 +91,27 @@ const NAV_CSS = `<style>
 @media (max-width:767px){.kb-navigation > .menu-item:not([class*="kb-nav-link-"]) > .kb-link-wrap.kb-link-wrap.kb-link-wrap.kb-link-wrap{--kb-nav-link-align:left;--kb-nav-link-flex-justify:start;--kb-nav-link-media-container-align-self:start}}
 </style>`;
 
+const TAB_CSS = `<style>
+.wip-tab-links{display:flex;align-items:center;gap:4px;margin-right:8px;font-family:var(--global-heading-font-family,inherit)}
+.wip-tab-links a{color:#1d1d1f;text-decoration:none;font-size:16px;padding:6px 10px;border-radius:100px;white-space:nowrap}
+.wip-tab-links a:hover{background:rgba(29,29,31,.06)}
+.wip-tab-links a.wip-tab-cta{background:#d5fc4b;border:1px solid #1d1d1f;padding:7px 16px;margin-left:6px}
+.wip-tab-links a.wip-tab-cta:hover{background:#ef6442;color:#fff}
+@media (max-width:767px){.wip-tab-links{gap:0;margin-right:6px}.wip-tab-links a{font-size:14px;padding:6px 8px}.wip-tab-links a.wip-tab-cta{padding:6px 12px;margin-left:2px}.wip-tab-links .wip-tab-wide{display:none}}
+@media (max-width:359px){.wip-tab-links a:not(.wip-tab-cta){display:none}}
+</style>`;
+
+// Tablet/phone header bar: a few of the desktop menu words beside the menu
+// button, so the bar isn't just a logo and a hamburger. The full menu stays in
+// the drawer; phones keep only the words that fit (.wip-tab-wide hides).
+const TAB_LINKS =
+  `<nav class="wip-tab-links" aria-label="Quick links">` +
+  `<a class="wip-tab-wide" href="/ships-peer-stories/">Peer Stories</a>` +
+  `<a href="/about-us/">About</a>` +
+  `<a class="wip-tab-wide" href="/contact/">Contact</a>` +
+  `<a class="wip-tab-cta" href="#tally-open=Y5GB6q&#038;tally-layout=modal&#038;tally-width=390&#038;tally-emoji-text=👋&#038;tally-emoji-animation=wave">Request Proposal</a>` +
+  `</nav>`;
+
 // Homepage testimonials: the bottom-right card's only content was a background
 // photo (uploads/2026/01/Testimonial-side.webp) that was deleted from WordPress,
 // leaving an empty box. Hide that column while it is empty and let the
@@ -157,6 +178,14 @@ function addToPage(html, { sections }) {
   html = html.replace(solution, (m, head, end) => (navCount++, head + navItems() + end));
   if (!navCount) missed.push("header menu (no Our Solution dropdown)");
   else html = html.replace("</head>", wrap("head-style", NAV_CSS) + "\n</head>");
+
+  // Tablet/phone header: quick links just before the off-canvas menu button.
+  const tabRight = /(<div class="wp-block-kadence-header-column wp-block-kadence-header-column-tablet-right">[\s\S]*?)(<button class="wp-block-kadence-off-canvas-trigger)/;
+  if (!tabRight.test(html)) missed.push("tablet header quick links");
+  else {
+    html = html.replace(tabRight, (m, head, btn) => head + wrap("tab-links", TAB_LINKS) + "\n" + btn);
+    html = html.replace("</head>", wrap("tab-style", TAB_CSS) + "\n</head>");
+  }
 
   // Footer "Resources" menu.
   const res = html.indexOf('id="menu-resources"');

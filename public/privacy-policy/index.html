@@ -173,11 +173,20 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 </style>
 
 
+<link rel="stylesheet" href="/memberlink.css">
 <!--wip:add:head-style--><style>
 @media (min-width:1025px){.wp-block-kadence-header-row .kadence-header-row-inner:has(.wip-nav-item) .menu-container > .menu > .wp-block-kadence-navigation-link{margin:0 .5em}}
 @media (max-width:767px){.kb-navigation > .menu-item:not([class*="kb-nav-link-"]) > .kb-link-wrap.kb-link-wrap.kb-link-wrap.kb-link-wrap{--kb-nav-link-align:left;--kb-nav-link-flex-justify:start;--kb-nav-link-media-container-align-self:start}}
 </style><!--/wip:add:head-style-->
-<link rel="stylesheet" href="/memberlink.css">
+<!--wip:add:tab-style--><style>
+.wip-tab-links{display:flex;align-items:center;gap:4px;margin-right:8px;font-family:var(--global-heading-font-family,inherit)}
+.wip-tab-links a{color:#1d1d1f;text-decoration:none;font-size:16px;padding:6px 10px;border-radius:100px;white-space:nowrap}
+.wip-tab-links a:hover{background:rgba(29,29,31,.06)}
+.wip-tab-links a.wip-tab-cta{background:#d5fc4b;border:1px solid #1d1d1f;padding:7px 16px;margin-left:6px}
+.wip-tab-links a.wip-tab-cta:hover{background:#ef6442;color:#fff}
+@media (max-width:767px){.wip-tab-links{gap:0;margin-right:6px}.wip-tab-links a{font-size:14px;padding:6px 8px}.wip-tab-links a.wip-tab-cta{padding:6px 12px;margin-left:2px}.wip-tab-links .wip-tab-wide{display:none}}
+@media (max-width:359px){.wip-tab-links a:not(.wip-tab-cta){display:none}}
+</style><!--/wip:add:tab-style-->
 </head>
 
 <body class="privacy-policy wp-singular page-template-default page page-id-3 wp-custom-logo wp-embed-responsive wp-theme-kadence footer-on-bottom hide-focus-outline link-style-standard no-header content-title-style-hide content-width-narrow content-style-unboxed content-vertical-padding-show transparent-header mobile-transparent-header">
@@ -243,6 +252,7 @@ img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
 <div class="wp-block-kadence-header-column wp-block-kadence-header-column-tablet-center no-content no-content-column-center"></div>
 
 <div class="wp-block-kadence-header-column wp-block-kadence-header-column-tablet-right"><div class="wp-block-kadence-header-column wp-block-kadence-header-column-center-right"></div>
+<!--wip:add:tab-links--><nav class="wip-tab-links" aria-label="Quick links"><a class="wip-tab-wide" href="/ships-peer-stories/">Peer Stories</a><a href="/about-us/">About</a><a class="wip-tab-wide" href="/contact/">Contact</a><a class="wip-tab-cta" href="#tally-open=Y5GB6q&#038;tally-layout=modal&#038;tally-width=390&#038;tally-emoji-text=👋&#038;tally-emoji-animation=wave">Request Proposal</a></nav><!--/wip:add:tab-links-->
 <button class="wp-block-kadence-off-canvas-trigger wp-block-kadence-off-canvas-trigger3175_9e4214-e2" id="kadence-off-canvas-trigger3175_9e4214-e2" aria-label="Toggle Menu" aria-expanded="false" aria-haspopup="true"><svg viewBox="0 0 24 24"  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"  aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
 </div>
 </div></div>
